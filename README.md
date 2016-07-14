@@ -1,0 +1,1 @@
+VDAP_mbin is a shared matlab repository for Jeremy Pesicek & Jay Wellik to share VDAP seismic codes

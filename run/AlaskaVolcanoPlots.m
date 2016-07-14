@@ -1,0 +1,128 @@
+function AlaskaVolcanoPlots(vinfo,eruption_windows,params,inputFiles,catalog,jiggle)
+
+    % set up diary to record actions of AlaskaVolcanoPlots
+diaryFileName = [params.outDir,filesep,vinfo.name,filesep,vinfo.name,'_',datestr(now,30),'_diary.txt'];
+[~,~,~] = mkdir([params.outDir,filesep,vinfo.name]);
+diary(diaryFileName);
+
+    % Print information about this run to Command Windos
+disp('-------------------------------------------------------------------')
+disp('-------------------------------------------------------------------')
+disp(vinfo.name)
+disp(' ')
+disp('-------------------------------------------------------------------')
+disp('-- Input files used for this run ----------------------------------')
+disp(inputFiles)
+disp('-------------------------------------------------------------------')
+disp(' ')
+disp('-------------------------------------------------------------------')
+disp('-- Parameters used for this run -----------------------------------')
+disp(params)
+disp('Other volcanoes analyzed in conjunction with this run:')
+disp(params.volcanoes)
+disp('-------------------------------------------------------------------')
+disp(' ')
+
+if size(catalog,2)==0
+    error('No events in catalog')
+end
+
+if isempty(eruption_windows)
+    warning('No eruption windows')
+end
+
+%% filter catalog
+
+[ catalog_b, outer, inner] = filterAnnulusm(catalog, vinfo.lat, vinfo.lon, params.srad); % filter annulus
+% [ catalog_b ] = filterDepth( catalog_b, params.max_depth_threshold ); % (d)
+% [ catalog_b ] = filterMag( catalog_b, params.min_mag ); % (e)
+% [ catalog_b ] = filterTime( catalog_b, datenum('1990/01/01'), datenum('2016/05/01'));
+% catalog_AV = filterByNetworkCode( catalog_b, {'AV'} ); % (c)
+
+volc_times = datenum(extractfield(catalog,'DateTime'));
+
+%% TEMP bad data actions
+
+% need to just update master file once, once we decide what to do.  Until
+% then:
+
+% this should have been the solution, but I don't trust it
+% baddata = getBadDataFromHelena2(vinfo.name, [min(volc_times) max(volc_times)]); % (a)
+
+%INSTEAD,
+% get downdays for 2002 - 2012 from HB's manually groomed study
+baddata1 = getBadDataFromHelena(vinfo.name, [min(volc_times) max(volc_times)],inputFiles.HB); % (a)
+
+% now get downdays from 2013-2015 from JP's new data, eventually update all
+% years this way?? too much trouble
+baddata2 = getVolcanoNetworkDownDays(vinfo.name, [min(volc_times) max(volc_times)],params,inputFiles); % (a)
+
+% now cat them together for temp fix until we redo the whole thing
+% ourselves
+baddata = [baddata1; baddata2];
+% baddata = baddata1; % temp while running badger...
+
+%% Display catalog data
+disp('-------------------------------------------------------------------')
+disp('-- Subset of ANSS catalog -----------------------------------------')
+disp(['# of events = ' num2str(length(catalog))]);
+disp(['min mag = ' num2str(min(extractfield(catalog,'Magnitude')))]);
+disp(['max mag = ' num2str(max(extractfield(catalog,'Magnitude')))]);
+disp('-------------------------------------------------------------------')
+
+%% beta swarm plots
+
+[~] = prepAndDoBetas(vinfo,eruption_windows,params,inputFiles,catalog_b,baddata);
+
+%% Wing plot
+if params.wingPlot
+    
+    % prep plot windows
+    plot_windows=[];
+    plot_names=[];
+    
+    % plot whole catalog
+    t1 = datenum(catalog(1).DateTime);
+    t2 = datenum(catalog(end).DateTime);
+    str = 'all';
+    
+    plot_windows = [plot_windows; t1 t2];
+    plot_names=[plot_names,{str}];
+    
+    %plot eruption windows, with pre eruption time
+    for i=1:size(eruption_windows,1)
+
+        t1 = eruption_windows(i,1) - params.AnomSearchWindow;
+        t2 = eruption_windows(i,1); % stop at start of eruption
+        str = int2str(i);
+        plot_windows = [plot_windows; t1 t2];
+        plot_names=[plot_names,{str}];
+        
+    end
+    
+    % plot activity since last eruption
+    t1 = max(max(eruption_windows));
+    t2 = datenum(catalog(end).DateTime);        
+    str = 'recent';
+    plot_windows = [plot_windows; t1 t2];
+    plot_names=[plot_names,{str}];
+   
+    [~] = prepAndDoWingPlot(vinfo,params,inputFiles,catalog_b,outer,inner,plot_windows,plot_names);
+end
+
+%% 
+if params.jiggle
+
+%     nDaysQC = 7; % number of consecutive days over which there must be no triggers in order to consider network down
+%     [~,baddata,~,~] = getNetworkOffDaysFromJiggle(jiggle,volcname,min(volcAV_times),max(volc_times),nDaysQC);
+    catalog_j = prepJiggleCatalog(vinfo.name,jiggle);
+    if isempty(catalog_j)
+        warning(['No triggers in jiggle for volcano: ',volcname])
+    else
+        [~] = prepAndDoBetas(vinfo,eruption_windows,params,inputFiles,catalog_j,baddata);
+    end
+end
+
+diary OFF
+
+end
