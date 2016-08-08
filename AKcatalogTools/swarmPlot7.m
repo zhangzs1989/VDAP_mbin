@@ -4,6 +4,12 @@ EventTimes = readtext(inputFiles.EventTimes);
 ievents = find(strcmp(EventTimes(2:end,3),vinfo.name));
 ievents = ievents+1;
 
+alert_level = convertEventTimes2AlertLevel3(EventTimes(ievents, :));
+
+
+%%
+
+
 %% 5. Determine Cumulative Moment & Cumulative Magnitude & bvalue
 % get event times from the catalog - returned in Matlab date format
 DateTime = datenum(extractfield(catalog, 'DateTime'));
@@ -58,7 +64,7 @@ stair.date_time = datetime(datestr(stair.DateTime));
 
 
 sp1 = [];
-sp1.ph = subplot(7,1,1:3);hold on
+sp1.ph = subplot(9,1,1:3);hold on
 % [sp1.axh, sp1.hline1, sp1.hline2] = plotyy([stair.date_time, date_time, date_time], [stair.cum_mag', Magnitude', maxmags'],...
 %                                 datetime(datestr(stair.date_range)), stair.events_per_dfrac);
 
@@ -90,17 +96,17 @@ yax=[sp1.axh(1).YLim(1) sp1.axh(1).YLim(2)];
 ytextpos = yax(2):-(yax(2)-yax(1))/length(ievents):yax(1);
 
 % this needs work (JP)
-for i=1:length(ievents)
-    tA = datevec(EventTimes(ievents(i),1));
-    tB = datevec(EventTimes(ievents(i),2));
-    if datenum(tA)==datenum(tB) %plot a line
-        plot(sp1.axh(1),[datetime(tA) datetime(tA)],yax,'k--')
-    else % plot a box
-        plot(sp1.axh(1),[datetime(tA) datetime(tA) datetime(tB) datetime(tB)],[yax yax(2) yax(1)],'k')
-%         fill([datenum(tA) datenum(tA) datenum(tB) datenum(tB)],[yax yax(2) yax(1)],'b')
-    end
-    text(datenum(tA),ytextpos(i),EventTimes(ievents(i),4),'FontSize',12,'Color','k','BackgroundColor','w','EdgeColor','k');
-end
+% for i=1:length(ievents)
+%     tA = datevec(EventTimes(ievents(i),1));
+%     tB = datevec(EventTimes(ievents(i),2));
+%     if datenum(tA)==datenum(tB) %plot a line
+%         plot(sp1.axh(1),[datetime(tA) datetime(tA)],yax,'k--')
+%     else % plot a box
+%         plot(sp1.axh(1),[datetime(tA) datetime(tA) datetime(tB) datetime(tB)],[yax yax(2) yax(1)],'k')
+% %         fill([datenum(tA) datenum(tA) datenum(tB) datenum(tB)],[yax yax(2) yax(1)],'b')
+%     end
+%     text(datenum(tA),ytextpos(i),EventTimes(ievents(i),4),'FontSize',12,'Color','k','BackgroundColor','w','EdgeColor','k');
+% end
 
 % title({['Max Mag: ' num2str(maxmag) ' | Cumulative Mag: ' num2str(max(cum_mag)) ],...
 %     [int2str(totBig),' events within ',num2str(maxfac), ' mag units of max mag']})
@@ -127,6 +133,7 @@ try
 end
 
 zoom('xon');
+% plotAlertLevel(ap1.axh(1), alert_level)
 
 %%
 
@@ -157,7 +164,7 @@ hdist = sqrt( (x-vx).^2 + (y-vy).^2 );
 hdist_km = hdist/1000;
 
 sp4 = [];
-sp4.axh = subplot(7,1,4); hold on
+sp4.axh = subplot(9,1,4); hold on
 
 tmp=DateTime(I);
 II(1:length(tmp))=zeros;
@@ -187,7 +194,7 @@ ylabel({'Horiz';'Distance';'to Summit'},'FontWeight','bold','FontSize',12)
 %% Depth vs. Time
 
 sp5 = [];
-sp5.axh = subplot(7,1,5);
+sp5.axh = subplot(9,1,5);
 sp5.hline = plot(date_time,-Depth,'k.',date_time(II),-Depth(II),'ro');
 % xlim([date1 date2]);
 ylabel('EQ Depth','FontWeight','bold','FontSize',12)
@@ -196,7 +203,7 @@ ylim([params.max_depth_threshold*-1 -4*-1])
 %%
 
 sp6 = [];
-sp6.axh = subplot(7,1,6:7); hold on
+sp6.axh = subplot(9,1,6:7); hold on
 sp6.hline = betaPlot5(vinfo.name, beta_output,  eruption_windows, baddata, params);
 datetick(sp6.axh,'keeplimits')
 % sp6.hline = betaPlot2_JJW5(vname, beta_output);
@@ -211,9 +218,43 @@ datetick(sp6.axh,'keeplimits')
 % 
 % % legend(legendinfo,'Location','Best')
 
+%% Cumulative Magnitude/Moment by Bin
+
+type = 'mag'; % options are 'mag' for magnitude or 'mom' for moment
+
+sp8 = [];
+sp8.axh = subplot(9,1,8:9); hold on
+for n = 1:numel(beta_output)
+    
+    % Option of converting magnitudes to moments
+    %{
+    % This isn't pretty; this option should be done somewhere else whenever
+    % .bin_mag is actually computed. Ideally, beta_output should be made a
+    % class, and .bin_mag and .bin_mom should be automatically updated
+    % depending on the other.
+    %}
+    if strcmp(type, 'mom')
+        
+        beta_output(n).bin_mag(:,1) = magnitude2moment(beta_output(n).bin_mag(:,1));
+        beta_output(n).bin_mag(:,2) = magnitude2moment(beta_output(n).bin_mag(:,2));
+        beta_output(n).bin_mag(:,3) = magnitude2moment(beta_output(n).bin_mag(:,3));
+        
+    end
+
+    sp8.hline(1) = stairs(beta_output(n).t_checks(:,1), beta_output(n).bin_mag(:,1), 'g');
+    sp8.hline(2) = stairs(beta_output(n).t_checks(:,2), beta_output(n).bin_mag(:,2), 'b');
+    sp8.hline(3) = stairs(beta_output(n).t_checks(:,3), beta_output(n).bin_mag(:,3), 'r');
+
+end
+datetick(sp8.axh, 'keeplimits');
+if strcmp(type, 'mag')
+    ylabel('Cumulative Magnitude')
+else
+    ylabel('Cumulative Moment')
+end
 
 %%
-linkaxes([sp1.axh sp4.axh sp5.axh sp6.axh],'x');
+linkaxes([sp1.axh sp4.axh sp5.axh sp6.axh sp8.axh],'x');
 % xl = extractfield(beta_output,'start');
 % xlim([min(xl) max(xl)]);
 % xlim([t1 t2]);

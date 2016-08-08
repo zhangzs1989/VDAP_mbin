@@ -77,12 +77,46 @@ eruption_dates = eruption_windows; % dates of eruptions
 for n = 1:numel(beta_output)
     
     beta_output(n).next_eruption = eruption_dates(find(eruption_dates >= beta_output(n).stop, 1, 'first')); % the date of the next provided eruption
+    beta_output(n).prev_eruption_end = max(eruption_dates(eruption_dates(:, 2) <= beta_output(n).start, 2)); % the end date of the previous provided eruption (* see programming note)
     if isempty(beta_output(n).next_eruption), beta_output(n).next_eruption = nan; end; % if there is no eruption after this set of beta data
+    if isempty(beta_output(n).prev_eruption_end), beta_output(n).prev_eruption_end = NaN; end; % if there is no eruption after this set of beta data
     
+    beta_output(n).bin_mag = cumMagByBetaBin(beta_output(n).t_checks, extractfield(catalog, 'DateTime'), extractfield(catalog, 'Magnitude'));
+
 end
 
+% * Programming Note - end date of the previous eruption
+%{
+beta_output(n).prev_eruption_end = max(eruption_dates(eruption_dates(:, 2)<= beta_output(n).stop, 2));
+
+If you work from the inner-most parantheses outwards, this line of code
+does the following:
+
+Do a logical test comparing all dates in the second column of eruption_dates
+ (i.e., the end of the eruptions) that are less than or equal to the start
+ date of this beta window:
+1 >> eruption_dates(:, 2) <= beta_output(n).start
+E.g., result -> [1 1 0 0 0]
+
+for all rows for which that is true, return just the second column; i.e.,
+ the end date of the eruption.
+2 >> eruption_dates(eruption_dates(:, 2) <= beta_output(n).start, 2)
+E.g., result -> [723815 724102]
+
+Grab the most recent eruption end date that is returned from the previous
+ line - i.e., the max() of the result
+3 >> max(eruption_dates(eruption_dates(:, 2) <= beta_output(n).start, 2))
+E.g., 724102
+
+Final notes:
+If the result of Step 1 is all logical 0s - i.e., there is no prev.
+eruption - the final result of Step 3 should be a 0-by-1 Empty Matrix.
+Subsquent lines of code will replace an empty value w NaN
+
+%}
+
 % save the output
-save([params.outDir vinfo.name filesep 'beta_output.mat'], 'beta_output'); % save beta data to output directory
+save(fullfile(params.outDir,vinfo.name,'beta_output.mat'), 'beta_output'); % save beta data to output directory
 
 %% make beta plots
 % first do t1-t2 for whole time series

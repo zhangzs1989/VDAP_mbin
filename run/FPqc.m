@@ -4,10 +4,12 @@ disp('QC')
 files = subdir(fullfile(params.outDir, 'eruptionData.mat'));
 qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
-bviz='invisible';
+% bviz='invisible';
+bviz = 'visible';
 bfigs = true;
 wingPlot = true;
 vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
+% vsort = 1:9; % don't do anything special to sort the volcanoes
 % vsort = 7;
 
 for w=1:numel(params.ndays_all) % which window size to plot?
@@ -156,7 +158,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     %     save([params.outDir,filesep,'ScoreStats_',int2str(win)],'pdata')
     outPdata(:,1) = lh;
     outPdata = [pdatar1; lh num2cell(pdata)];
-    s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);
+%     s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);
     
     if strcmp(params.visible,'off')
         close all
@@ -184,16 +186,16 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     
     print([params.outDir,filesep,qcdir,filesep,'BetaStatsWin',int2str(win)],'-dpng')
     
-    %     figure('visible',params.visible);
-    %     subplot(1,2,2)
-    %     hist(fpvscm,1:.5:10)
-    %     xlim([1 9])
-    %     title(['FPs (',int2str(win),' day window)'])
-    %     subplot(1,2,1)
-    %     hist(tpvscm,1:.5:10)
-    %     xlim([1 9])
-    %     title(['TPs (',int2str(win),' day window)'])
-    %     print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
+        figure('visible',params.visible);
+        subplot(1,2,2)
+        hist(fpvscm,1:.5:10)
+        xlim([1 9])
+        title(['FPs (',int2str(win),' day window)'])
+        subplot(1,2,1)
+        hist(tpvscm,1:.5:10)
+        xlim([1 9])
+        title(['TPs (',int2str(win),' day window)'])
+        print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
     
 end
 

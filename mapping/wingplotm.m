@@ -43,7 +43,14 @@ create new cross section axes on top of the old ones. Cross section plots
 should be taking advantage of hold on. The map plot is working fine in
 regards to this, so maybe looking at how that works is a clue to how to
 make the cross sectional plots work.
+
+Make all three axes right away. Basically try to detect whether or not this
+is a new wingplot or adding data to a pre-existing one.
+
+
 %}
+
+warning('WINGPLOTM is not yet ready for use.')
 
 %%
 

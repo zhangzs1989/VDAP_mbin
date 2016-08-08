@@ -57,7 +57,7 @@ for n = 1:length(beta_output) % for each background period
         t_checks = beta_output(n).t_checks; % begining date of each test window corresponding to bc
         start_dt = datetime(datestr(start)); stop_dt = datetime(datestr(stop)); % start and stop of background windows in 'datetime' var type
         start_dt = start; stop_dt = stop; % start and stop of background windows in 'datetime' var type
-        
+                
         
         for i = 1:size(bc,2) % for each window size
             

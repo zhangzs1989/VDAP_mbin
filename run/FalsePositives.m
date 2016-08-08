@@ -64,15 +64,39 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         
     end
     
+
+    
+    
+    
     %% Now get total anomaly counts for each eruption
     % true and false positive rates for each volcano
+    %{
+    E.g., the variable beta_output, in this case, is supposed to be a
+    1-by-n set of structures, where n is the number of background windows
+    determined for a given volcano. nerupts is defined such that it looks
+    through all n structures and determines how many of those background
+    windows were terminated by an eruption (the alternative is that is was
+    simply terminated by a bad network time).
+    %}
     nerupts = sum(isfinite(unique(extractfield(beta_output,'next_eruption'))));
     eruptionData = [];
     
-    ii=0;
-    for i=1:nerupts
+    
+        % JJW's notes:
+    %{
+    At this point, we have the start date for each anomaly/sustained
+    anomaly (is this for one particular background window, or is this all of
+    them for a given volcano. We also have the number of eruptions that have
+    occurred for a given volcano.
+    %}
+    
+    
+    
+    
+    ii=0; % initialize incrementer
+    for i=1:nerupts % for each eruption
         
-        tp = []; fp = [];
+        tp = []; fp = []; % true positives and false positives
         ii = ii + 1;
         anom_tot = 0;
         nanoms = zeros(3,1);
@@ -245,18 +269,50 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         
         eruptionData(i).bin_sizes = beta_output(ii).bin_sizes;
         
-        t0r = datevec(eruptionData(end-1).EruptionStart);
-        t0r(1) = t0r(1) + params.repose;
-        t0r = datenum(t0r);
+        % t0r is essentially the time params.repose years after the start of the previous eruption
+        t0r = datevec(eruptionData(end-1).EruptionStart); % datevec of the previous eruption
+        t0r(1) = t0r(1) + params.repose; % add params.repose to the years column of the datevec
+        t0r = datenum(t0r); % convert modified t04 to datenum
+        
+        % How to define a false positive:
+        %{
+        
+  
+           prev                                             this
+         eruption                                         eruption
+            ^                                                 ^  
+            _                                                ___
+           | |                 t0r                b         |   |      
+        <--| |------------------|-----------------|---------|   |--> time
+                                   false positive   true
+                                   search window     pos
+                                                    search
+                                                    window
+
+        
+        where t0r == params.repose years after start of last eruption
+              b   == params.AnomSearchWindow years before start of next eruption
+              t1  == start of this eruption
+        
+        %}
         
         for j=1:size(beta_output(inan(end)).bin_sizes,2)
             
             if nnz(eruptionData(i).BeginAnomTimes(:,j)) > 0
                 
-                astarts = nonzeros(eruptionData(i).BeginAnomTimes(:,j));
-                astops  = nonzeros(eruptionData(i).EndAnomTimes(:,j));
+                astarts = nonzeros(eruptionData(i).BeginAnomTimes(:,j)); % anomaly start times
+                astops  = nonzeros(eruptionData(i).EndAnomTimes(:,j)); % anomaly stop times
                 
+                % Here's where we decide if a true positive or a false
+                % positive occurred
+
+                % is a flase positive if the following conditions are met:
+                % (1) occurs in the time between params.repose years after the last eruption to params.AnomSearchWindow before the next eruption               
                 ifp = astarts > t0r & astops <= t1 - params.AnomSearchWindow;
+                
+                % is a true positive if the following three conditions are met:
+                % (1, 2) anomaly occurs within params.AnomSearchWindow years of the eruption
+                % (3) astarts occurs params.repose years after the start of the last eruption
                 itp = astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r;
                 
                 tp(j) = sum(itp); if tp(j) > 1; tp(j) = 1; end; % don't count multiple TPs, just say yes once
