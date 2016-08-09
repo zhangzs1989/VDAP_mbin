@@ -1,6 +1,12 @@
 classdef alertLevelChron
     %ALERTLEVELCHRON Class for handling alert levels
-    %   Detailed explanation goes here
+    %
+    % PROPERTIES
+    %
+    % tdnum     : 1-by-n double vector of start dates for each alert level period
+    % str       : 1-by-n cell array of strings with names for each alert level
+    %
+    
     
     properties
         
