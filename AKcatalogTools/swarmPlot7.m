@@ -80,7 +80,7 @@ sp1.axh(1).YColor = 'k';
 sp1.axh(2).YColor = 'k';
 
 ylabel(sp1.axh(1),'Magnitude','FontWeight','bold','FontSize',12);
-ylabel(sp1.axh(2),'Events Per Day','FontWeight','bold','FontSize',12);
+ylabel(sp1.axh(2),'Events Per Day','FontWeight','bold','FontSize',12,'Color','b');
 
 sp1.axh(1).XTick = [];
 sp1.axh(2).XTick = [];
