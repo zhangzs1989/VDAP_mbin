@@ -29,7 +29,7 @@ save(startUpLocs.inputFiles,'inputFiles');
 
 % list of volcanoes that you would like to analyze
 params.volcanoes = {
-        'Spurr'
+        'Spurr';
         'Veniaminof'; ...
         'Augustine'; ...
         'Redoubt'; ...
@@ -40,7 +40,7 @@ params.volcanoes = {
         'Shishaldin'
     };
 
-params.volcanoes = {'Spurr'}; % you can now do all seismically monitored eruptions by making this empty (JP)
+% params.volcanoes = {'Spurr'}; % you can now do all seismically monitored eruptions by making this empty (JP)
 
 %%
 
