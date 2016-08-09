@@ -33,7 +33,7 @@ if isempty(params.volcanoes) % do all from steph's list
         AlaskaVolcanoPlots(vinfo,eruption_windows,params,inputFiles,catalog,jiggle)
 
         if isempty(eruption_windows)
-            error('%s is not a volcano defined in the volcanoInputsAllTime.m file.',params.volcanoes{n})
+            sprintf('%s is not currently defined',params.volcanoes{n})
         end
        
     end
@@ -48,7 +48,7 @@ else % use user list of volcanoes
         AlaskaVolcanoPlots(vinfo,eruption_windows,params,inputFiles,catalog,jiggle)
         
         if isempty(eruption_windows)
-            error('%s is not a volcano defined in the volcanoInputsAllTime.m file.',params.volcanoes{n})
+            sprintf('%s is not currently defined',params.volcanoes{n})
         end
         
     end

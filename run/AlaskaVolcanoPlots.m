@@ -28,7 +28,8 @@ if size(catalog,2)==0
 end
 
 if isempty(eruption_windows)
-    warning('No eruption windows')
+    disp('No eruption windows')
+    return
 end
 
 %% filter catalog
