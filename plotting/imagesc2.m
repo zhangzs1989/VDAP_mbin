@@ -22,10 +22,11 @@ warning('This function exists in VDAP_mbin for the specific purposes of displayi
 
 
 %# find minimum and maximum
-amin=min(a(:));
-amax=max(a(:));
+% amin=min(a(:));
+% amax=max(a(:));
+amin = 0;
+amax = 1;
 
-if amin==amax; amin=0; amax=1; end
 %# size of colormap
 n = size(cm,1);
 %# color step
@@ -36,11 +37,11 @@ him = imagesc(a);
 %# add nan color to colormap
 colormap([nanclr; cm]);
 %# changing color limits
-caxis([amin-dmap amax]);
+caxis([0-dmap 1]);
 %# place a colorbar
 hcb = colorbar;
 %# change Y limit for colorbar to avoid showing NaN color
-ylim(hcb,[amin amax])
+ylim(hcb,[0 1])
 
 if nargout > 0
     h = him;
