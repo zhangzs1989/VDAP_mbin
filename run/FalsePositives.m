@@ -78,7 +78,8 @@ for n = 1:length(files) % cycle over volcanoes analyzed
     windows were terminated by an eruption (the alternative is that is was
     simply terminated by a bad network time).
     %}
-    nerupts = sum(isfinite(unique(extractfield(beta_output,'next_eruption'))));
+
+    nerupts = sum(isfinite(unique(extractfield(beta_output,'next_eruption'))));      
     eruptionData = [];
     
     
@@ -98,6 +99,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         
         tp = []; fp = []; % true positives and false positives
         ii = ii + 1;
+
         anom_tot = 0;
         nanoms = zeros(3,1);
         
@@ -156,7 +158,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         eruptionData(i).nAnomalies = anom_tot;
         eruptionData(i).EruptionTrueDate = t1 - params.AnomSearchWindow;
         eruptionData(i).bin_sizes = beta_output(ii).bin_sizes;
-        
+        eruptionData(i).VEI = beta_output(ii).next_eruptionVEI;
         %NEW: check to see if t0 is after previous eruption repose
         %time
         
@@ -268,6 +270,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         eruptionData(i).EruptionTrueDate = beta_output(inan(end)).stop - params.AnomSearchWindow;
         
         eruptionData(i).bin_sizes = beta_output(ii).bin_sizes;
+        eruptionData(i).VEI = beta_output(ii).next_eruptionVEI;
         
         % t0r is essentially the time params.repose years after the start of the previous eruption
         t0r = datevec(eruptionData(end-1).EruptionStart); % datevec of the previous eruption

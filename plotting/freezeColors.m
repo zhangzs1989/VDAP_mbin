@@ -207,7 +207,7 @@ end
 function hAx = getParentAxes(h)
 % getParentAxes  Return enclosing axes of a given object (could be self)
 
-error(nargchk(1,1,nargin,'struct'))
+narginchk(1,1)
 %object itself may be an axis
 if strcmp(get(h,'type'),'axes'),
     hAx = h;

@@ -6,11 +6,13 @@ qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
 % bviz='invisible';
 bviz = 'visible';
-bfigs = true;
-wingPlot = true;
+bfigs = false;
+wingPlot = false;
+minVEIb = 3;
 vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
-% vsort = 1:9; % don't do anything special to sort the volcanoes
 % vsort = 7;
+vsort = 1:size(files,1);% don't do anything special to sort the volcanoes
+pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions'};
 
 for w=1:numel(params.ndays_all) % which window size to plot?
     
@@ -24,6 +26,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         load(files(n).name)
         istr = strfind(files(n).name,'/');
         vname = files(n).name(istr(end-1)+1:istr(end-0)-1);
+        lh =[lh; {vname}];
         disp(files(n).name)
         vqcdir=[params.outDir,filesep,vname,filesep,qcdir];
         [SUCCESS,MESSAGE,MESSAGEID] = mkdir(vqcdir);
@@ -35,12 +38,11 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         ir = (reposes > params.repose);
         eir= (ereposes > params.repose);
         
-        lh =[lh; {vname}];
-        pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions'};
-        %         pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions','Score'};
+        %which VEIs to plot
+        VEI = extractfield(eruptionData,'VEI');
         
         
-        if sum(ir)>0
+        if sum(ir)>0 && sum(VEI>=minVEIb) > 0
             
             %         nerupts = sum(ir); %size(eruptionData,2) - 1;
             
@@ -177,7 +179,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     set(hax,'XTick',[-4:4])
     xlim([-4 4])
     xlabel('Count')
-    title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']})
+    title({[int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' year repose required']; ['VEI >= ',int2str(minVEIb)]})
     %     title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']; ['score: ',int2str(sum(pdata(:,5)))]})
     
     %     legend('True Positives','False Positives','True Negatives','Eruptions','location','best')
@@ -186,16 +188,16 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     
     print([params.outDir,filesep,qcdir,filesep,'BetaStatsWin',int2str(win)],'-dpng')
     
-        figure('visible',params.visible);
-        subplot(1,2,2)
-        hist(fpvscm,1:.5:10)
-        xlim([1 9])
-        title(['FPs (',int2str(win),' day window)'])
-        subplot(1,2,1)
-        hist(tpvscm,1:.5:10)
-        xlim([1 9])
-        title(['TPs (',int2str(win),' day window)'])
-        print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
+%         figure('visible',params.visible);
+%         subplot(1,2,2)
+%         hist(fpvscm,1:.5:10)
+%         xlim([1 9])
+%         title(['FPs (',int2str(win),' day window)'])
+%         subplot(1,2,1)
+%         hist(tpvscm,1:.5:10)
+%         xlim([1 9])
+%         title(['TPs (',int2str(win),' day window)'])
+%         print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
     
 end
 

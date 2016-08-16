@@ -53,7 +53,7 @@ Extract event times from catalog
 % filter the catalog as per the steps listed above
 % NOTE: Each line of code below carries a alphabet-marker from the list above to explain what is happening
 
-back_windows = exclusion2testwindows(datenum(catalog(1).DateTime), datenum(catalog(end).DateTime), eruption_windows); % (a)
+back_windows = exclusion2testwindows(datenum(catalog(1).DateTime), datenum(catalog(end).DateTime), eruption_windows(:,1:2)); % (a)
 good_windows = series2period(back_windows, baddata, 1, 'exclude'); % (b)
 beta_back_catalog = filterTime( catalog, good_windows(:,1), good_windows(:,2)); numel(catalog) % (c)
 beta_back_catalog_times = datenum(extractfield(beta_back_catalog, 'DateTime')); % (d)
@@ -72,19 +72,22 @@ beta_output = run_betas( beta_back_catalog_times, good_windows, params.ndays_all
     able to be applied to future applications.
 %}
 
-
-eruptions = readtext(inputFiles.Eruptions);
-getEruptionsFromSteph(vinfo.name, eruptions, params.minVEI, -1)
-
-
-eruption_windows = [0 0; eruption_windows]; % adding a set of zeros at the beggining fixes the problem if there are no eruptions at the volcano
+eruption_windows = [0 0 0; eruption_windows]; % adding a set of zeros at the beggining fixes the problem if there are no eruptions at the volcano
 eruption_dates = eruption_windows; % dates of eruptions
 for n = 1:numel(beta_output)
     
-    beta_output(n).next_eruption = eruption_dates(find(eruption_dates >= beta_output(n).stop, 1, 'first')); % the date of the next provided eruption
-    beta_output(n).prev_eruption_end = max(eruption_dates(eruption_dates(:, 2) <= beta_output(n).start, 2)); % the end date of the previous provided eruption (* see programming note)
+    I = find(eruption_dates >= beta_output(n).stop, 1, 'first');
+    beta_output(n).next_eruption = eruption_dates(I,1); % the date of the next provided eruption
+    beta_output(n).next_eruptionVEI = eruption_dates(I,3); % the date of the next provided eruption
+    
+    I = eruption_dates(:, 2) <= beta_output(n).start;
+    beta_output(n).prev_eruption_end = max(eruption_dates(I, 2)); % the end date of the previous provided eruption (* see programming note)
+    beta_output(n).prev_eruption_endVEI = max(eruption_dates(I, 3)); % the end date of the previous provided eruption (* see programming note)
+    
     if isempty(beta_output(n).next_eruption), beta_output(n).next_eruption = nan; end; % if there is no eruption after this set of beta data
+    if isempty(beta_output(n).next_eruptionVEI), beta_output(n).next_eruptionVEI = nan; end; % if there is no eruption after this set of beta data
     if isempty(beta_output(n).prev_eruption_end), beta_output(n).prev_eruption_end = NaN; end; % if there is no eruption after this set of beta data
+    if isempty(beta_output(n).prev_eruption_endVEI), beta_output(n).prev_eruption_endVEI = NaN; end; % if there is no eruption after this set of beta data
     
     beta_output(n).bin_mag = cumMagByBetaBin(beta_output(n).t_checks, extractfield(catalog, 'DateTime'), extractfield(catalog, 'Magnitude'));
 

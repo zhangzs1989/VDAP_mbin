@@ -24,7 +24,7 @@ if mcode % get only seismically monitored ones
             
             if cell2mat(AKeruptions(i,4)) ~= -1 && cell2mat(AKeruptions(i,3)) >= minVEI %has seismic network and VEI > X
                 
-                eruption_windows = [eruption_windows; cell2mat(AKeruptions(i,1)) cell2mat(AKeruptions(i,2))];
+                eruption_windows = [eruption_windows; cell2mat(AKeruptions(i,1)) cell2mat(AKeruptions(i,2)) cell2mat(AKeruptions(i,3))];
                 
             end
         end
@@ -43,7 +43,7 @@ else % get all eruptions, not just seismically monitored ones
             
             if cell2mat(AKeruptions(i,3)) >= minVEI % VEI > X
                 
-                eruption_windows = [eruption_windows; cell2mat(AKeruptions(i,1)) cell2mat(AKeruptions(i,2))];
+                eruption_windows = [eruption_windows; cell2mat(AKeruptions(i,1)) cell2mat(AKeruptions(i,2)) cell2mat(AKeruptions(i,3))];
                 
             end
         end
