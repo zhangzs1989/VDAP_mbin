@@ -72,6 +72,11 @@ beta_output = run_betas( beta_back_catalog_times, good_windows, params.ndays_all
     able to be applied to future applications.
 %}
 
+
+eruptions = readtext(inputFiles.Eruptions);
+getEruptionsFromSteph(vinfo.name, eruptions, params.minVEI, -1)
+
+
 eruption_windows = [0 0; eruption_windows]; % adding a set of zeros at the beggining fixes the problem if there are no eruptions at the volcano
 eruption_dates = eruption_windows; % dates of eruptions
 for n = 1:numel(beta_output)
