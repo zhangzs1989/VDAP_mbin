@@ -30,6 +30,7 @@ classdef ERUPTION
 properties (Dependent)
     
     forecastyn_str;
+    duration;
     
 end
 
@@ -78,6 +79,7 @@ end
 
 methods
     
+    % These are codes assigned by SP in her spreadsheet
     function val = get.forecastyn_str(obj) 
     
         switch obj.forecastyn
@@ -103,6 +105,13 @@ methods
         end
             
     
+    end
+    
+    % duration of the eruption in days
+    function val = get.duration(obj)
+       
+        val = obj.stop - obj.start;
+        
     end
     
 end
