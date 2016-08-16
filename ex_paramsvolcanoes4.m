@@ -40,8 +40,8 @@ params.volcanoes = {
 %         'Shishaldin'
     };
 
-params.volcanoes = {'Augustine'};
-% params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
+% params.volcanoes = {'Augustine'};
+params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
 
 %%
 
