@@ -8,7 +8,7 @@
 % KNOWN ISSUES: uses eruption-start in some cases where eruption-stop would
 % be more appropriate, but is not yet available
 
-clearvars B beta_output fp_lt tp_lt nfp ntp repose_min rm ft forecast_time forecast_matrix
+clearvars B beta_output fp_lt tp_lt nfp ntp repose_min rm ft forecast_time forecast_matrix RESULTS
 clearvars sust_anomaly_binlen sust_anomaly_dates sust_anomaly_repose_days sust_anomaly_precursor_days sust_max_bcBe sust_mean_bcBe
 clearvars files
 
@@ -66,7 +66,7 @@ for bin = 1:numel(bin_lengths) % we know there are 3 bins, but automate this lat
 
             aggregate
             
-            BR(b) = B; B;
+            RESULTS(b) = B; B;
             
             this_air_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of anomalies in repose given a repose time and precursor time
             this_tp_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of true positives given a repose time and precursor time

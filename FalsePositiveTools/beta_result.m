@@ -442,6 +442,31 @@ classdef beta_result
                     display(' ')
                     display(' ')
                     
+
+                    for a = 1:numel(obj.bin_sizes)
+                    fprintf('        __________________________________________________________________________________\n')
+                    fprintf('        %i day Sustained Anomalies (%i anomalies)\n', obj.bin_sizes(a), obj.n_sust_anomalies(a))
+                    disp(' ')
+                    fprintf('             \t\t    \t\t     \tRep. \tTime to\n')
+                    fprintf('        Start\t\tStop\t\t(Dur)\t(yrs)\tEruption (days)\n')
+                    fprintf('        -----\t\t----\t\t-----\t-----\t---------------\n')
+                    
+                        for b = 1:obj.n_sust_anomalies(a)
+                            
+                            astart = obj.sust_anomaly_dates{a}(b,1);
+                            astop = obj.sust_anomaly_dates{a}(b,2) + obj.bin_sizes(a);
+                            duration = astop - astart;
+                            repose_yrs = obj.sust_anomaly_repose_days{a}(b)/365;
+                            days_to_erupt = obj.sust_anomaly_precursor_days{a}(b);
+                            fprintf('        %s\t%s (%i days)\t%2.2f\t%i\n', datestr(astart), datestr(astop), duration, repose_yrs, days_to_erupt)
+
+                        end
+                        
+                       fprintf('\n')
+                        
+                    end
+                    
+                    
                 end
             end
             
