@@ -40,9 +40,9 @@ classdef alertLevel
             % Display the chronology of alert level changes
             display('  Time Line of Changes: ')
             display('  --------------------')
-            for n = 1:numel(obj.tdnum)
+            for n = 1:numel(obj.chron.tdnum)
                 
-                display(['     ' datestr(obj.tdnum(n)) ' : (' num2str(obj.num(n)) ') ' obj.str{n}])
+                display(['     ' datestr(obj.chron.tdnum(n)) ' : (' num2str(obj.chron.num(n)) ') ' obj.str{n}])
                 
             end
             display(' ')

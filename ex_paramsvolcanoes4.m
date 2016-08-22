@@ -29,18 +29,19 @@ save(startUpLocs.inputFiles,'inputFiles');
 
 % list of volcanoes that you would like to analyze
 params.volcanoes = {
-        'Spurr';
-        'Veniaminof'; ...
-        'Augustine'; ...
-        'Redoubt'; ...
-        'Okmok'; ...
-        'Kasatochi'; ...
-        'Kanaga'; ...
-        'Pavlof'; ...
-        'Shishaldin'
+%         'Spurr';
+%         'Veniaminof'; ...
+%         'Augustine'; ...
+%         'Redoubt'; ...
+%         'Okmok'; ...
+%         'Kasatochi'; ...
+% %         'Kanaga'; ...
+%         'Pavlof'; ...
+%         'Shishaldin'
     };
 
-% params.volcanoes = {'Spurr'}; % you can now do all seismically monitored eruptions by making this empty (JP)
+% params.volcanoes = {'Augustine'};
+params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
 
 %%
 
@@ -52,11 +53,11 @@ params.min_mag = 0;
 params.betaBackgroundType = [datenum(2002,01,01) datenum(2013,1,1)]; % currently has no functionality but this will eventually feed into getBetaEmpirical; other acceptable values for this variable are 'all', 'individual', or 'past'
 params.BetaPlotPreEruptionTime = 365*2;
 params.AnomSearchWindow = 365; %for eruption plots and post analysis: use this to define when anomaly must be relative to eruption for false positive test
-params.visible = 'on';
+params.visible = 'off';
 params.jiggle = false;
 params.topo = false;
-params.coasts = true;
-params.wingPlot = true;
+params.coasts = false;
+params.wingPlot = false;
 params.outDir = '/Users/jaywellik/Dropbox/JAY-VDAP/AKcatalogAnalysis2';
 params.minVEI = 2; % remember there are some eruptions with VEI = 0, for unassigned by SP.  Need to deal with these eventually
 
@@ -103,5 +104,6 @@ volcanoInputsAllTime2 % runs analysis for all volcanoes listed in params.volcano
 % AlaskaAggregateAnalysis
 
 % JP
-FalsePositives % run analysis for combined stats
+% FalsePositives % run analysis for combined stats
+FP2
 % FPqc % QC FP plots

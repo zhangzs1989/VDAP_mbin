@@ -39,7 +39,7 @@ if isempty(params.volcanoes) % do all from steph's list
 %         volcname = char(AKeruptions(I(n),5));
         volcname = char(vnames(n));
         vinfo = getVolcanoSpecs(volcname,inputFiles,params);
-        eruption_windows = getEruptionsFromSteph(volcname,AKeruptions,params.minVEI,true);
+        eruption_windows = getEruptionsFromSteph(volcname,AKeruptions,params.minVEI, false);
         AlaskaVolcanoPlots(vinfo,eruption_windows,params,inputFiles,catalog,jiggle)
 
         if isempty(eruption_windows)
