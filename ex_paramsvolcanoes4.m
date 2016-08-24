@@ -1,6 +1,8 @@
 %% SETUP ALASKA CATALOG ANALYSIS
 % Run this file before anything from the GitRepository
 
+%% StartUp
+
 clearvars -except startUpLocs catalog jiggle
 
 startUpLocs.dir = '/Users/jaywellik/Dropbox/JAY-VDAP/AKcatalogAnalysis';
@@ -25,7 +27,7 @@ inputFiles.StaDataDir = fullfile(startUpLocs.userdir,'NTWKDownDays/StaMatFiles1/
 
 save(startUpLocs.inputFiles,'inputFiles');
 
-%% PARAMETERS
+%% Volcano & Eruption Parameters
 
 % list of volcanoes that you would like to analyze
 params.volcanoes = {
@@ -35,17 +37,17 @@ params.volcanoes = {
 %         'Redoubt'; ...
 %         'Okmok'; ...
 %         'Kasatochi'; ...
-% %         'Kanaga'; ...
+%         'Kanaga'; ...
 %         'Pavlof'; ...
 %         'Shishaldin'
     };
 
-% params.volcanoes = {'Augustine'};
-params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
+params.volcanoes = {'Shishaldin'};
+% params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
+params.minVEI = 2; % remember there are some eruptions with VEI = 0, for unassigned by SP.  Need to deal with these eventually
 
-%%
+%% Catalog & Study Parameters
 
-% basic parameters
 params.max_depth_threshold = 35; % km
 params.srad = [2 30];
 params.angle = 30;
@@ -53,15 +55,22 @@ params.min_mag = 0;
 params.betaBackgroundType = [datenum(2002,01,01) datenum(2013,1,1)]; % currently has no functionality but this will eventually feed into getBetaEmpirical; other acceptable values for this variable are 'all', 'individual', or 'past'
 params.BetaPlotPreEruptionTime = 365*2;
 params.AnomSearchWindow = 365; %for eruption plots and post analysis: use this to define when anomaly must be relative to eruption for false positive test
+
+
+%% Plotting and Display Parameters
+
 params.visible = 'off';
 params.jiggle = false;
 params.topo = false;
 params.coasts = false;
 params.wingPlot = false;
 params.outDir = '/Users/jaywellik/Dropbox/JAY-VDAP/AKcatalogAnalysis2';
-params.minVEI = 2; % remember there are some eruptions with VEI = 0, for unassigned by SP.  Need to deal with these eventually
 
-% BETA STATISTICS
+%% BETA STATISTIC Parameters
+
+params.retro = 1; % 0 for forward moving bins, 1 for backwards moving bins
+params.spacing = NaN; % number of days between beta measurements, NaN results in bins that have no overlap
+% NOTE, "the original" way of plotting and conducting the beta analysis is retro = 1 and spacing = NaN;
 params.it=10000; % iterations for empirical beta
 params.be_thresPer = 0.05; %S. Prejean triggering study param
 params.ndays_all = [30 60 90] ; % short term windows over which to test beta
@@ -69,9 +78,9 @@ params.dfracThres = 0.75; % percentage of day that must contain data to consider
 params.minsta = 4; % min # of stations that must be alive for the network to be considered alive for a given day
 params.repose = 10; % repose period in years after previous eruption to start considering anomalies
 
-save(startUpLocs.params,'params');
-
 %% LOAD INPUTFILES AND PARAMS VARIABLES FROM .MAT FILES
+
+save(startUpLocs.params,'params');
 
 load(startUpLocs.inputFiles); % path to inputFiles.mat
 load(startUpLocs.params); % path to params.mat
@@ -102,8 +111,8 @@ volcanoInputsAllTime2 % runs analysis for all volcanoes listed in params.volcano
 
 % JW
 % AlaskaAggregateAnalysis
+FalsePositives2
 
 % JP
 % FalsePositives % run analysis for combined stats
-FP2
 % FPqc % QC FP plots
