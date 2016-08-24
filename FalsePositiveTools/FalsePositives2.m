@@ -41,6 +41,8 @@ params.volcanoes = {'Spurr'; 'Veniaminof'; 'Augustine'; 'Redoubt'; 'Okmok'; 'Kas
 
 % params.volcanoes = {'Augustine', 'Redoubt', 'Pavlof'};
 
+% params.volcanoes = {'Augustine'};
+
 AKeruptions = readtext(inputFiles.Eruptions);
 allE = importEruptionsFromSteph2(inputFiles.Eruptions); % import all of Stephanie's eruptions as ERUPTION objects
 

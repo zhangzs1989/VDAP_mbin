@@ -54,8 +54,14 @@ else % else, move on to the actual calculations
 
     % calculate beta time series
     for j=1:nchecks % for each time to calculate beta
-        
-        times_TA2 = times(times >= t_checks(j)-ndays+1 & times <= t_checks(j)); % narrow catalog to events in the test window
+
+        % code that makes sense to me but seems to be doing the wrong thing
+%         times_TA2 = times(times >= t_checks(j)-ndays+1 & times <= t_checks(j)); % narrow catalog to events in the test window --
+
+        % code that mimics logical test of calculateBetaForThisWindow
+        % doesn't make sense to me, but seems to be doing the correct thing
+        times_TA2 = times(times > t_checks(j) & times < t_checks(j)+ndays); % narrow catalog to events in the test window --
+
         Na = length(times_TA2); % total number of events
         bc(j,1)=betas(Na,N,Ta,T); % beta value
         

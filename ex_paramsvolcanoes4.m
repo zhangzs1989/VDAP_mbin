@@ -42,7 +42,7 @@ params.volcanoes = {
 %         'Shishaldin'
     };
 
-% params.volcanoes = {'Shishaldin'};
+% params.volcanoes = {'Augustine'};
 params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
 params.minVEI = 2; % remember there are some eruptions with VEI = 0, for unassigned by SP.  Need to deal with these eventually
 
@@ -69,8 +69,8 @@ params.outDir = '/Users/jaywellik/Dropbox/JAY-VDAP/AKcatalogAnalysis2';
 
 %% BETA STATISTIC Parameters
 
-params.retro = 1; % 0 for forward moving bins, 1 for backwards moving bins
-params.spacing = NaN; % number of days between beta measurements, NaN results in bins that have no overlap
+params.retro = 0; % 0 for forward moving bins, 1 for backwards moving bins
+params.spacing = 1; % number of days between beta measurements, NaN results in bins that have no overlap
 % NOTE, "the original" way of plotting and conducting the beta analysis is retro = 1 and spacing = NaN;
 params.it=10000; % iterations for empirical beta
 params.be_thresPer = 0.05; %S. Prejean triggering study param
@@ -115,5 +115,5 @@ volcanoInputsAllTime2 % runs analysis for all volcanoes listed in params.volcano
 FalsePositives2
 
 % JP
-FalsePositives % run analysis for combined stats
-FPqc % QC FP plots
+% FalsePositives % run analysis for combined stats
+% FPqc % QC FP plots
