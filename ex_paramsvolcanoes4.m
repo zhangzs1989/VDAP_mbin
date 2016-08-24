@@ -42,8 +42,8 @@ params.volcanoes = {
 %         'Shishaldin'
     };
 
-params.volcanoes = {'Shishaldin'};
-% params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
+% params.volcanoes = {'Shishaldin'};
+params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
 params.minVEI = 2; % remember there are some eruptions with VEI = 0, for unassigned by SP.  Need to deal with these eventually
 
 %% Catalog & Study Parameters
@@ -59,7 +59,7 @@ params.AnomSearchWindow = 365; %for eruption plots and post analysis: use this t
 
 %% Plotting and Display Parameters
 
-params.visible = 'off';
+params.visible = 'on';
 params.binMagVbinMom = 'mag'; % for swarmPlot7, { 'mag' | 'mom' } for showing cumulative magnitude or moment for each beta bin
 params.jiggle = false;
 params.topo = false;
@@ -112,7 +112,7 @@ volcanoInputsAllTime2 % runs analysis for all volcanoes listed in params.volcano
 
 % JW
 % AlaskaAggregateAnalysis
-FalsePositives2
+% FalsePositives2
 
 % JP
 % FalsePositives % run analysis for combined stats
