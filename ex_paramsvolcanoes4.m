@@ -112,8 +112,8 @@ volcanoInputsAllTime2 % runs analysis for all volcanoes listed in params.volcano
 
 % JW
 % AlaskaAggregateAnalysis
-% FalsePositives2
+FalsePositives2
 
 % JP
-% FalsePositives % run analysis for combined stats
-% FPqc % QC FP plots
+FalsePositives % run analysis for combined stats
+FPqc % QC FP plots
