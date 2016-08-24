@@ -60,6 +60,7 @@ params.AnomSearchWindow = 365; %for eruption plots and post analysis: use this t
 %% Plotting and Display Parameters
 
 params.visible = 'off';
+params.binMagVbinMom = 'mag'; % for swarmPlot7, { 'mag' | 'mom' } for showing cumulative magnitude or moment for each beta bin
 params.jiggle = false;
 params.topo = false;
 params.coasts = false;

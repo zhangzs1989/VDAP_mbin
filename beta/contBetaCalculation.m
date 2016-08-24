@@ -7,10 +7,13 @@ function [ bc, t_checks ] = contBetaCalculation( times, start, stop, spacing, re
 % - stop - stop time of window
 % - spacing - time interval between each beta measurement
 % - retro - 1 if start times work backwards from eruption (retrospective application), 0 if start times
-% move forward (real-time application)
+%     move forward (real-time application)
 % - ndays - length of beta windows
 % - background_N - number of events in background time period
 % - background_T - length of time in background time period
+
+%% Initialize variables
+
 
 %%
 
@@ -26,8 +29,8 @@ if isempty(times) % if there are no events provided, initialize the rest of the 
     % of an empty vector will simply result in 0, which is an appropriate
     % input ot BETAS.
 %     disp(['No events from ' datestr(start) ' to ' datestr(stop) '.'])
-%     t_checks = start:ndays:stop;
-%     bc(1:length(t_checks)) = nan;
+    t_checks = start:ndays:stop;
+    bc(1:length(t_checks)) = nan;
     
 else % else, move on to the actual calculations
     
@@ -42,8 +45,9 @@ else % else, move on to the actual calculations
     % adjust t_start to be rounded wrt ndays
 %     spacing = 1
 %     retro = 0
-    start2 = start; % adjusted start time (gets adjusted if the study is retrospective
+    start2 = start; % adjusted start time (gets adjusted if the study is retrospective)
     if retro, start2 = stop - (floor((stop-start)/ndays))*ndays + 1; end
+    if isnan(spacing), spacing = ndays; end
     t_checks = start2+ndays-1:spacing:stop; % stop times for each beta window to check
     nchecks=size(t_checks,2); % number of times to check beta
     bc(nchecks,1)=zeros; % initialize the beta values to 0 (! NOTE, this is not a good initialization value because beta can be negative)

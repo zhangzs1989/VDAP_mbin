@@ -1,7 +1,24 @@
-%% FP2b - written by Jay Wellik
+%% FalsePositives2 - written by Jay Wellik
 
 
 %% ALASKA FALSE POSITIVES ANALYSIS
+
+% Known Issues/Things to Keep in Mind
+%{
+1. This script is an analysis of how often anomalies are followed by eruptions.
+It does not analyze how often eruptions are or aren't preceded by anomalies.
+I.e., if there is an eruption at a volcano that occurs without any
+precursor's ahead of time, that fact is not shown in these results.
+
+2. This analysis is best suited for non-overlapping beta windows that work
+backwards in time from the last eruption. In the case of the forward moving
+analysis with over-lapping windows, the number of false positives may
+increase. This could happen if the beta value is very close to the
+empirical threshold and repeatedly rises just above and drops just below
+the threshold over a prolonged period of time. So far, I've noticed that
+this seems to only affect the final results for time periods when the
+volcano had only been in repose for a short number of years.
+%}
 
 %% Load proper files
 
@@ -22,23 +39,24 @@ params.volcanoes = {'Spurr'; 'Veniaminof'; 'Augustine'; 'Redoubt'; 'Okmok'; 'Kas
 % params.volcanoes = {'Veniaminof'; 'Kasatochi'; 'Okmok'; 'Pavlof'; 'Shishaldin'}; % open
 % params.volcanoes = {'Augustine'; 'Redoubt'; 'Spurr'; 'Kasatochi'; 'Kanaga'}; % closed
 
-params.volcanoes = {'Augustine'};
+% params.volcanoes = {'Augustine', 'Redoubt', 'Pavlof'};
 
 AKeruptions = readtext(inputFiles.Eruptions);
 allE = importEruptionsFromSteph2(inputFiles.Eruptions); % import all of Stephanie's eruptions as ERUPTION objects
 
 %%
 
-
+% Set test parameters for the False Positives Matrix - i.e., what repose
+% times and what forecast times will you compare
 repose_min = [0 5 10 15 20 25]; % minimum number of years volcano must be in repose for an anomaly to be a false positive
-forecast_time = [5 1 8/12 6/12 3/12 1/12 2/52]; % of years to look for an eruption after an anomaly in order to be considered a true positive
+forecast_time = [5 1 8/12 6/12 3/12 1/12 2/52]; % # of years to look for an eruption after an anomaly in order to be considered a true positive
 
 bin_lengths = [30 60 90];
-for bin = 1:numel(bin_lengths) % we know there are 3 bins, but automate this later
+for bin = 1:numel(bin_lengths)
     
-    air_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of anomalies in repose given a repose time and precursor time
-    tp_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of true positives given a repose time and precursor time
-    fp_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of false positives given a repose time and precursor time
+    air_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of "anomalies in repose" given a repose time and precursor time
+    tp_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of "true positives" given a repose time and precursor time
+    fp_matrix = zeros(numel(forecast_time), numel(repose_min)); % matrix of "false positives" given a repose time and precursor time
     %     forecast_matrix = tp_matrix./(tp_matrix+fp_matrix);
     
     for v = 1:numel(params.volcanoes)
@@ -50,14 +68,17 @@ for bin = 1:numel(bin_lengths) % we know there are 3 bins, but automate this lat
         si = strfind(files(v).name,filesep);
         volcname = files(v).name(si(end-1)+1:si(end)-1);
         
-        % load all eruptions for the volcano in chronological order
+        % select all eruptions for the volcano in chronological order
         E = chron(objselect(allE, 'volcano_name', volcname));
         
         for b = 1:numel(beta_output)
 
-            B = beta_result(beta_output(b));
+            B = beta_result(beta_output(b)); % convert the old beta_structure to the new Matlab class of type beta_result
             
             % Make sure the prev and next eruption dates are handled properly
+            % use the list of eruptions to set the appropriate previous
+            % eruption end and next eruption start for each beta background
+            % window
             B = setPrevEruptionEnd(B, E); B = setNextEruption(B, E);
             if isempty(B.prev_eruption_end), B.prev_eruption_end = datenum('Jan 1, 1975'); end
             if isempty(B.next_eruption), B.next_eruption = now; end % if the anomaly occurred after the last recorded eruption, treat now as the next eruption date in order to catch the anomaly as a fp

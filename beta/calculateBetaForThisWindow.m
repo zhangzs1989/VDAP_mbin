@@ -49,7 +49,6 @@ else % else, move on to the actual calculations
     nchecks=size(t_checks,2);
     bc(nchecks,1)=zeros;
     
-    
     for j=1:nchecks
         
         times_TA2 = times(times > t_checks(j) & times < t_checks(j)+ndays);

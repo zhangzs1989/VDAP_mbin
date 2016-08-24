@@ -58,6 +58,7 @@ classdef beta_result
         dur; % duration of the beta window
         next_eruption_disp; % text version of the next eruption (also displays 'No eruption...' if there is none)
         prev_eruption_end_disp; % text version of the next eruption (also displays 'No previous eruption...' if there is none)
+        bin_spacing;
         
         % time series info
         is_over_beta; % logical expression telling whether or not each beta value is above or below the anomaly
@@ -70,9 +71,10 @@ classdef beta_result
         
         % Sustained anomalies - groups consecutive anomalies
         n_sust_anomalies; % number of sustained anomalies for each bin size; same size as bin_sizes
-        sust_anomaly_dates;% [n-by-2] start & end pair for each sustained anomaly; where n is the number of sustained anomalies
+        sust_anomaly_dates; % m dimensional cell array of [n-by-2] start & end pair for each sustained anomaly; where n is the number of sustained anomalies
         % start is the start time of the first anomaly in the set
         % end is the start time of the last anomaly in the set
+        sust_anomaly_dur; % the duration of each sustained anomaly - not yet implemented
         
         sust_anomaly_binlen; % length of each sustained anomaly in terms of # of bins
         sust_anomaly_daylen; % length of each sustained anomaly in terms of # of days
@@ -154,7 +156,20 @@ classdef beta_result
             val = obj.stop - obj.start;
             
         end
-                
+       
+        % spacing between beta measurements
+        function val = get.bin_spacing(obj)
+           
+            % time difference between 2nd check and 1st check
+            % only needs to use difference from first bin size because it
+            % should be the same for all bin sizes
+            val = obj.t_checks(2,1) - obj.t_checks(1,1);
+            
+            % ! Note: If one or both t_checks values are NaN, the result of val is
+            % NaN. If one or both t_checks values are [], the result of val is [].
+            
+        end
+        
     end
     
     %% SET FUNCTIONS
@@ -261,24 +276,56 @@ classdef beta_result
         % cell array of dates for all continous anomalies; i.e., if there
         % are two anomalies in anomaly_dates that happen consecutively, the
         % second date is removed from this set of information
+        % Result is an m dimension cell array where m is the number of
+        % sustained anomalies. Each cell contains a 1-by-2 vector such as
+        %  e.g., {[start1 stop1]; [start2 stop2]; ...}
+        %  where start1==the start time for the first anomaly in the
+        %  consecutive sequence, and
+        %  and, start2===the start time of the last anomaly in the
+        %  consecutive sequence
         function val = get.sust_anomaly_dates(obj)
             
             for n = 1:numel(obj.bin_sizes)
                 
                 if obj.n_anomalies(n) <= 1
-                    val{n} = [obj.anomaly_dates{n} obj.anomaly_dates{n}];
+                    val{n} = [obj.anomaly_dates{n} obj.anomaly_dates{n}]; % results in start and stop being the same day
                     
                 else
-                    d = diff(obj.anomaly_dates{n});
+                    d = diff(obj.anomaly_dates{n}); % vector of time differences between consecutive anomaly dates
                     s = obj.anomaly_dates{n}([0; d]~=obj.bin_sizes(n));
                     e = obj.anomaly_dates{n}([d; 0]~=obj.bin_sizes(n));
                     val{n} = [s e];
+                    
+                    %{
+                    Explanation:
+                    Let 'd' be the vector of time differences between the
+                    anomaly dates
+                    Then, pad those time differences with 0 (i.e., [0; d]),
+                    and let 's' be the start time of sustained anomalies
+                    where s is any date where the time difference does not
+                    equal the bin size
+                    
+                    
+                    %}
                     
                 end
                 
             end
             
         end
+        
+        % length of each sustained anomaly duration
+        function val = get.sust_anomaly_dur(obj)
+            
+            for c = 1:numel(obj.bin_sizes)
+                
+                val{n} = (obj.sust_anomaly_dates{n}(:,1) - obj.sust_anomaly_dates{n}(:,2))*obj.bin_spacing + obj.bin_spacing;
+                
+            end
+            
+        end
+        
+        
         
         % number of sustained anomalies for each bin size
         function val = get.n_sust_anomalies(obj)
@@ -444,12 +491,16 @@ classdef beta_result
                     
 
                     for a = 1:numel(obj.bin_sizes)
-                    fprintf('        __________________________________________________________________________________\n')
-                    fprintf('        %i day Sustained Anomalies (%i anomalies)\n', obj.bin_sizes(a), obj.n_sust_anomalies(a))
+                    fprintf('        ____________________________________________________________________|\n')
+                    fprintf('        | %i day Sustained Anomalies (%i anomalies)\n', obj.bin_sizes(a), obj.n_sust_anomalies(a))
                     disp(' ')
-                    fprintf('             \t\t    \t\t     \tRep. \tTime to\n')
-                    fprintf('        Start\t\tStop\t\t(Dur)\t(yrs)\tEruption (days)\n')
-                    fprintf('        -----\t\t----\t\t-----\t-----\t---------------\n')
+%                     fprintf('             \t\t    \t\t     \tRep. \tTime to\n')
+%                     fprintf('        -----\t\t----\t\t-----\t-----\t---------------\n')
+                    fprintf('        |                                               |        |          |\n')
+                    fprintf('        |                                               | Repose | Days to  |\n')
+                    fprintf('        |     Start       -        Stop      (Duration) |  (yrs) | Eruption |\n')
+                    fprintf('        |-----------------------------------------------|--------|----------|\n')
+                   %fprintf('         1988-03-17 00h  -  2016-08-17 00h (1000 days) |  10.2  |   0030   |\n')
                     
                         for b = 1:obj.n_sust_anomalies(a)
                             
@@ -458,11 +509,13 @@ classdef beta_result
                             duration = astop - astart;
                             repose_yrs = obj.sust_anomaly_repose_days{a}(b)/365;
                             days_to_erupt = obj.sust_anomaly_precursor_days{a}(b);
-                            fprintf('        %s\t%s (%i days)\t%2.2f\t%i\n', datestr(astart), datestr(astop), duration, repose_yrs, days_to_erupt)
+                            fprintf('        | %sh  -  %sh (%4i days) |  %2.1f  |   %4i   |\n', ...
+                                datestr(astart, 'yyyy-mm-dd HH'), datestr(astop, 'yyyy-mm-dd HH'), duration, repose_yrs, days_to_erupt);
 
                         end
-                        
-                       fprintf('\n')
+                       
+                        fprintf('        |-----------------------------------------------|--------|----------|\n')
+                        fprintf('\n')
                         
                     end
                     

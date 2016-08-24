@@ -1,4 +1,12 @@
 %% aggregate
+% This script takes all of the information from multiple beta_structure
+% entries and aggregates it into one entry. E.g., for one volcano, if there
+% are 2 eruptions (and no network down times), there should be 3 structures
+% that hold all data related to anomalies prior to each of those eruptions
+% as well as a third structure that holds information for after the last eruption.
+% This script takes those three structures and combines the info into 1
+% structure that summarizes the entire time history for the volcano.
+% The rest of this script is not well-commented :(
 
 sust_anomaly_dates = []; % there has to be a better way to initialize this
 sust_anomaly_binlen = [];
@@ -6,7 +14,6 @@ sust_anomaly_precursor_days = [];
 sust_anomaly_repose_days = [];
 sust_max_bcBe = [];
 sust_mean_bcBe = [];
-
 
 for z = 1:numel(B(1).bin_sizes)
     

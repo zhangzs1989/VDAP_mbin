@@ -1,5 +1,5 @@
 classdef EVOLCANO
-    %VOLCANO Stories information for a particular volcano
+    %EVOLCANO Stories information for a particular volcano
     % This is named EVOLCANO because our scripts already use VOLCANO with
     % Helena's stuff. Consider changing the var name for Helena's stuff.
     %   Detailed explanation goes here

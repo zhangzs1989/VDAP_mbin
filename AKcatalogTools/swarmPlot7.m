@@ -220,7 +220,7 @@ datetick(sp6.axh,'keeplimits')
 
 %% Cumulative Magnitude/Moment by Bin
 
-type = 'mag'; % options are 'mag' for magnitude or 'mom' for moment
+type = params.binMagVbinMom; % options are 'mag' for magnitude or 'mom' for moment
 
 sp8 = [];
 sp8.axh = subplot(9,1,8:9); hold on

@@ -19,5 +19,8 @@ for n = 1:numel(obj)
 
 end
 
+datetick(ax,'keeplimits')
+zoom('xon')
+
 end
 

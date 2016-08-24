@@ -18,7 +18,7 @@ function [h, hcb] = imagesc2(a,cm,nanclr)
 % see also imagesc
 %
 
-warning('This function exists in VDAP_mbin for the specific purposes of displaying True and False Positive results as associated with the FP2 scripts. Any application outside of that usage may not work as desired.')
+warning('This function exists in VDAP_mbin for the specific purposes of displaying True and False Positive results as associated with the FalsePositives2 scripts. Any application outside of that usage may not work as desired.')
 
 
 %# find minimum and maximum
