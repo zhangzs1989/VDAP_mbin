@@ -33,7 +33,7 @@ if isempty(params.volcanoes) % do all from steph's list
     vnames = unique(AKeruptions(I,5));
     
     disp([int2str(size(AKeruptions(I,5),1)),' Eruptions analyzed:'])
-    disp(strcat(datestr(cell2mat(AKeruptions(I,1))),' --> ',AKeruptions(I,5)))
+    disp(strcat(datestr(cell2mat(AKeruptions(I,1))),' --> ',AKeruptions(I,5),' VEI: ',int2str(cell2mat(AKeruptions(I,3)))))
     
     for n = 1:numel(vnames)
 %         volcname = char(AKeruptions(I(n),5));
