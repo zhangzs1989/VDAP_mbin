@@ -53,9 +53,16 @@ Extract event times from catalog
 % filter the catalog as per the steps listed above
 % NOTE: Each line of code below carries a alphabet-marker from the list above to explain what is happening
 
-back_windows = exclusion2testwindows(datenum(catalog(1).DateTime), datenum(catalog(end).DateTime), eruption_windows(:,1:2)); % (a)
+% JP: changes to pass VEI through and to allow no eruption_windows
+if isempty(eruption_windows)
+    exclude_windows = [];
+else
+    exclude_windows = eruption_windows(:,1:2);
+end
+
+back_windows = exclusion2testwindows(datenum(catalog(1).DateTime), datenum(catalog(end).DateTime), exclude_windows); % (a)
 good_windows = series2period(back_windows, baddata, 1, 'exclude'); % (b)
-beta_back_catalog = filterTime( catalog, good_windows(:,1), good_windows(:,2)); numel(catalog) % (c)
+beta_back_catalog = filterTime( catalog, good_windows(:,1), good_windows(:,2)); disp(['Events: ',int2str(numel(catalog))]) % (c)
 beta_back_catalog_times = datenum(extractfield(beta_back_catalog, 'DateTime')); % (d)
 
 %%
@@ -164,14 +171,15 @@ for i=2:size(eruption_windows,1) %JP: start at two to account for adding zeros t
     
 end
 
-try
-    % now plot time since last eruption
-    t1 = max(max(eruption_windows));
-    t2 = beta_back_catalog_times(length(beta_back_catalog_times))+1;
-    title(swarm_plots(2),{[vinfo.name,': ',catTitle],[datestr(t1,'mm/dd/yyyy') ' to ' datestr(t2,'mm/dd/yyyy')]})
-    xlim([t1 t2]);
-    print(swarm_plots(1),'-dpng',[outDirName,'/',vinfo.name,'_Beta_',catTitle,'_recent'])
+if nnz(eruption_windows)~=0
+    try
+        % now plot time since last eruption
+        t1 = max(max(eruption_windows));
+        t2 = beta_back_catalog_times(length(beta_back_catalog_times))+1;
+        title(swarm_plots(2),{[vinfo.name,': ',catTitle],[datestr(t1,'mm/dd/yyyy') ' to ' datestr(t2,'mm/dd/yyyy')]})
+        xlim([t1 t2]);
+        print(swarm_plots(1),'-dpng',[outDirName,'/',vinfo.name,'_Beta_',catTitle,'_recent'])
+    end
 end
-
 t1 = beta_back_catalog_times(1)-1;
 xlim([t1 t2]);
