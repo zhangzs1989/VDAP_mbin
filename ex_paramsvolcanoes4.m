@@ -43,7 +43,9 @@ params.volcanoes = {
     };
 
 params.volcanoes = {'Augustine'};
-% params.volcanoes = {};  % you can now do all seismically monitored eruptions by making this empty (JP)
+% params.volcanoes = 'Erupt'; % you can now do all seismically monitored eruptions 
+% params.volcanoes = 'NoErupt'; % you can now do all seismically monitored volcanoes without eruptions 
+% params.volcanoes = 'All'; % you can now do all seismically monitored volcanoes 
 params.minVEI = 2; % remember there are some eruptions with VEI = 0, for unassigned by SP.  Need to deal with these eventually
 
 %% Catalog & Study Parameters
