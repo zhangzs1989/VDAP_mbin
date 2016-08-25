@@ -16,7 +16,7 @@ for n = 1:numel(vnames)
     AlaskaVolcanoPlots(vinfo,eruption_windows,params,inputFiles,catalog,jiggle)
     
     if isempty(eruption_windows)
-        sprintf('%s is not currently defined',params.volcanoes{n})
+        sprintf('%s has no eruptions',params.volcanoes{n})
     end
     
 end

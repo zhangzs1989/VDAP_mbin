@@ -1,4 +1,4 @@
-function baddata = getBadDataFromHelena( volcname, windows, varargin )
+function [baddata,startDay] = getBadDataFromHelena( volcname, windows, varargin )
 % GETBADDATAFROMHELENA Gets bad data days from Helena's object.
 %
 % INPUT:
@@ -10,7 +10,8 @@ function baddata = getBadDataFromHelena( volcname, windows, varargin )
 %
 % OUTPUT:
 % baddata [double] -- vector of datenums that are days with bad data
-%
+% startDay -- first day of local seismic monitoring
+
 % USAGE
 % >> baddata = getBadDataFromHelena('Pavlof', eruption_windows)
 %
@@ -62,7 +63,7 @@ else
     ib = VOLCANO1.baddata > min(min(windows)) & VOLCANO1.baddata < max(max(windows)); % index of days when the network is down within time period of interest
 
     baddata = VOLCANO1.baddata(ib); % list of days when network is down within time period of interest
-    
+    startDay = VOLCANO1.networkon(1); % first day of local monitoring
 end;
 %%
 end

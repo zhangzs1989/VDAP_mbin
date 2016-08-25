@@ -52,7 +52,7 @@ volc_times = datenum(extractfield(catalog,'DateTime'));
 
 %INSTEAD,
 % get downdays for 2002 - 2012 from HB's manually groomed study
-baddata1 = getBadDataFromHelena(vinfo.name, [min(volc_times) max(volc_times)],inputFiles.HB); % (a)
+[baddata1,vinfo.NetworkStartDay] = getBadDataFromHelena(vinfo.name, [min(volc_times) max(volc_times)],inputFiles.HB); % (a)
 
 % now get downdays from 2013-2015 from JP's new data, eventually update all
 % years this way?? too much trouble
