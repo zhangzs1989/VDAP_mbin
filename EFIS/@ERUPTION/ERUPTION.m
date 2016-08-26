@@ -37,25 +37,27 @@ end
     
 %% DISPLAY FUNCTIONS
 
-    methods
+methods
+    
+    function disp(obj)
         
-        function disp(obj)
+        if numel(obj)>1
             
-            if numel(obj)>1
-                
-                display(' ')
-                
-                display('----------------------------------------------------')
-                display(['Multiple (' num2str(numel(obj)) ') eruptions with common properties:'])
-                display(['    start   : ' ])
-                display(['    stop    : (duration)'])
-                display(['    max_vei : ' ])
-                display(' ')
-                display(['    Info from Steph - '])
-                display(['      forecastyn   : '])
-                display(' ')
-                
-            else
+            display(' ')
+            
+            display('----------------------------------------------------')
+            display(['Multiple (' num2str(numel(obj)) ') eruptions with common properties:'])
+            display(['    start   : ' ])
+            display(['    stop    : (duration)'])
+            display(['    max_vei : ' ])
+            display(' ')
+            display(['    Info from Steph - '])
+            display(['      forecastyn   : '])
+            display(' ')
+            
+        else
+            
+            if ~isempty(obj.start)
                 
                 display(' ')
                 display('----------------------------------------------------')
@@ -67,12 +69,28 @@ end
                 display(['    Info from Steph - '])
                 display(['      forecastyn   : ' num2str(obj.forecastyn) ' (' obj.forecastyn_str ')'])
                 display(' ')
-                
-            end % if
             
-        end
+            else
+                
+                display(' ')
+                display('----------------------------------------------------')
+                display(' Empty ERUPTION object')
+                display(' ')
+                display(['    start   : '])
+                display(['    stop    : '])
+                display(['    max_vei : '])
+                display(' ')
+                display(['    Info from Steph - '])
+                display(['      forecastyn   : '])
+                display(' ')
+                
+            end
+            
+        end % if
         
     end
+    
+end
     
     
 %% Dependent GET functions
