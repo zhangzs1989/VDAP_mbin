@@ -51,9 +51,9 @@ for i=1:size(vnames,2)
 end
 if ~TF
     
-    sprintf('NOTE: ''%s'' not found in Helena''s database. Script will proceed with no bad data days.',volcname);
+    fprintf('NOTE: ''%s'' not found in Helena''s database. Script will proceed with no bad data days.',volcname);
     baddata = [];
-    
+    startDay = datenum(2002,01,01);
 else
     
     VOLCANO1 = VOLCANO(i); VOLCANO1.name;
