@@ -32,7 +32,7 @@ clearvars files
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir(params.outDir);
 
 % Reset the volcanoes that you want to run with this group
-params.volcanoes = {'Spurr'; 'Veniaminof'; 'Augustine'; 'Redoubt'; 'Okmok'; 'Kasatochi'; 'Kanaga'; 'Pavlof'; 'Shishaldin'}; % all
+% params.volcanoes = {'Spurr'; 'Veniaminof'; 'Augustine'; 'Redoubt'; 'Okmok'; 'Kasatochi'; 'Kanaga'; 'Pavlof'; 'Shishaldin'}; % all
 % params.volcanoes = {'Spurr'; 'Veniaminof'; 'Augustine'; 'Redoubt'; 'Okmok'; 'Kasatochi'; 'Kanaga'; 'Shishaldin'}; % all - Pavlof
 % params.volcanoes = {'Spurr'; 'Veniaminof'; 'Augustine'; 'Redoubt'; 'Okmok'; 'Kasatochi'; 'Pavlof'; 'Shishaldin'}; % all - Kanaga
 

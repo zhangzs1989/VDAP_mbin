@@ -5,14 +5,13 @@ disp(mfilename('fullpath'))
 %
 % INPUT:
 % TIMES - earthquake event times
-% WINDOWS [n-by2 matrix of start/stop times] - the time periods over which it is valid to calculate beta and
-% empirical beta (e.g., this might be the times where there is no eruptive
-% activity and the network is healthy).
-% seismicity
+% WINDOWS [n-by-2 matrix of start/stop times] - the time periods over which.
+%  it is valid to calculate beta and empirical beta (e.g., this might be 
+%  the times where there is no eruptive
+%  activity and the network is healthy).
 % NDAYS - n-ny-1 matrix of window lengths that you would like to test beta
-% for
 % BACKGROUND_TYPE {'all' | 'individual' | 'past'} -- see GETEMPIRICALBETA for
-% more help
+%   more help
 % ITERATIONS [double] - The number of iterations to use to calculate beta
 % PER_THRESH [double] - 
 % 

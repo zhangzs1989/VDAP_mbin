@@ -64,12 +64,26 @@ baddata = [baddata1; baddata2];
 % baddata = baddata1; % temp while running badger...
 
 %% Display catalog data
-disp('-------------------------------------------------------------------')
-disp('-- Subset of ANSS catalog -----------------------------------------')
-disp(['# of events = ' num2str(length(catalog))]);
-disp(['min mag = ' num2str(min(extractfield(catalog,'Magnitude')))]);
-disp(['max mag = ' num2str(max(extractfield(catalog,'Magnitude')))]);
-disp('-------------------------------------------------------------------')
+% disp('-------------------------------------------------------------------')
+% disp('-- Subset of ANSS catalog -----------------------------------------')
+% fprintf('     %i of %i catalog events within %ikm of the volcano', length(catalog_b), length(catalog), params.srad);
+% sprintf('     min mag = ' num2str(min(extractfield(catalog,'Magnitude')))]);
+% disp(['max mag = ' num2str(max(extractfield(catalog,'Magnitude')))]);
+% disp('-------------------------------------------------------------------')
+
+fprintf('----------------------------------------------------------------\n')
+fprintf('  Subset of ANSS catalog                                        \n')
+fprintf('                   Imported Catalog |           Volcano Subset  \n')
+fprintf('   # events |  %20i |     %20i \n', ...
+    length(catalog), length(catalog_b))
+fprintf('   Max Mag  |  %20.1f |     %20.1f \n', ...
+    max(extractfield(catalog,'Magnitude')), ...
+    max(extractfield(catalog_b,'Magnitude')))
+fprintf('   Min Mag  |  %20.1f |     %20.1f \n', ...
+    min(extractfield(catalog,'Magnitude')), ...
+    min(extractfield(catalog_b,'Magnitude')))
+fprintf('----------------------------------------------------------------\n')
+disp(' ')
 
 %% beta swarm plots
 

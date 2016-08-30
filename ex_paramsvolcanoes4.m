@@ -69,8 +69,8 @@ params.outDir = '/Users/jaywellik/Dropbox/JAY-VDAP/AKcatalogAnalysis2';
 
 %% BETA STATISTIC Parameters
 
-params.retro = 0; % 0 for forward moving bins, 1 for backwards moving bins
-params.spacing = 1; % number of days between beta measurements, NaN results in bins that have no overlap
+params.retro = 1; % 0 for forward moving bins, 1 for backwards moving bins
+params.spacing = NaN; % number of days between beta measurements, NaN results in bins that have no overlap
 % NOTE, "the original" way of plotting and conducting the beta analysis is retro = 1 and spacing = NaN;
 params.it=10000; % iterations for empirical beta
 params.be_thresPer = 0.05; %S. Prejean triggering study param
@@ -112,7 +112,7 @@ volcanoInputsAllTime2 % runs analysis for all volcanoes listed in params.volcano
 
 % JW
 % AlaskaAggregateAnalysis
-FalsePositives2
+% FalsePositives2
 
 % JP
 % FalsePositives % run analysis for combined stats

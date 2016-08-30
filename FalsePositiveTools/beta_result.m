@@ -63,8 +63,7 @@ classdef beta_result
         % time series info
         is_over_beta; % logical expression telling whether or not each beta value is above or below the anomaly
         bcBe_ratio; % ratio between measured beta value and empirical beta
-        
-        
+
         % individual anomalies
         n_anomalies; % number of anomalies for each bin size; same size as bin_sizes
         anomaly_dates; % datenum for each individual anomaly
