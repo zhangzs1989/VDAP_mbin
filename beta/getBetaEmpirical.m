@@ -51,7 +51,7 @@ datenum(eventtimes);
 start_time = datenum(2002,01,01);
 cut_off_time = datenum(2016,1,1); %JP: up to date from Helena
 
-eventtimes = eventtimes(eventtimes >= start_time & eventtimes < datenum(2013,1,1));
+eventtimes = eventtimes(eventtimes >= start_time & eventtimes < cut_off_time);
 disp(['NOTE -- # of events in beta background catalog (before ' datestr(cut_off_time,'mmm dd, yyyy') '): ' num2str(numel(eventtimes)) ])
 
 
