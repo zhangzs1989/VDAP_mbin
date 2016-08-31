@@ -18,9 +18,9 @@ for i=1:numel(params.ndays_all)
         stats(v+1,1) = {volcname};
         stats(v+1,i+1) = {beta_output(1).Be(i)};
         if sum(strcmp(volcname,AKeruptions(:,5)))>0
-            stats(v+1,numel(params.ndays_all)+2) = {1};
+            stats(v+1,numel(params.ndays_all)+2) = {'Y'};
         else
-            stats(v+1,numel(params.ndays_all)+2) = {0};
+            stats(v+1,numel(params.ndays_all)+2) = {'N'};
         end
         
     end
