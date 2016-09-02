@@ -32,6 +32,7 @@ else
 end
 
 vinfo.name = vname;
+vinfo.volcname = volcname;
 vinfo.lat = vlat;
 vinfo.lon = vlon;
 vinfo.elev = velev;
