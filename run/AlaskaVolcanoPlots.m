@@ -52,11 +52,11 @@ volc_times = datenum(extractfield(catalog,'DateTime'));
 
 %INSTEAD,
 % get downdays for 2002 - 2012 from HB's manually groomed study
-[baddata1,vinfo.NetworkStartDay] = getBadDataFromHelena(vinfo.name, [min(volc_times) max(volc_times)],inputFiles.HB); % (a)
+[baddata1,vinfo.NetworkStartDay] = getBadDataFromHelena(vinfo.volcname, [min(volc_times) max(volc_times)],inputFiles.HB); % (a)
 
 % now get downdays from 2013-2015 from JP's new data, eventually update all
 % years this way?? too much trouble
-baddata2 = getVolcanoNetworkDownDays(vinfo.name, [min(volc_times) max(volc_times)],params,inputFiles); % (a)
+baddata2 = getVolcanoNetworkDownDays(vinfo.volcname, [min(volc_times) max(volc_times)],params,inputFiles); % (a)
 
 % now cat them together for temp fix until we redo the whole thing
 % ourselves
@@ -108,7 +108,9 @@ if params.wingPlot
     
     plot_windows = [plot_windows; t1 t2];
     plot_names=[plot_names,{str}];
-    [~] = prepAndDoWingPlot(vinfo,params,inputFiles,catalog_b,outer,inner,plot_windows,plot_names);
+    if strcmp(params.volcanoes,'NoErupt') || isempty(eruption_windows)
+        [~] = prepAndDoWingPlot(vinfo,params,inputFiles,catalog_b,outer,inner,plot_windows,plot_names);
+    end
     
     %plot eruption windows, with pre eruption time
     for i=1:size(eruption_windows,1)
