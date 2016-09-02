@@ -42,6 +42,10 @@ if ~iscell(params.volcanoes)
             doEruptons(AKeruptions,params,inputFiles,catalog,jiggle)
             doNoEruptions(AKeruptions,params,inputFiles,catalog,jiggle)         
             
+        case 'Intrude'
+            
+            doIntrusions(params,inputFiles,catalog,jiggle)
+            
         otherwise
             
             error('Need string input option or cell list of volcanoes')
