@@ -50,11 +50,16 @@ if params.topo
     latlim = mapdata.RA.LatitudeLimits;
     ZA = mapdata.ZA;
     RA = mapdata.RA;
-    crange = 200:200:max(max(ZA));    
+    crange = 200:200:max(max(ZA));
 else
     latlim = [min([Lat'; latannO]) max([Lat'; latannO])];
     lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
     crange =[];
+    % deal with crossing 180 longitude for semisepochnoi
+    if sign(min(longannO)) ~= sign(max(longannO))
+        longannO(longannO<0) = longannO(longannO<0) + 360;
+        lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
+    end
 end
 
 %% Figure
@@ -166,11 +171,11 @@ plotm([B1.lat B2.lat],[B1.lon B2.lon]); % B-B' xsection
 
 %% Get locations relative to each xs line
 
-    % stub - send info to Command Window
+% stub - send info to Command Window
 % sprintf('A (degrees): %f',params.angleA/pi*180)
 % sprintf('B (degrees): %f',params.angleB/pi*180)
 
-    % earthquakes
+% earthquakes
 x0 = x - vx; y0 = y - vy; % adjust eq coordinates relative to volcano
 a = sqrt(x0.^2 + y0.^2); % distance from origin (volcano) to point (earthquake)
 angle = atan2(y0,x0); % angle from volcano (origin) to eq
@@ -179,7 +184,7 @@ phiBB = angle - params.angleB;
 AA0 = a .* cos(phiAA); % length along cross section A-A' from volcano (origin)
 BB0 = -1*(a .* cos(phiBB)); % length along cross section B-B' from volcano (origin)
 
-    % stations
+% stations
 sta_x0 = sta_x - vx; sta_y0 = sta_y - vy; % adjust station coordinates
 a = sqrt(sta_x0.^2 + sta_y0.^2); % distance from origin (volcano) to point (earthquake)
 angle = atan2(sta_y0,sta_x0); % angle from volcano (origin) to eq
@@ -188,7 +193,7 @@ phiBB = angle - params.angleB;
 sta_AA0 = a .* cos(phiAA); % length along cross section A-A' from volcano (origin)
 sta_BB0 = -1*(a .* cos(phiBB)); % length along cross section B-B' from volcano (origin)
 
-    % other volcanoes
+% other volcanoes
 px0 = px - vx; py0 = py - vy; % adjust station coordinates
 a = sqrt(px0.^2 + py0.^2); % distance from origin (volcano) to point (earthquake)
 angle = atan2(py0,px0); % angle from volcano (origin) to eq
