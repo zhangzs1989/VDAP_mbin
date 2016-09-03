@@ -66,7 +66,8 @@ beta_back_catalog = filterTime( catalog, good_windows(:,1), good_windows(:,2)); 
 beta_back_catalog_times = datenum(extractfield(beta_back_catalog, 'DateTime')); % (d)
 
 %%
-beta_output = run_betas( beta_back_catalog_times, good_windows, params.ndays_all, 'all', params.it, params.be_thresPer, params.spacing, params.retro); % calculates empirical beta and beta for moving windows
+beta_output = run_betas( beta_back_catalog_times, good_windows, 'all', params, vinfo); % calculates empirical beta and beta for moving windows
+% beta_output = run_betas( beta_back_catalog_times, good_windows, params.ndays_all, 'all', params.it, params.be_thresPer, params.spacing, params.retro); % calculates empirical beta and beta for moving windows
 
 % include 'next_eruption' info in each beta_structure - necessary later
 % for determining precursory activity

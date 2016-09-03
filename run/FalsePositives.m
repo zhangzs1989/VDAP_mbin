@@ -13,6 +13,7 @@
 files = subdir(fullfile(params.outDir, '*beta_output*'));
 
 AKeruptions = readtext(inputFiles.Eruptions);
+AKintrusions = readtext(inputFiles.Intrusions);
 
 % load all beta_output variables
 for n = 1:length(files) % cycle over volcanoes analyzed
@@ -21,6 +22,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
     load(files(n).name) % loads a variable named 'beta_output'
     si = strfind(files(n).name,filesep);
     volcname = files(n).name(si(end-1)+1:si(end)-1);
+    disp(volcname)
     
     %% send to external script for analysis
     
@@ -191,7 +193,11 @@ for n = 1:length(files) % cycle over volcanoes analyzed
             %find previous eruption for repose time, whether monitored
             %or not
             eruption_windows = getEruptionsFromSteph(volcname,AKeruptions,params.minVEI,false);
-            iep = find(eruption_windows(:,1)<t1, 1, 'last' );
+            if ~isempty(eruption_windows)
+                iep = find(eruption_windows(:,1)<t1, 1, 'last' );
+            else
+                iep = [];
+            end
             
             if ~isempty(iep)
                 % if beta begin time earlier than last eruption + repose,

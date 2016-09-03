@@ -1,4 +1,6 @@
-function [ BE, P , background_T, background_N] = getBetaEmpirical( window_type, eventtimes, windows , ndays, it, be_thresPer )
+function [ BE, P , background_T, background_N] = getBetaEmpirical( window_type, eventtimes, windows , params, vinfo )
+% function [ BE, P , background_T, background_N] = getBetaEmpirical( window_type, eventtimes, windows , ndays, it, be_thresPer )
+
 disp(mfilename('fullpath'))
 %GETBETAEMPIRICAL Calculates empirical beta given a defined background
 %window.
@@ -48,12 +50,16 @@ Disaster Assistance Program
 datenum(eventtimes);
 
     % temporary hard coding of time to consider background
-start_time = datenum(2002,01,01);
-cut_off_time = datenum(2016,1,1); %JP: up to date from Helena
+% start_time = datenum(2002,01,01);
+start_time = vinfo.NetworkStartDay;
+cut_off_time = datenum(2016,1,1); %JP: end of current network health analysis
 
 eventtimes = eventtimes(eventtimes >= start_time & eventtimes < cut_off_time);
 disp(['NOTE -- # of events in beta background catalog (before ' datestr(cut_off_time,'mmm dd, yyyy') '): ' num2str(numel(eventtimes)) ])
 
+ndays = params.ndays_all;
+it = params.it;
+be_thresPer = params.be_thresPer;
 
 %% Switches between different time definitions of background
 

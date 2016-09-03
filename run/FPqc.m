@@ -6,7 +6,7 @@ qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
 % bviz='invisible';
 bviz = 'visible';
-bfigs = false;
+bfigs = true;
 wingPlot = false;
 minVEIb = params.minVEI;
 vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
@@ -28,7 +28,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         istr = strfind(files(n).name,'/');
         vname = files(n).name(istr(end-1)+1:istr(end-0)-1);
         lh =[lh; {vname}];
-        disp(files(n).name)
+        disp(vname)
         vqcdir=[params.outDir,filesep,vname,filesep,qcdir];
         [SUCCESS,MESSAGE,MESSAGEID] = mkdir(vqcdir);
         
@@ -75,7 +75,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             end
             
             %% plot wing plot and beta plot around false positives
-            if wingPlot
+            if wingPlot || bfigs
                 vinfo = getVolcanoSpecs(vname,inputFiles,params);
                 [ catalog_b, outer, inner] = filterAnnulusm(catalog, vinfo.lat, vinfo.lon, params.srad); % filter annulus
                 
@@ -111,7 +111,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                             
                             
                         end
-                        if sum(sum(isnan(plot_windows))) == 0 && ~isempty(plot_windows)
+                        if sum(sum(isnan(plot_windows))) == 0 && ~isempty(plot_windows) && wingPlot
                             [fh_wingplot] = prepAndDoWingPlot(vinfo,params,inputFiles,catalog_b,outer,inner,plot_windows,plot_names);
                             close(fh_wingplot)
                         end
@@ -163,6 +163,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             end
             %         figure(F.Number)
             if bfigs
+                figure(F)
                 xlim([t1o t2o])
                 savefig(F,[params.outDir,filesep,vname,filesep,vname,'_Beta_FPwin',int2str(win)]);
                 print(F,'-dpng',[vqcdir,filesep,vname,'_Beta_FPwin',int2str(win)])
