@@ -235,16 +235,20 @@ for n = 1:numel(beta_output)
     %}
     if strcmp(type, 'mom')
         
-        beta_output(n).bin_mag(:,1) = magnitude2moment(beta_output(n).bin_mag(:,1));
-        beta_output(n).bin_mag(:,2) = magnitude2moment(beta_output(n).bin_mag(:,2));
-        beta_output(n).bin_mag(:,3) = magnitude2moment(beta_output(n).bin_mag(:,3));
+        for nn=1:numel(beta_output.bin_sizes)
+            beta_output(n).bin_mag(:,nn) = magnitude2moment(beta_output(n).bin_mag(:,nn));
+        end
         
     end
 
+    % ISSUE: below assumes no more than 3 window sizes allowed
     sp8.hline(1) = stairs(beta_output(n).t_checks(:,1), beta_output(n).bin_mag(:,1), 'g');
-    sp8.hline(2) = stairs(beta_output(n).t_checks(:,2), beta_output(n).bin_mag(:,2), 'b');
-    sp8.hline(3) = stairs(beta_output(n).t_checks(:,3), beta_output(n).bin_mag(:,3), 'r');
-
+    try
+        sp8.hline(2) = stairs(beta_output(n).t_checks(:,2), beta_output(n).bin_mag(:,2), 'b');
+    end
+    try
+        sp8.hline(3) = stairs(beta_output(n).t_checks(:,3), beta_output(n).bin_mag(:,3), 'r');
+    end
 end
 datetick(sp8.axh, 'keeplimits');
 if strcmp(type, 'mag')

@@ -45,6 +45,10 @@ color(1,:) = [0.38 0.85 0.38]; % darker than 'g'
 color(2,:) = [ 0 0 1 ]; % 'b'
 color(3,:) = [1 0 0 ]; % 'r'
 
+%save gmt data file
+clear gmtDataFile
+ct = 1;
+        
 n_beta_legends = 0; % stores the number of legends created for beta thresholds
 for n = 1:length(beta_output) % for each background period
     
@@ -58,6 +62,7 @@ for n = 1:length(beta_output) % for each background period
         start_dt = datetime(datestr(start)); stop_dt = datetime(datestr(stop)); % start and stop of background windows in 'datetime' var type
         start_dt = start; stop_dt = stop; % start and stop of background windows in 'datetime' var type
                 
+
         
         for i = 1:size(bc,2) % for each window size
             
@@ -82,11 +87,40 @@ for n = 1:length(beta_output) % for each background period
             %                 n_beta_legends = n_beta_legends + 1; % append legend text descriptions
             %             end;
             
+            gmtDataFile(ct,1) = {'>'};
+            gmtDataFile(ct,2) = {'-W1,0/0/255'};
+            I=find(~isnan(x) & ~isnan(y));
+            for ii=I
+                ct = ct + 1;
+                gmtDataFile(ct,1) = {datestr(x(ii),'yyyy-mm-ddTHH:MM:SS')};
+                gmtDataFile(ct,2) = {y(ii)};
+            end
+            
         end
-        
+
     end
     
 end
+% add horizontal threshold line
+ct=ct+1;
+gmtDataFile(ct,1) = {'>'};
+gmtDataFile(ct,2) = {'-W1,0/0/255,--'};
+ct=ct+1;
+gmtDataFile(ct,1) = {datestr(beta_output(1).start,'yyyy-mm-ddTHH:MM:SS')};
+gmtDataFile(ct,2) = {Be(i)};
+ct=ct+1;
+gmtDataFile(ct,1) = {datestr(beta_output(end).stop,'yyyy-mm-ddTHH:MM:SS')};
+gmtDataFile(ct,2) = {Be(i)};
+% add horiz theo thres line
+ct=ct+1;
+gmtDataFile(ct,1) = {'>'};
+gmtDataFile(ct,2) = {'-W1,0,--'};
+ct=ct+1;
+gmtDataFile(ct,1) = {datestr(beta_output(1).start,'yyyy-mm-ddTHH:MM:SS')};
+gmtDataFile(ct,2) = {2.57};
+ct=ct+1;
+gmtDataFile(ct,1) = {datestr(beta_output(end).stop,'yyyy-mm-ddTHH:MM:SS')};
+gmtDataFile(ct,2) = {2.57};
 
 %% Plot Bad Data Days - as rectangles
 
@@ -99,6 +133,24 @@ if ~isempty(bad_data_days)
 
         for n = 1:length(starts)
             bad_data_plot = rectangle('Position',[starts(n) min_bc_val durations(n) max_bc_val+1], 'FaceColor', [0.5 0.5 0.5]);
+            ct=ct+1;
+            gmtDataFile(ct,1) = {'>'};
+            gmtDataFile(ct,2) = {'-W1,100 -G100'};
+            ct=ct+1;
+            gmtDataFile(ct,1) = {datestr(starts(n),'yyyy-mm-ddTHH:MM:SS')};
+            gmtDataFile(ct,2) = {min_bc_val};
+            ct=ct+1;
+            gmtDataFile(ct,1) = {datestr(starts(n)+durations(n),'yyyy-mm-ddTHH:MM:SS')};
+            gmtDataFile(ct,2) = {min_bc_val};
+            ct=ct+1;
+            gmtDataFile(ct,1) = {datestr(starts(n)+durations(n),'yyyy-mm-ddTHH:MM:SS')};
+            gmtDataFile(ct,2) = {max_bc_val+1};
+            ct=ct+1;
+            gmtDataFile(ct,1) = {datestr(starts(n),'yyyy-mm-ddTHH:MM:SS')};
+            gmtDataFile(ct,2) = {max_bc_val+1};      
+            ct=ct+1;
+            gmtDataFile(ct,1) = {datestr(starts(n),'yyyy-mm-ddTHH:MM:SS')};
+            gmtDataFile(ct,2) = {min_bc_val};            
         end
 
     datetick('keeplimits') %JP
@@ -114,11 +166,37 @@ for n = 1:size(eruption_windows,1)
     duration = eruption_windows(n,2) - eruption_windows(n,1);
     eruption = rectangle('Position',[eruption_windows(n,1) min_bc_val duration max_bc_val+1],'FaceColor','r'); hold on;
     
+    ct=ct+1;
+    gmtDataFile(ct,1) = {'>'};
+    gmtDataFile(ct,2) = {['-W1,255/0/0 -G255/0/0']};
+    ct=ct+1;
+    gmtDataFile(ct,1) = {datestr(eruption_windows(n,1),'yyyy-mm-ddTHH:MM:SS')};
+    gmtDataFile(ct,2) = {min_bc_val};
+    ct=ct+1;
+    gmtDataFile(ct,1) = {datestr(eruption_windows(n,1)+duration,'yyyy-mm-ddTHH:MM:SS')};
+    gmtDataFile(ct,2) = {min_bc_val};
+    ct=ct+1;
+    gmtDataFile(ct,1) = {datestr(eruption_windows(n,1)+duration,'yyyy-mm-ddTHH:MM:SS')};
+    gmtDataFile(ct,2) = {max_bc_val+1};
+    ct=ct+1;
+    gmtDataFile(ct,1) = {datestr(eruption_windows(n,1),'yyyy-mm-ddTHH:MM:SS')};
+    gmtDataFile(ct,2) = {max_bc_val+1};
+    ct=ct+1;
+    gmtDataFile(ct,1) = {datestr(eruption_windows(n,1),'yyyy-mm-ddTHH:MM:SS')};
+    
         % add line x-months before eruption (this corresponds to amount of
         % time shown on the map)
     map_start = eruption_windows(n,1)-params.AnomSearchWindow; % 4 months is the amount of time chosen right now
     map_start_line = plot([map_start map_start],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', [0.5 0.5 0.5]);
-    
+    ct=ct+1;
+    gmtDataFile(ct,1) = {'>'};
+    gmtDataFile(ct,2) = {'-W1,100,-.-.'};
+    ct=ct+1;
+    gmtDataFile(ct,1) = {datestr(map_start,'yyyy-mm-ddTHH:MM:SS')};
+    gmtDataFile(ct,2) = {min_bc_val};
+    ct=ct+1;
+    gmtDataFile(ct,1) = {datestr(map_start,'yyyy-mm-ddTHH:MM:SS')};
+    gmtDataFile(ct,2) = {max_bc_val+1};    
 end
 
 % p = [p; erupt_start];
@@ -137,6 +215,7 @@ xlabel('Date','FontWeight','bold','FontSize',12)
 ylim([min_bc_val max_bc_val])
 zoom xon
 
+s6_cellwrite([params.outDir,filesep,volcname,filesep,'gmtData.xy'],gmtDataFile,' ')
 %% Plot Bad Data Days - as points
 % 
 % NOTE: In order to run this section, bad_data_days must be set to NaN if
