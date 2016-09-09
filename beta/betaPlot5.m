@@ -1,4 +1,4 @@
-function p = betaPlot5(volcname, beta_output, eruption_windows, bad_data_days, params)
+function p = betaPlot5(volcname, beta_output, eruption_windows, bad_data_days, params, inputFiles)
 disp(mfilename('fullpath'))
 %% UPDATES
 %{
@@ -165,6 +165,9 @@ for n = 1:size(eruption_windows,1)
         % add rectangle for eruption window
     duration = eruption_windows(n,2) - eruption_windows(n,1);
     eruption = rectangle('Position',[eruption_windows(n,1) min_bc_val duration max_bc_val+1],'FaceColor','r'); hold on;
+    % add line x yrs after eruption to mark repose times
+    rstart = eruption_windows(n,2)+params.repose*365;
+    r_start_line = plot([rstart rstart],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
     
     ct=ct+1;
     gmtDataFile(ct,1) = {'>'};
@@ -197,6 +200,15 @@ for n = 1:size(eruption_windows,1)
     ct=ct+1;
     gmtDataFile(ct,1) = {datestr(map_start,'yyyy-mm-ddTHH:MM:SS')};
     gmtDataFile(ct,2) = {max_bc_val+1};    
+end
+
+% now plot repose line from eruption prior to first eruption in analysis
+% windows
+AKeruptions = readtext(inputFiles.Eruptions); % poor programming redoing this here
+[eruption_windows2] = getEruptionsFromSteph(volcname,AKeruptions,params.minVEI,0);
+prior_eruption=setdiff(eruption_windows2(:,2),eruption_windows(:,2));
+if prior_eruption ~= 0
+        rline = plot([prior_eruption+params.repose*365 prior_eruption+params.repose*365],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
 end
 
 % p = [p; erupt_start];
