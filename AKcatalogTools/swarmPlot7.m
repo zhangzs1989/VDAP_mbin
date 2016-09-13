@@ -204,7 +204,7 @@ ylim([params.max_depth_threshold*-1 -4*-1])
 
 sp6 = [];
 sp6.axh = subplot(9,1,6:7); hold on
-sp6.hline = betaPlot5(vinfo.name, beta_output,  eruption_windows, baddata, params, inputFiles);
+sp6.hline = betaPlot5(vinfo, beta_output,  eruption_windows, baddata, params, inputFiles);
 datetick(sp6.axh,'keeplimits')
 % sp6.hline = betaPlot2_JJW5(vname, beta_output);
 

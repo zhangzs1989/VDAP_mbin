@@ -50,9 +50,9 @@ Disaster Assistance Program
 datenum(eventtimes);
 
     % temporary hard coding of time to consider background
-start_time = datenum(2002,01,01);
-% start_time = vinfo.NetworkStartDay;
-cut_off_time = datenum(2016,1,1); %JP: end of current network health analysis
+% start_time = params.betaBackgroundType(1);
+start_time = vinfo.NetworkStartDay;
+cut_off_time = params.betaBackgroundType(2); %JP: end of current network health analysis
 
 eventtimes = eventtimes(eventtimes >= start_time & eventtimes < cut_off_time);
 disp(['NOTE -- # of events in beta background catalog (before ' datestr(cut_off_time,'mmm dd, yyyy') '): ' num2str(numel(eventtimes)) ])

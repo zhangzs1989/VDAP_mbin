@@ -1,4 +1,4 @@
-function H = wingPlot_AK5(vinfo, t1, t2, catalog, mapdata, params)
+function H = wingPlot_AK5(vinfo, t1, t2, catalog, mapdata, params,ii)
 
 disp(mfilename('fullpath'))
 % WINGPLOT Plots data in map view along with cross section profiles.
@@ -70,6 +70,9 @@ H = figure('Position',[scrsz(3)/2 scrsz(4)/2 scrsz(3)/2 scrsz(3)/2],'visible',pa
 H.Color = [1 1 1]; % sets the background of the figure panel to white
 H.InvertHardcopy = 'off'; % should make the printed figure look more like what is on the screen
 
+clear mapData mapData2
+ct = 0;
+ct2=0;
 %% Subplots
 
 subplot(3,3,[1 2 4 5]);
@@ -94,8 +97,38 @@ hcb=colorbar;
 caxis([t1 t2])
 datetickJP(hcb,'y',2); % this is a non-Matlab function, watch out!
 
+for i=1:length(Lat)
+    ct=ct+1;
+    mapData(ct,1) = {Lat(i)};
+    mapData(ct,2) = {Lon(i)};
+    mapData(ct,3) = {datestr(DateTime(i),'yyyy-mm-ddTHH:MM:SS')};
+    mapData(ct,4) = {Depth(i)};
+end
+
 plotm(vinfo.vlats, vinfo.vlons,'dk','MarkerFaceColor','w','MarkerSize',6); % plot the volcano; make ared triangle
 plotm(latannO, longannO, 'k')
+
+ct2 = ct2 + 1;
+mapData2(ct2,1) = {'>'};
+mapData2(ct2,2) = {'-W1,0,--'};
+
+for i=1:length(latannI)
+    ct2=ct2+1;
+    mapData2(ct2,1) = {latannI(i)};
+    mapData2(ct2,2) = {longannI(i)};
+end
+ct2 = ct2 + 1;
+mapData2(ct2,1) = {'>'};
+mapData2(ct2,2) = {'-W1,0,--'};
+
+for i=1:length(latannO)
+    ct2=ct2+1;
+    mapData2(ct2,1) = {latannO(i)};
+    mapData2(ct2,2) = {longannO(i)};
+end
+s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,['mapData',int2str(ii),'.xy']],mapData,' ')
+s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,'mapDataB.xy'],mapData2,' ')
+
 try plotm(latannI, longannI, 'k'); catch, warning('No inner annulus plotted'), end % plot the annulus as a black line
 try plotm(mapdata.sta_lat, mapdata.sta_lon,'^k','MarkerFaceColor','k'); catch, warning('No other stations in the area'), end
 

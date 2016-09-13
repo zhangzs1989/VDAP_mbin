@@ -96,7 +96,7 @@ for i=1:size(plot_windows,1)
     t1 = plot_windows(i,1);
     t2 = plot_windows(i,2);
     catalog_t = filterTime(catalog,t1,t2);
-    fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params);
+    fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params,i);
     print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
     
 end

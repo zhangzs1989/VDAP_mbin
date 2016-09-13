@@ -140,15 +140,19 @@ disp('Enter swarm plot...')
 
 swarm_plots = swarmPlot7(catalog,vinfo,params,beta_output,eruption_windows,baddata,inputFiles);
 
-t1 = beta_back_catalog_times(1)-1;
-t2 = beta_back_catalog_times(length(beta_back_catalog_times))+1;
-xlim([t1 t2]);
+%find most useful time boundaries
+% t1o = beta_back_catalog_times(1)-1;
+t1o = min([beta_back_catalog_times(1)-1; params.betaBackgroundType(1); vinfo.NetworkStartDay]);
+% t2o = beta_back_catalog_times(length(beta_back_catalog_times))+1;
+t2o = max([beta_back_catalog_times(length(beta_back_catalog_times))+1; params.betaBackgroundType(2); params.catalogEndDate]);
+
+xlim([t1o t2o]);
 if size(catalog,2) == 1
     catTitle = 'Jiggle';
 else
     catTitle = 'ANSS';
 end
-title(swarm_plots(2),{[vinfo.name,': ',catTitle],[datestr(t1,'mm/dd/yyyy') ' to ' datestr(t2,'mm/dd/yyyy')]})
+title(swarm_plots(2),{[vinfo.name,': ',catTitle],[datestr(t1o,'mm/dd/yyyy') ' to ' datestr(t2o,'mm/dd/yyyy')]})
 % set(swarm_plots(1),'PaperPositionMode','auto')
 
 outDirName=[params.outDir,'/',vinfo.name];
@@ -182,5 +186,6 @@ if nnz(eruption_windows)~=0
         print(swarm_plots(1),'-dpng',[outDirName,'/',vinfo.name,'_Beta_',catTitle,'_recent'])
     end
 end
-t1 = beta_back_catalog_times(1)-1;
-xlim([t1 t2]);
+xlim([t1o t2o]);
+title(swarm_plots(2),{[vinfo.name,': ',catTitle],[datestr(t1o,'mm/dd/yyyy') ' to ' datestr(t2o,'mm/dd/yyyy')]})
+
