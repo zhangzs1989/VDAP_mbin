@@ -18,12 +18,6 @@ catch
 end
 
 AKeruptions = readtext(inputFiles.Eruptions);
-AKeruptions(1,6) = {'start_str'};
-AKeruptions(1,7) = {'stop_str'};
-for i=2:size(AKeruptions,1)
-    AKeruptions(i,6) = {datestr(cell2mat(AKeruptions(i,1)))};
-    AKeruptions(i,7) = {datestr(cell2mat(AKeruptions(i,2)))};
-end
 
 if ~iscell(params.volcanoes)
     

@@ -36,7 +36,7 @@ end
 
 [ catalog_b, outer, inner] = filterAnnulusm(catalog, vinfo.lat, vinfo.lon, params.srad); % filter annulus
 % [ catalog_b ] = filterDepth( catalog_b, params.max_depth_threshold ); % (d)
-% [ catalog_b ] = filterMag( catalog_b, params.min_mag ); % (e)
+[ catalog_b ] = filterMag( catalog_b, eruption_windows(1,4) ); % (e) % now assume Mc is the same for all eruptions
 % [ catalog_b ] = filterTime( catalog_b, datenum('1990/01/01'), datenum('2016/05/01'));
 % catalog_AV = filterByNetworkCode( catalog_b, {'AV'} ); % (c)
 

@@ -202,7 +202,7 @@ max_be_val = max(Be);  % redo this to max Be for better y limits on end plot (JP
 for n = 2:size(eruption_windows,1)
     
     % add rectangle for eruption window
-    duration = eruption_windows(n,2) - eruption_windows(n,1);
+    duration = eruption_windows(n,2) - eruption_windows(n,1) + 1; %NOTE: plus one to ensure at least one day is boxed out
     eruption = rectangle('Position',[eruption_windows(n,1) min_bc_val duration max_bc_val+1],'FaceColor','r'); hold on;
     % add line x yrs after eruption to mark repose times
     rstart = eruption_windows(n,2)+params.repose*365;

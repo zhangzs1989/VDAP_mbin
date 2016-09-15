@@ -6,9 +6,9 @@ qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
 % bviz='invisible';
 bviz = 'visible';
-bfigs = true;
+bfigs = false;
 wingPlot = false;
-minVEIb = params.minVEI;
+minVEIb = 3; %params.minVEI;
 vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
 % vsort = 1;
 vsort = 1:size(files,1);% don't do anything special to sort the volcanoes
@@ -217,4 +217,22 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     
 end
 
+clear outData
+ct = 1;
+outData(1,:) = {'volcano','lat','lon','elev','Eruptions','TP','FP'};
+for i=1:numel(lh)
+    ct = ct +1;
+    volcname = lh(i);
+    vinfo = getVolcanoSpecs(volcname,inputFiles,params);
+    outData(ct,1) = volcname;
+    outData(ct,2) = {vinfo.lat};
+    outData(ct,3) = {vinfo.lon};
+    outData(ct,4) = {vinfo.elev};
+    outData(ct,5) = {pdata(vsort(i),4)};
+    outData(ct,6) = {pdata(vsort(i),1)};
+    outData(ct,7) = {pdata(vsort(i),2)};
+    
+    
+end
 %%
+s6_cellwrite([params.outDir,filesep,'FPvolcResults.csv'],outData,',')
