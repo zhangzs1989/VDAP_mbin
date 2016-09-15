@@ -1,12 +1,12 @@
 function doIntrusions(params,inputFiles,catalog,jiggle)
 
 AKintrusions = readtext(inputFiles.Intrusions);
-AKintrusions(1,6) = {'start_str'};
-AKintrusions(1,7) = {'stop_str'};
-for i=2:size(AKintrusions,1)
-    AKintrusions(i,6) = {datestr(cell2mat(AKintrusions(i,1)))};
-    AKintrusions(i,7) = {datestr(cell2mat(AKintrusions(i,2)))};
-end
+% AKintrusions(1,6) = {'start_str'};
+% AKintrusions(1,7) = {'stop_str'};
+% for i=2:size(AKintrusions,1)
+%     AKintrusions(i,6) = {datestr(cell2mat(AKintrusions(i,1)))};
+%     AKintrusions(i,7) = {datestr(cell2mat(AKintrusions(i,2)))};
+% end
 
 % codes in file are a bit arbitrary
 % -1 is cited but not useable
@@ -31,6 +31,8 @@ for n = 1:numel(vnames)
         intrusion_windows(1) = datenum(num2str(cell2mat(AKintrusions(II(i),1))),'yyyymmdd');
         intrusion_windows(2) = datenum(num2str(cell2mat(AKintrusions(II(i),2))),'yyyymmdd');
         intrusion_windows(3) = 999; % set VEI for intrusion
+        intrusion_windows(4) = cell2mat(AKintrusions(II(i),6)); %Mc
+        intrusion_windows(5) = cell2mat(AKintrusions(II(i),7)); % repose
         AlaskaVolcanoPlots(vinfo,intrusion_windows,params,inputFiles,catalog,jiggle)
     end
     

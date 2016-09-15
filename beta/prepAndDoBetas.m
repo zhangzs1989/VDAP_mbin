@@ -80,7 +80,7 @@ beta_output = run_betas( beta_back_catalog_times, good_windows, 'all', params, v
     able to be applied to future applications.
 %}
 
-eruption_windows = [0 0 0 0; eruption_windows]; % adding a set of zeros at the beggining fixes the problem if there are no eruptions at the volcano
+eruption_windows = [0 0 0 0 0; eruption_windows]; % adding a set of zeros at the beggining fixes the problem if there are no eruptions at the volcano
 eruption_dates = eruption_windows; % dates of eruptions
 for n = 1:numel(beta_output)
     
