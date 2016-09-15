@@ -152,10 +152,10 @@ networkData(ctn,1) = {'>'}; % network stop
 networkData(ctn,2) = {'-W1,100,..'};
 ctn=ctn+1;
 networkData(ctn,1) = {datestr(params.betaBackgroundType(2),'yyyy-mm-ddTHH:MM:SS')};
-networkData(ctn,2) = {min_bc_val};        
+networkData(ctn,2) = {min_bc_val};
 ctn=ctn+1;
 networkData(ctn,1) = {datestr(params.betaBackgroundType(2),'yyyy-mm-ddTHH:MM:SS')};
-networkData(ctn,2) = {max_bc_val+1};        
+networkData(ctn,2) = {max_bc_val+1};
 ctn=ctn+1;
 
 labelData(ctl,1) = {datestr(vinfo.NetworkStartDay,'yyyy-mm-ddTHH:MM:SS')};
@@ -244,7 +244,7 @@ for n = 2:size(eruption_windows,1)
     labelData(ctl,2) = {max_bc_val+1};
     labelData(ctl,3) = {'preEruptSearch'};
     ctl = ctl + 1;
-
+    
 end
 
 % now plot repose line from eruption prior to first eruption in analysis
@@ -253,21 +253,23 @@ AKeruptions = readtext(inputFiles.Eruptions); % poor programming redoing this he
 [eruption_windows2] = getEruptionsFromSteph(vinfo.name,AKeruptions,params.minVEI,0);
 prior_eruption=setdiff(eruption_windows2(:,2),eruption_windows(:,2));
 if prior_eruption ~= 0
-    rline = plot([prior_eruption+params.repose*365 prior_eruption+params.repose*365],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
-    cte=cte+1;
-    eruptionData(cte,1) = {'>'};
-    eruptionData(cte,2) = {'-W1,255/0/0,..'};
-    cte=cte+1;
-    eruptionData(cte,1) = {datestr(prior_eruption+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-    eruptionData(cte,2) = {min_bc_val};
-    cte=cte+1;
-    eruptionData(cte,1) = {datestr(prior_eruption+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-    eruptionData(cte,2) = {max_bc_val+1};
-    
-    labelData(ctl,1) = {datestr(prior_eruption+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-    labelData(ctl,2) = {max_bc_val+1};
-    labelData(ctl,3) = {'Repose'};
-    ctl = ctl + 1;    
+    for ii=1:numel(prior_eruption)
+        rline = plot([prior_eruption(ii)+params.repose*365 prior_eruption(ii)+params.repose*365],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
+        cte=cte+1;
+        eruptionData(cte,1) = {'>'};
+        eruptionData(cte,2) = {'-W1,255/0/0,..'};
+        cte=cte+1;
+        eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
+        eruptionData(cte,2) = {min_bc_val};
+        cte=cte+1;
+        eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
+        eruptionData(cte,2) = {max_bc_val+1};
+        
+        labelData(ctl,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
+        labelData(ctl,2) = {max_bc_val+1};
+        labelData(ctl,3) = {'Repose'};
+        ctl = ctl + 1;
+    end
 end
 
 % p = [p; erupt_start];
