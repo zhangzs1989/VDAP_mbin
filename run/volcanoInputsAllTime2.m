@@ -53,7 +53,7 @@ else
         
         volcname = params.volcanoes{n};
         vinfo = getVolcanoSpecs(volcname,inputFiles,params);
-        eruption_windows = getEruptionsFromSteph(volcname,AKeruptions,params.minVEI,true);
+        eruption_windows = getEruptionsFromSteph(volcname,AKeruptions,params.VEI,true);
         AlaskaVolcanoPlots(vinfo,eruption_windows,params,inputFiles,catalog,jiggle)
         
         if isempty(eruption_windows)

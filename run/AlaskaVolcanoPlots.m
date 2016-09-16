@@ -70,7 +70,7 @@ stats(2,1) = {vinfo.name};
 stats(2,3) = {numel(baddata)};
 stats(2,2) = {datestr(vinfo.NetworkStartDay)};
 stats(2,4) = {datenum(2016,1,1,0,0,0)-vinfo.NetworkStartDay-numel(baddata)};
-s6_cellwrite(fullfile(params.outDir,vinfo.volcname,filesep,[vinfo.volcname,'NetworkStats.csv']),stats);
+s6_cellwrite(fullfile(params.outDir,vinfo.name,filesep,[vinfo.name,'NetworkStats.csv']),stats);
 
 % baddata = baddata1; % temp while running badger...
 

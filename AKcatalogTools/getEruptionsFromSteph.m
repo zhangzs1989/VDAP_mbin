@@ -1,4 +1,4 @@
-function [eruption_windows] = getEruptionsFromSteph(volcname,AKeruptions,minVEI,mcode)
+function [eruption_windows] = getEruptionsFromSteph(volcname,AKeruptions,VEIrange,mcode)
 
 % read in the data file I made from Stephs AGU data and get eruption
 % windows to match old version
@@ -22,7 +22,7 @@ if mcode % get only seismically monitored ones
         
         if TF
             
-            if cell2mat(AKeruptions(i,4)) ~= -1 && cell2mat(AKeruptions(i,3)) >= minVEI %has seismic network and VEI > X
+            if cell2mat(AKeruptions(i,4)) ~= -1 && cell2mat(AKeruptions(i,3)) >= VEIrange(1) %has seismic network and VEI > X
                 
                 eruption_windows = [eruption_windows; datenum(cell2mat(AKeruptions(i,1))) datenum(cell2mat(AKeruptions(i,2))) cell2mat(AKeruptions(i,3)) cell2mat(AKeruptions(i,6)) cell2mat(AKeruptions(i,7))];
                 
@@ -41,7 +41,7 @@ else % get all eruptions, not just seismically monitored ones
         
         if TF
             
-            if cell2mat(AKeruptions(i,3)) >= minVEI % VEI > X
+            if cell2mat(AKeruptions(i,3)) >= VEIrange(1) % VEI > X
                 
                 eruption_windows = [eruption_windows; datenum(cell2mat(AKeruptions(i,1))) datenum(cell2mat(AKeruptions(i,2))) cell2mat(AKeruptions(i,3)) cell2mat(AKeruptions(i,6)) cell2mat(AKeruptions(i,7))];
                 

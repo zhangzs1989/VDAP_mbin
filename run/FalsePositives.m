@@ -192,7 +192,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         if i==1
             %find previous eruption for repose time, whether monitored
             %or not
-            eruption_windows = getEruptionsFromSteph(volcname,AKeruptions,params.minVEI,false);
+            eruption_windows = getEruptionsFromSteph(volcname,AKeruptions,params.VEI,false);
             if ~isempty(eruption_windows)
                 iep = find(eruption_windows(:,1)<t1, 1, 'last' );
             else

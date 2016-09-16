@@ -126,7 +126,9 @@ for i=1:length(latannO)
     mapData2(ct2,1) = {latannO(i)};
     mapData2(ct2,2) = {longannO(i)};
 end
-s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,['mapData',int2str(ii),'.xy']],mapData,' ')
+if ~isempty(Lat)
+    s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,['mapData',int2str(ii),'.xy']],mapData,' ')
+end
 s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,'mapDataB.xy'],mapData2,' ')
 
 try plotm(latannI, longannI, 'k'); catch, warning('No inner annulus plotted'), end % plot the annulus as a black line

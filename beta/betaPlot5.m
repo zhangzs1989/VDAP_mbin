@@ -250,28 +250,30 @@ end
 % now plot repose line from eruption prior to first eruption in analysis
 % windows
 AKeruptions = readtext(inputFiles.Eruptions); % poor programming redoing this here
-[eruption_windows2] = getEruptionsFromSteph(vinfo.name,AKeruptions,params.minVEI,0);
-prior_eruption=setdiff(eruption_windows2(:,2),eruption_windows(:,2));
-if prior_eruption ~= 0
-    for ii=1:numel(prior_eruption)
-        rline = plot([prior_eruption(ii)+params.repose*365 prior_eruption(ii)+params.repose*365],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
-        cte=cte+1;
-        eruptionData(cte,1) = {'>'};
-        eruptionData(cte,2) = {'-W1,255/0/0,..'};
-        cte=cte+1;
-        eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-        eruptionData(cte,2) = {min_bc_val};
-        cte=cte+1;
-        eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-        eruptionData(cte,2) = {max_bc_val+1};
-        
-        labelData(ctl,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-        labelData(ctl,2) = {max_bc_val+1};
-        labelData(ctl,3) = {'Repose'};
-        ctl = ctl + 1;
+[eruption_windows2] = getEruptionsFromSteph(vinfo.name,AKeruptions,params.VEI,0);
+if ~isempty(eruption_windows2)
+    prior_eruption=setdiff(eruption_windows2(:,2),eruption_windows(:,2));
+    I=find(prior_eruption(:,1)<eruption_windows(2:end,1),1,'last');
+    if prior_eruption ~= 0
+        for ii=1:numel(prior_eruption(I))
+            rline = plot([prior_eruption(ii)+params.repose*365 prior_eruption(ii)+params.repose*365],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
+            cte=cte+1;
+            eruptionData(cte,1) = {'>'};
+            eruptionData(cte,2) = {'-W1,255/0/0,..'};
+            cte=cte+1;
+            eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
+            eruptionData(cte,2) = {min_bc_val};
+            cte=cte+1;
+            eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
+            eruptionData(cte,2) = {max_bc_val+1};
+            
+            labelData(ctl,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
+            labelData(ctl,2) = {max_bc_val+1};
+            labelData(ctl,3) = {'Repose'};
+            ctl = ctl + 1;
+        end
     end
 end
-
 % p = [p; erupt_start];
 
 % legend_items = [legend_items; erupt_start(1)];
