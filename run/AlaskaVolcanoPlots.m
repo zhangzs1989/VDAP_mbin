@@ -114,7 +114,7 @@ if params.wingPlot
     
     plot_windows = [plot_windows; t1 t2];
     plot_names=[plot_names,{str}];
-    if strcmp(params.volcanoes,'NoErupt') || isempty(eruption_windows)
+    if isstr(params.volcanoes) && strcmp(params.volcanoes,'NoErupt') || isempty(eruption_windows)
         [~] = prepAndDoWingPlot(vinfo,params,inputFiles,catalog_b,outer,inner,plot_windows,plot_names);
     end
     

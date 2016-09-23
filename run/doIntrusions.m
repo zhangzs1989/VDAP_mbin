@@ -24,18 +24,19 @@ disp(strcat(datestr(datenum(num2str(cell2mat(AKintrusions(I,1))),'yyyymmdd')),' 
 
 for n = 1:numel(vnames)
     %         volcname = char(AKintrusions(I(n),5));
+    clear intrusion_windows
     volcname = char(vnames(n));
     II = find(strcmp(volcname,AKintrusions(:,4)));
     vinfo = getVolcanoSpecs(volcname,inputFiles,params);
     for i=1:numel(II)
-        intrusion_windows(1) = datenum(num2str(cell2mat(AKintrusions(II(i),1))),'yyyymmdd');
-        intrusion_windows(2) = datenum(num2str(cell2mat(AKintrusions(II(i),2))),'yyyymmdd');
-        intrusion_windows(3) = 999; % set VEI for intrusion
-        intrusion_windows(4) = cell2mat(AKintrusions(II(i),6)); %Mc
-        intrusion_windows(5) = cell2mat(AKintrusions(II(i),7)); % repose
-        AlaskaVolcanoPlots(vinfo,intrusion_windows,params,inputFiles,catalog,jiggle)
+        intrusion_windows(i,1) = datenum(num2str(cell2mat(AKintrusions(II(i),1))),'yyyymmdd');
+        intrusion_windows(i,2) = datenum(num2str(cell2mat(AKintrusions(II(i),2))),'yyyymmdd');
+        intrusion_windows(i,3) = 999; % set VEI for intrusion
+        intrusion_windows(i,4) = cell2mat(AKintrusions(II(i),6)); %Mc
+        intrusion_windows(i,5) = cell2mat(AKintrusions(II(i),7)); % repose
     end
-    
+    AlaskaVolcanoPlots(vinfo,intrusion_windows,params,inputFiles,catalog,jiggle)
+
     if isempty(intrusion_windows)
         sprintf('%s has no intrusions',params.volcanoes{n})
     end

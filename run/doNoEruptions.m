@@ -7,7 +7,7 @@ disp([int2str(numel(vnames2)),' volcanoes monitored according to HB, testing all
 clear VOLCANO
 
 % remove ones with eruptions with VEI > minVEI
-I = find(cell2mat(AKeruptions(2:end,4)) ~= -1 & cell2mat(AKeruptions(2:end,3)) >= params.minVEI); %has network and VEI > X
+I = find(cell2mat(AKeruptions(2:end,4)) ~= -1 & cell2mat(AKeruptions(2:end,3)) >= params.VEI); %has network and VEI > X
 I = I + 1; %FIX: adjust for header val
 vnames = unique(AKeruptions(I,5));
 vnames3 = setdiff(vnames2,vnames); % remainder of volcanoes monitored but with no eruptions

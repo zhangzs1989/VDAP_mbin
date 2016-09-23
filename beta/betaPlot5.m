@@ -50,6 +50,8 @@ clear eruptionData betaData networkData labelData
 cte = 1; ctb = 1; ctn = 1; ctl = 1;
 
 n_beta_legends = 0; % stores the number of legends created for beta thresholds
+bstart = beta_output(1).start; %first time of whole thing
+
 for n = 1:length(beta_output) % for each background period
     
     if ~isempty(beta_output(n).bc) % only start plotting routine if there are data
@@ -88,7 +90,16 @@ for n = 1:length(beta_output) % for each background period
             %             end;
             
             betaData(ctb,1) = {'>'};
-            betaData(ctb,2) = {'-W1,0/0/255'};
+            if i==1
+                betaData(ctb,2) = {'-W1,blue'};
+            elseif i==2
+                betaData(ctb,2) = {'-W1,cyan'};
+            elseif i==3
+                betaData(ctb,2) = {'-W1,cornflowerblue'};
+            else
+                warning('TOO MANY window sizes')
+                betaData(ctb,2) = {'-W1,blue'};
+            end
             I=find(~isnan(x) & ~isnan(y));
             for ii=I
                 ctb = ctb + 1;
@@ -101,26 +112,39 @@ for n = 1:length(beta_output) % for each background period
     end
     
 end
-% add horizontal threshold line
-ctb=ctb+1;
-betaData(ctb,1) = {'>'};
-betaData(ctb,2) = {'-W1,0/0/255,--'};
-ctb=ctb+1;
-betaData(ctb,1) = {datestr(beta_output(1).start,'yyyy-mm-ddTHH:MM:SS')};
-betaData(ctb,2) = {Be(i)};
-ctb=ctb+1;
-betaData(ctb,1) = {datestr(params.catalogEndDate,'yyyy-mm-ddTHH:MM:SS')};
-betaData(ctb,2) = {Be(i)};
-
-labelData(ctl,1) = {datestr(beta_output(1).start,'yyyy-mm-ddTHH:MM:SS')};
-labelData(ctl,2) = {Be(i)};
-labelData(ctl,3) = {'Be'};
-ctl = ctl + 1;
+for i = 1:size(bc,2) % for each window size
+    
+    % add horizontal threshold line
+    ctb=ctb+1;
+    betaData(ctb,1) = {'>'};
+    if i==1
+        betaData(ctb,2) = {'-W1,blue,-- #Be'};
+    elseif i==2
+        betaData(ctb,2) = {'-W1,cyan,-- #Be'};
+    elseif i==3
+        betaData(ctb,2) = {'-W1,cornflowerblue,-- #Be'};
+    else
+        warning('TOO MANY window sizes')
+        betaData(ctb,2) = {'-W1,blue,-- #Be'};
+    end
+    
+    ctb=ctb+1;
+    betaData(ctb,1) = {datestr(beta_output(1).start,'yyyy-mm-ddTHH:MM:SS')};
+    betaData(ctb,2) = {Be(i)};
+    ctb=ctb+1;
+    betaData(ctb,1) = {datestr(params.catalogEndDate,'yyyy-mm-ddTHH:MM:SS')};
+    betaData(ctb,2) = {Be(i)};
+    
+    labelData(ctl,1) = {datestr(beta_output(1).start,'yyyy-mm-ddTHH:MM:SS')};
+    labelData(ctl,2) = {Be(i)};
+    labelData(ctl,3) = {'Be'};
+    ctl = ctl + 1;
+end
 
 % add horiz theo thres line
 ctb=ctb+1;
 betaData(ctb,1) = {'>'};
-betaData(ctb,2) = {'-W1,100,--'};
+betaData(ctb,2) = {'-W1,100,-- #Btheo'};
 ctb=ctb+1;
 betaData(ctb,1) = {datestr(beta_output(1).start,'yyyy-mm-ddTHH:MM:SS')};
 betaData(ctb,2) = {2.57};
@@ -209,7 +233,7 @@ for n = 2:size(eruption_windows,1)
     r_start_line = plot([rstart rstart],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
     
     eruptionData(cte,1) = {'>'};
-    eruptionData(cte,2) = {'-W1,0 -G255/0/0'};
+    eruptionData(cte,2) = {['-W1,0 -G255/0/0 #Window',int2str(n-1)]};
     cte=cte+1;
     eruptionData(cte,1) = {datestr(eruption_windows(n,1),'yyyy-mm-ddTHH:MM:SS')};
     eruptionData(cte,2) = {min_bc_val};
@@ -232,7 +256,7 @@ for n = 2:size(eruption_windows,1)
     map_start_line = plot([map_start map_start],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'g');
     ctb=ctb+1;
     betaData(ctb,1) = {'>'};
-    betaData(ctb,2) = {'-W1,0/0/255,--..'};
+    betaData(ctb,2) = {['-W1,0/0/255,--.. #BetaSearch',int2str(n-1)]};
     ctb=ctb+1;
     betaData(ctb,1) = {datestr(map_start,'yyyy-mm-ddTHH:MM:SS')};
     betaData(ctb,2) = {min_bc_val};
@@ -247,33 +271,81 @@ for n = 2:size(eruption_windows,1)
     
 end
 
-% now plot repose line from eruption prior to first eruption in analysis
-% windows
+% unmonitored eruptions
 AKeruptions = readtext(inputFiles.Eruptions); % poor programming redoing this here
 [eruption_windows2] = getEruptionsFromSteph(vinfo.name,AKeruptions,params.VEI,0);
-if ~isempty(eruption_windows2)
-    prior_eruption=setdiff(eruption_windows2(:,2),eruption_windows(:,2));
-    I=find(prior_eruption(:,1)<eruption_windows(2:end,1),1,'last');
-    if prior_eruption ~= 0
-        for ii=1:numel(prior_eruption(I))
-            rline = plot([prior_eruption(ii)+params.repose*365 prior_eruption(ii)+params.repose*365],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
-            cte=cte+1;
-            eruptionData(cte,1) = {'>'};
-            eruptionData(cte,2) = {'-W1,255/0/0,..'};
-            cte=cte+1;
-            eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-            eruptionData(cte,2) = {min_bc_val};
-            cte=cte+1;
-            eruptionData(cte,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-            eruptionData(cte,2) = {max_bc_val+1};
-            
-            labelData(ctl,1) = {datestr(prior_eruption(ii)+params.repose*365,'yyyy-mm-ddTHH:MM:SS')};
-            labelData(ctl,2) = {max_bc_val+1};
-            labelData(ctl,3) = {'Repose'};
-            ctl = ctl + 1;
-        end
+try
+    [C,IA]=setdiff(eruption_windows2(:,1),eruption_windows(2:end,1)); %how many new to add?
+    eruption_windows3 = eruption_windows2(IA,:);
+    % ir = find(~isnan(eruption_windows3(:,5)));
+    for n=1:size(eruption_windows3,1)
+        % add rectangle for eruption window
+        duration = eruption_windows3(n,2) - eruption_windows3(n,1) + 1; %NOTE: plus one to ensure at least one day is boxed out
+        eruption = rectangle('Position',[eruption_windows3(n,1) min_bc_val duration max_bc_val+1],'FaceColor',[1 0.78 0.80]); hold on;
+        % add line x yrs after eruption to mark repose times
+        rstart = eruption_windows3(n,2)+params.repose*365;
+        r_start_line = plot([rstart rstart],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
+        
+        cte=cte+1;
+        eruptionData(cte,1) = {'>'};
+        eruptionData(cte,2) = {['-Glightred #Unmonitored',int2str(n)]};
+        cte=cte+1;
+        eruptionData(cte,1) = {datestr(eruption_windows3(n,1),'yyyy-mm-ddTHH:MM:SS')};
+        eruptionData(cte,2) = {min_bc_val};
+        cte=cte+1;
+        eruptionData(cte,1) = {datestr(eruption_windows3(n,1)+duration,'yyyy-mm-ddTHH:MM:SS')};
+        eruptionData(cte,2) = {min_bc_val};
+        cte=cte+1;
+        eruptionData(cte,1) = {datestr(eruption_windows3(n,1)+duration,'yyyy-mm-ddTHH:MM:SS')};
+        eruptionData(cte,2) = {max_bc_val+1};
+        cte=cte+1;
+        eruptionData(cte,1) = {datestr(eruption_windows3(n,1),'yyyy-mm-ddTHH:MM:SS')};
+        eruptionData(cte,2) = {max_bc_val+1};
+        cte=cte+1; % close the polygon
+        eruptionData(cte,1) = {datestr(eruption_windows3(n,1),'yyyy-mm-ddTHH:MM:SS')};
+        eruptionData(cte,2) = {min_bc_val};
     end
+catch
+    disp('no unmonitored eruptions to plot')
 end
+
+% now plot repose lines
+for ii = 2:size(eruption_windows,1)
+    
+    rdate = eruption_windows(ii,1)-eruption_windows(ii,5)*365+params.repose*365;
+    if isnan(rdate)
+        %        rdate = eruption_windows(ii,1)-params.AnomSearchWindow;
+        rdate = bstart;
+    end
+    
+    if rdate>eruption_windows(ii) %then required repose period not met, use default for plotting
+        rdate = eruption_windows(ii)-params.AnomSearchWindow;
+    end
+    
+    rline = plot([rdate rdate],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
+    cte=cte+1;
+    eruptionData(cte,1) = {'>'};
+    eruptionData(cte,2) = {['-W1,255/0/0,.. #Repose',int2str(ii-1)]};
+    cte=cte+1;
+    eruptionData(cte,1) = {datestr(rdate,'yyyy-mm-ddTHH:MM:SS')};
+    eruptionData(cte,2) = {min_bc_val};
+    cte=cte+1;
+    eruptionData(cte,1) = {datestr(rdate,'yyyy-mm-ddTHH:MM:SS')};
+    eruptionData(cte,2) = {max_bc_val+1};
+    
+    labelData(ctl,1) = {datestr(rdate,'yyyy-mm-ddTHH:MM:SS')};
+    labelData(ctl,2) = {max_bc_val+1};
+    labelData(ctl,3) = {'Repose'};
+    ctl = ctl + 1;
+    
+    labelData(ctl,1) = {datestr(eruption_windows(ii)-params.BetaPlotPreEruptionTime,'yyyy-mm-ddTHH:MM:SS')};
+    labelData(ctl,3) = {'BetaPlotPreEruptionTime'};
+    labelData(ctl,2) = {int2str(ii-1)};
+    ctl = ctl + 1;
+    
+end
+
+
 % p = [p; erupt_start];
 
 % legend_items = [legend_items; erupt_start(1)];

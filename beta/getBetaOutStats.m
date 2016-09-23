@@ -3,7 +3,7 @@ function [stats] = getBetaOutStats(params,inputFiles)
 stats(1,1)={'Volcano'};
 files = dir2(params.outDir, '-r', '*beta_output*');
 AKeruptions = readtext(inputFiles.Eruptions);
-stats(1,5)={'Eruption?'};
+stats(1,numel(params.ndays_all)+2)={'Eruption?'};
 
 for i=1:numel(params.ndays_all)
     stats(1,1+i) = {['Be (',int2str(params.ndays_all(i)),' day win)']};

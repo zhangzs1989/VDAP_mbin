@@ -4,6 +4,8 @@ stats(1,1)={'PosBcBeRatio'};
 stats(1,3)={'TF'};
 stats(1,2)={'Volcano'};
 stats(1,4)={'BetaWindowSize'};
+stats(1,5)={'startTime'};
+stats(1,6)={'Be'};
 % files = dir2(params.outDir, '-r', '*beta_output*');
 
 % get eruptionData.mat files from JP FalsePositives.m code run post
@@ -41,7 +43,7 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
         %which VEIs to plot
         VEI = extractfield(eruptionData,'VEI');
         
-        if ~isempty(ir) && sum(VEI>=params.minVEI) > 0
+        if ~isempty(ir) && sum(VEI>=params.VEI(1)) > 0
             
             %             %         nerupts = sum(ir); %size(eruptionData,2) - 1;
             %             fps = (extractfield(eruptionData(ir),'falsePositives'));
@@ -55,20 +57,25 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                 fpMaxBcs = cell2mat(eruptionData(k).FalsPosMaxVals(w));
                 tpMaxBcs = cell2mat(eruptionData(k).TruePosMaxVals(w));
                 
-                for fp=1:numel(fpMaxBcs)
+                fpMaxBcsT = cell2mat(eruptionData(k).FalsPosMaxStart(w));
+                tpMaxBcsT = cell2mat(eruptionData(k).TruePosMaxStart(w));                
+                
+                for fp=1:find(~isnan(fpMaxBcs))
                     count = count + 1;
                     stats(count,1) = {fpMaxBcs(fp)};
                     stats(count,2) = {volcname};
                     stats(count,3) = {'FP'};
                     stats(count,4) = {params.ndays_all(w)};
+                    stats(count,5) = {datestr(fpMaxBcsT(fp),'yyyy-mm-ddTHH:MM:SS')};
                 end
                 
-                for tp=1:numel(tpMaxBcs)
+                for tp=1:find(~isnan(tpMaxBcs))
                     count = count + 1;
                     stats(count,1) = {tpMaxBcs(tp)};
                     stats(count,2) = {volcname};
                     stats(count,3) = {'TP'};
-                    stats(count,4) = {params.ndays_all(w)};                    
+                    stats(count,4) = {params.ndays_all(w)}; 
+                    stats(count,5) = {datestr(tpMaxBcsT(tp),'yyyy-mm-ddTHH:MM:SS')};                    
                 end
             end
             %             for e=1:nerupts

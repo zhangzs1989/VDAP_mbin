@@ -73,7 +73,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 bcs = beta_output(i).bc(r,k);
                 [Y,I] = max(bcs);
                 maxAnomStart(l) = beta_output(i).t_checks(r(I),k);
-                maxAnomValue(l) = Y/beta_output(i).Be(k);
+                maxAnomValue(l) = Y/beta_output(i).Be(k); % ratio or val?
             end
                 
             beta_output(i).AnomMaxStarts(k,:) = {maxAnomStart};
@@ -228,14 +228,24 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 astartMaxVals = nonzeros(eruptionData(i).MaxAnomValues(:,j));
                 
                 % define true/false positives for the eruption
-                ifp = astarts > t0r & astops <= t1 - params.AnomSearchWindow;
+                ifp = find(astarts > t0r & astops <= t1 - params.AnomSearchWindow);
                 %                 itp = astops > t1 - params.AnomSearchWindow & astarts < t1;
-                itp = astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r;
+                itp = find(astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r);
                 
                 
                 % count tru/false positives
-                tp(j) = sum(itp); if tp(j) > 1; tp(j) = 1; end; % don't count multiple TPs, just say yes once
-                fp(j) = sum(ifp);
+                
+                % only want one TP per eruption, take larger
+                if numel(itp) > 1
+                    
+                    [Y,I] = max(astartMaxVals(itp));
+                    tp(j) = 1;
+                    itp = itp(I);
+                else
+                    tp(j) = numel(itp);
+
+                end
+                fp(j) = numel(ifp);
                 
                 eruptionData(i).FalsPosStart(j) = {astarts(ifp)};
                 eruptionData(i).FalsPosStop(j)  = {astops(ifp) };

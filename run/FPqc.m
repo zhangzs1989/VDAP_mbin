@@ -4,12 +4,11 @@ disp('QC')
 files = subdir(fullfile(params.outDir, 'eruptionData.mat'));
 qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
-% bviz='invisible';
-bviz = 'visible';
+bviz = 'invisible';
 bfigs = false;
 wingPlot = false;
-minVEIb = 3; %params.minVEI;
-vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
+minVEIb = 3%params.VEI(1);
+% vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
 % vsort = 1;
 vsort = 1:size(files,1);% don't do anything special to sort the volcanoes
 pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions'};
@@ -50,7 +49,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             fps = (extractfield(eruptionData(ir),'falsePositives'));
             tps = (extractfield(eruptionData(ir),'truePositives'));
             fpMaxBc = (extractfield(eruptionData(ir),'FalsPosMaxVals'));
-            tpMaxBc = (extractfield(eruptionData(ir),'TruePosMaxVals'));            
+            tpMaxBc = (extractfield(eruptionData(ir),'TruePosMaxVals'));
             
             TP = sum(tps(w:numel(params.ndays_all):end)); % #TPs
             FP = sum(fps(w:numel(params.ndays_all):end)); % #FPs
@@ -59,7 +58,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             TN = NE - TP;
             
             pdata(n,1) = TP;
-            pdata(n,2) = -FP; % negative just for plotting prettiness
+            pdata(n,2) = FP; % negative just for plotting prettiness
             pdata(n,3) = TN;
             pdata(n,4) = NE;
             
@@ -126,7 +125,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                         t2=cell2mat(eruptionData(b).TruePosStop(w));
                         t1b=cell2mat(eruptionData(b).TruePosMaxStart(w));
                         t2b=t1b + params.ndays_all(w);
-                        maxBcs = cell2mat(eruptionData(b).TruePosMaxVals(w));                        
+                        maxBcs = cell2mat(eruptionData(b).TruePosMaxVals(w));
                         
                         plot_windows = [t1 t2];
                         plot_names=[]; cm = [];
@@ -136,7 +135,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                                 plot_names=[plot_names,{str}];
                                 
                                 mp = (t1(s)+t2(s))/2;
-                                mp2= (t1b(s)+t2b(s))/2;                                
+                                mp2= (t1b(s)+t2b(s))/2;
                                 if bfigs
                                     plot(F.Children(beta_ax),[mp mp],[F.Children(beta_ax).YLim(1) F.Children(beta_ax).YLim(2)],'c--',[mp2 mp2],[F.Children(beta_ax).YLim(1) F.Children(beta_ax).YLim(2)],'c-')
                                     text(F.Children(beta_ax),mp2,maxBcs(s),num2str(maxBcs(s)))
@@ -192,8 +191,8 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         h(1).FaceColor = [.8 0 0 ];  %'red';
         h(3).FaceColor = 'cyan';
         h(2).FaceColor = [0.25,0.5,0.9];
-        set(hax,'XTick',[-4:4])
-        xlim([-4 4])
+%         set(hax,'XTick',[0:4])
+%         xlim([-4 4])
         xlabel('Count')
         title({[int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' year repose required']; ['VEI >= ',int2str(minVEIb)]})
         %     title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']; ['score: ',int2str(sum(pdata(:,5)))]})
@@ -202,8 +201,9 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         legend('Eruptions','True Positives','False Positives','location','bestOutside')
         
         
-        print([params.outDir,filesep,qcdir,filesep,'BetaStatsWin',int2str(win)],'-dpng')
+        print([params.outDir,filesep,qcdir,filesep,'BetaStatsWinVEI',int2str(minVEIb),'_',int2str(win)],'-dpng')
     end
+
     %         figure('visible',params.visible);
     %         subplot(1,2,2)
     %         hist(fpvscm,1:.5:10)
@@ -215,24 +215,25 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     %         title(['TPs (',int2str(win),' day window)'])
     %         print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
     
+    clear outData
+    ct = 1;
+    outData(1,:) = {'volcano','lat','lon','elev','Eruptions','TP','FP'};
+    for i=1:numel(lh)
+        ct = ct +1;
+        volcname = lh(i);
+        vinfo = getVolcanoSpecs(volcname,inputFiles,params);
+        outData(ct,1) = volcname;
+        outData(ct,2) = {vinfo.lat};
+        outData(ct,3) = {vinfo.lon};
+        outData(ct,4) = {vinfo.elev};
+        outData(ct,5) = {pdata(vsort(i),4)};
+        outData(ct,6) = {pdata(vsort(i),1)};
+        outData(ct,7) = {pdata(vsort(i),2)};
+        
+        
+    end
+    s6_cellwrite([params.outDir,filesep,'FPs/FPvolcResultsVEI',int2str(minVEIb),'_',int2str(params.ndays_all(w)),'.csv'],outData,',')
 end
 
-clear outData
-ct = 1;
-outData(1,:) = {'volcano','lat','lon','elev','Eruptions','TP','FP'};
-for i=1:numel(lh)
-    ct = ct +1;
-    volcname = lh(i);
-    vinfo = getVolcanoSpecs(volcname,inputFiles,params);
-    outData(ct,1) = volcname;
-    outData(ct,2) = {vinfo.lat};
-    outData(ct,3) = {vinfo.lon};
-    outData(ct,4) = {vinfo.elev};
-    outData(ct,5) = {pdata(vsort(i),4)};
-    outData(ct,6) = {pdata(vsort(i),1)};
-    outData(ct,7) = {pdata(vsort(i),2)};
-    
-    
-end
+
 %%
-s6_cellwrite([params.outDir,filesep,'FPvolcResults.csv'],outData,',')
