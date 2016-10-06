@@ -233,7 +233,7 @@ for n = 2:size(eruption_windows,1)
     r_start_line = plot([rstart rstart],[min_bc_val max_bc_val+1], 'LineStyle',':', 'LineWidth', 2, 'Color', 'r');
     
     eruptionData(cte,1) = {'>'};
-    eruptionData(cte,2) = {['-W1,0 -G255/0/0 #Window',int2str(n-1)]};
+    eruptionData(cte,2) = {['-W1,0 -G255/0/0 #Window',int2str(n-1),' VEI',int2str(eruption_windows(n,3))]};
     cte=cte+1;
     eruptionData(cte,1) = {datestr(eruption_windows(n,1),'yyyy-mm-ddTHH:MM:SS')};
     eruptionData(cte,2) = {min_bc_val};
