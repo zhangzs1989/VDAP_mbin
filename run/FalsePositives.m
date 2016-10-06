@@ -14,6 +14,7 @@ files = subdir(fullfile(params.outDir, '*beta_output*'));
 
 AKeruptions = readtext(inputFiles.Eruptions);
 AKintrusions = readtext(inputFiles.Intrusions);
+neruptsTot=0;
 
 % load all beta_output variables
 for n = 1:length(files) % cycle over volcanoes analyzed
@@ -99,6 +100,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
     %}
 
     nerupts = sum(isfinite(unique(extractfield(beta_output,'next_eruption'))));      
+    neruptsTot= neruptsTot + nerupts;
     eruptionData = [];
     
     
@@ -423,3 +425,4 @@ for n = 1:length(files) % cycle over volcanoes analyzed
     
 end % end compiling TP/FP info from beta_output > eruptionData.mat files
 
+neruptsTot
