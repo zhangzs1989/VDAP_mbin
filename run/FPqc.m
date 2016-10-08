@@ -7,12 +7,13 @@ qcdir = 'FPs/';
 bviz = 'invisible';
 bfigs = false;
 wingPlot = false;
-minVEIb = params.VEI(1) ;
+minVEIb = 3%params.VEI(1) ;
 % vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
 % vsort = 1;
 vsort = 1:size(files,1);% don't do anything special to sort the volcanoes
 pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions'};
 beta_ax = 2; % axis w/in beta figure for adding new anom lines
+numGTminVEI = 0
 
 for w=1:numel(params.ndays_all) % which window size to plot?
     
@@ -40,20 +41,26 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         
         %which VEIs to plot
         VEI = extractfield(eruptionData,'VEI');
+        eVEI = extractfield(eruptionData(1:end-1),'VEI'); %only those before eruptions
+
+        iv = VEI >= minVEIb;
+        eiv= eVEI >= minVEIb;
+        numGTminVEI = numGTminVEI + sum(iv);
         
-        
-        if sum(ir)>0 && sum(VEI>=minVEIb) > 0
+        if sum(ir)>0 && sum(iv) > 0
             
+            irv = logical(ir.*iv);
+            erv = logical(eir.*eiv);
             %         nerupts = sum(ir); %size(eruptionData,2) - 1;
             
-            fps = (extractfield(eruptionData(ir),'falsePositives'));
-            tps = (extractfield(eruptionData(ir),'truePositives'));
-            fpMaxBc = (extractfield(eruptionData(ir),'FalsPosMaxVals'));
-            tpMaxBc = (extractfield(eruptionData(ir),'TruePosMaxVals'));
+            fps = (extractfield(eruptionData(irv),'falsePositives'));
+            tps = (extractfield(eruptionData(irv),'truePositives'));
+            fpMaxBc = (extractfield(eruptionData(irv),'FalsPosMaxVals'));
+            tpMaxBc = (extractfield(eruptionData(irv),'TruePosMaxVals'));
             
             TP = sum(tps(w:numel(params.ndays_all):end)); % #TPs
             FP = sum(fps(w:numel(params.ndays_all):end)); % #FPs
-            NE = sum(eir);
+            NE = sum(irv);
             
             TN = NE - TP;
             
@@ -234,6 +241,6 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     end
     s6_cellwrite([params.outDir,filesep,'FPs/FPvolcResultsVEI',int2str(minVEIb),'_',int2str(params.ndays_all(w)),'.csv'],outData,',')
 end
-
+numGTminVEI
 
 %%
