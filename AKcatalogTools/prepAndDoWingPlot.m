@@ -17,7 +17,7 @@ else
     elat = [];
     elong = [];
 end
-latlim = [min([elat'; latannO]) max([elat'; latannO])];
+latlim = [min([latannO]) max([latannO])];
 
 % deal with crossing 180 longitude for semisepochnoi
 if sign(min(longannO)) ~= sign(max(longannO))
@@ -31,7 +31,7 @@ if sign(min(longannO)) ~= sign(max(longannO))
     [latlim, lonlim] = bufgeoquad(latlim, lonlim, .005, .005);
     lonlim(lonlim<0) = lonlim(lonlim<0)+360  ;
 else
-    lonlim = [min([elong'; longannO]) max([elong'; longannO])];
+    lonlim = [min([longannO]) max([longannO])];
     [latlim, lonlim] = bufgeoquad(latlim, lonlim, .005, .005);
 end
 
@@ -70,11 +70,17 @@ if params.topo
 end
 %%
 % AK stations
-[~,AVlat,AVlon,AVelev] = importStationFile(inputFiles.AKstas);
-id_a2 = inpolygon(AVlon, AVlat, longannO, latannO);
-mapdata.sta_lat = AVlat(id_a2);
-mapdata.sta_lon = AVlon(id_a2);
-mapdata.sta_elev = AVelev(id_a2);
+try
+    [~,AVlat,AVlon,AVelev] = importStationFile(inputFiles.AKstas);
+    id_a2 = inpolygon(AVlon, AVlat, longannO, latannO);
+    mapdata.sta_lat = AVlat(id_a2);
+    mapdata.sta_lon = AVlon(id_a2);
+    mapdata.sta_elev = AVelev(id_a2);
+catch
+    mapdata.sta_lat = [];
+    mapdata.sta_lon = [];
+    mapdata.sta_lat = [];
+end
 mapdata.outer = outer;
 mapdata.inner = inner;
 disp(['# of events = ' num2str(length(elat))]);
@@ -97,7 +103,7 @@ for i=1:size(plot_windows,1)
     t2 = plot_windows(i,2);
     catalog_t = filterTime(catalog,t1,t2);
     fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params);
-    print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
+    print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i,:))])
     
 end
 
