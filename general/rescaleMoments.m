@@ -41,7 +41,14 @@ if nargin==3, A = [varargin{1} A]; end
 %%
 
 A =  A - min( A(:)); % set range of A between [0, x]
-if diff(A)==0, A(:) = 0.5; else A =  A ./ max( A(:)) ; end % set range of A between [0, 1] (See Note below)
+if diff(A)==0
+    A(:) = 0.5;
+elseif isempty(diff(A)) %JP: fix for case of only one event
+    A(:) = 0.5;
+else
+    A =  A ./ max( A(:)) ;
+end % set range of A between [0, 1] (See Note below)
+
 A =  A .* dR ; % set range of A between [0, dR]
 A =  A + R(1); % shift range of A to R
 
