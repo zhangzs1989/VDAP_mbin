@@ -91,7 +91,7 @@ if params.coasts
 end
 % Plot earthquakes and the volcano
 colormap('jet')
-scatterm(ax, Lat, Lon, eq_plot_size, DateTime);
+try scatterm(ax, Lat, Lon, eq_plot_size, DateTime); catch warning('BUG??'); end %JP: came across a weird bug here that I can't explain 
 hcb=colorbar;
 caxis([t1 t2])
 datetickJP(hcb,'y',2); % this is a non-Matlab function, watch out!

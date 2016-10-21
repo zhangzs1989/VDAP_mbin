@@ -19,13 +19,13 @@ function [ out_catalog ] = filterTime( in_catalog, varargin )
 % BETWEEN TWO DATES
 % >> % filter a catalog to events that occurred in March 2014
 % >> subcatalog = filterTime( original_catalog, datenum('2014/03/01 00:00:00'), datenum('2014/03/31 23:59:59'));
-% 
+%
 % BETWEEN VECTOR OF DATES
 % >> % filter a catalog to events that occured in March 2013, March 2014, or May 2014
 % >> starts = {'2013/03/01 00:00:00','2014/03/01 00:00:00','2014/05/01 00:00:00'}
 % >> stops = {'2013/03/31 23:59:59','2014/03/31 23:59:59','2014/05/31 23:59:59'}
 % >> subcatalog = filterTime(catalog, starts, stops)
-% 
+%
 % KEEP EVENTS
 % >> % filter a catalog to keep events that occured on given dates
 % >> dates_of_interest = datenum('2014/03/01'):datenum('2014/03/31')
@@ -79,75 +79,79 @@ precision of dates given was usually down to the second. [jjw]
 %%
 
 % get event times from the catalog - returned in Matlab date format
-DateTime = datenum(extractfield(in_catalog, 'DateTime'));
-
-% assumes on of the following
-% (1) varargin{1} is 'keep' or 'remove', and varargin{2} is a vector
-% of dates. In this case, varargin{1} is of 'char' variable type
-% (2) varargin{1} is a vector of start dates, and varargin{2} is a
-% vector of stop dates. Together, they define windows of data that you want
-% to keep. In this case, varargin{1} is not of 'char' variable type.
-
-if ischar(varargin{1})
+if ~isempty(in_catalog)
     
-    switch varargin{1}
-
-        case 'keep'
+    DateTime = datenum(extractfield(in_catalog, 'DateTime'));
+    
+    % assumes on of the following
+    % (1) varargin{1} is 'keep' or 'remove', and varargin{2} is a vector
+    % of dates. In this case, varargin{1} is of 'char' variable type
+    % (2) varargin{1} is a vector of start dates, and varargin{2} is a
+    % vector of stop dates. Together, they define windows of data that you want
+    % to keep. In this case, varargin{1} is not of 'char' variable type.
+    
+    if ischar(varargin{1})
+        
+        switch varargin{1}
             
-            on_given_day_index = getIndexForEventsOnDate( varargin, DateTime );
-            disp([int2str(sum(on_given_day_index)),' events to ' varargin{1} '.'])
-            out_catalog = in_catalog(logical(on_given_day_index)); % keep only the dates that were entered
+            case 'keep'
+                
+                on_given_day_index = getIndexForEventsOnDate( varargin, DateTime );
+                disp([int2str(sum(on_given_day_index)),' events to ' varargin{1} '.'])
+                out_catalog = in_catalog(logical(on_given_day_index)); % keep only the dates that were entered
+                
+            case 'remove'
+                
+                on_given_day_index = getIndexForEventsOnDate( varargin, DateTime );
+                disp([int2str(sum(on_given_day_index)),' events to ' varargin{1} '.'])
+                out_catalog = in_catalog(~logical(on_given_day_index)); % remove the entered dates
+                
+            otherwise
+                
+                error('FILTERTIME did not understand your input.')
+                
+        end
+        
+    else
+        
+        t1 = datenum(varargin{1}); % start of filtering time window
+        t2 = datenum(varargin{2}); % stop of filtering time window
+        
+        id_t = zeros(size(DateTime)); % initialize indices of times as zeros
+        for n = 1:length(t1)
             
-        case 'remove'
+            id_t = id_t + ((DateTime >= t1(n) & DateTime <= t2(n))); % % returns the index for all events inbetween t1 and t2 (JP: speed up)
             
-            on_given_day_index = getIndexForEventsOnDate( varargin, DateTime );
-            disp([int2str(sum(on_given_day_index)),' events to ' varargin{1} '.'])
-            out_catalog = in_catalog(~logical(on_given_day_index)); % remove the entered dates
-            
-        otherwise
-            
-            error('FILTERTIME did not understand your input.')
-            
+        end
+        
+        out_catalog = in_catalog(logical(id_t));     % Subselection of data within the time window
+        
+        
     end
-    
+  
 else
-    
-    t1 = datenum(varargin{1}); % start of filtering time window
-    t2 = datenum(varargin{2}); % stop of filtering time window
-    
-    id_t = zeros(size(DateTime)); % initialize indices of times as zeros
-    for n = 1:length(t1)
-        
-        id_t = id_t + ((DateTime >= t1(n) & DateTime <= t2(n))); % % returns the index for all events inbetween t1 and t2 (JP: speed up)
-        
-    end
-    
-    out_catalog = in_catalog(logical(id_t));     % Subselection of data within the time window
-    
-    
+    out_catalog = in_catalog;
 end
-
-
 
 %% LOCAL FUNCTIONS
 
-function [on_given_day_index] = getIndexForEventsOnDate( original_varargin, DateTime )
-
-date_list = original_varargin{2}; % second input variable is the matrix of dates you want to keep or remove
-date_list = datenum(date_list); % ensure dates are datenum variable type
-
-on_given_day_index = zeros(length(DateTime),1); % initialize indices for targeted dates
-
-for i=1:length(date_list)
-    
-    day = floor(date_list(i)); % the dates that are in the list (make sure its precision is a day)
-    
-    % find events in catalog on that day
-    I = floor(DateTime) == day;
-    on_given_day_index = on_given_day_index + I;
-    
-end
-
-end
+    function [on_given_day_index] = getIndexForEventsOnDate( original_varargin, DateTime )
+        
+        date_list = original_varargin{2}; % second input variable is the matrix of dates you want to keep or remove
+        date_list = datenum(date_list); % ensure dates are datenum variable type
+        
+        on_given_day_index = zeros(length(DateTime),1); % initialize indices for targeted dates
+        
+        for i=1:length(date_list)
+            
+            day = floor(date_list(i)); % the dates that are in the list (make sure its precision is a day)
+            
+            % find events in catalog on that day
+            I = floor(DateTime) == day;
+            on_given_day_index = on_given_day_index + I;
+            
+        end
+        
+    end
 
 end
