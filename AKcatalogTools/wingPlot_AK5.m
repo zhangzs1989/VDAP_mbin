@@ -54,8 +54,8 @@ if params.topo
     RA = mapdata.RA;
     crange = 200:200:max(max(ZA));
 else
-    latlim = [min([Lat'; latannO]) max([Lat'; latannO])];
-    lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
+    latlim = [min([latannO]) max([latannO])];
+    lonlim = [min([longannO]) max([longannO])];
     crange =[];
     % deal with crossing 180 longitude for semisepochnoi
     if sign(min(longannO)) ~= sign(max(longannO))
@@ -64,6 +64,7 @@ else
     end
 end
 
+%[latlim, lonlim] = bufgeoquad(latlim, lonlim, .005, .005);
 %% Figure
 
 scrsz = get(groot,'ScreenSize');
