@@ -97,8 +97,9 @@ fprintf('----------------------------------------------------------------\n')
 disp(' ')
 
 %% beta swarm plots
-
+if params.doBeta 
 [~] = prepAndDoBetas(vinfo,eruption_windows,params,inputFiles,catalog_b,baddata);
+end
 
 %% Wing plot
 if params.wingPlot

@@ -120,14 +120,18 @@ ct2 = ct2 + 1;
 mapData2(ct2,1) = {'>'};
 mapData2(ct2,2) = {'-W1,0,--'};
 
-for i=1:length(latannI)
-    ct2=ct2+1;
-    mapData2(ct2,1) = {latannI(i)};
-    mapData2(ct2,2) = {longannI(i)};
+try
+    for i=1:length(latannI)
+        ct2=ct2+1;
+        mapData2(ct2,1) = {latannI(i)};
+        mapData2(ct2,2) = {longannI(i)};
+    end
+    ct2 = ct2 + 1;
+    mapData2(ct2,1) = {'>'};
+    mapData2(ct2,2) = {'-W1,0,--'};
+catch
+    disp('no inner annulus plotted')
 end
-ct2 = ct2 + 1;
-mapData2(ct2,1) = {'>'};
-mapData2(ct2,2) = {'-W1,0,--'};
 
 for i=1:length(latannO)
     ct2=ct2+1;
