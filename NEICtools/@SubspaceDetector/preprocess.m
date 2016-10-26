@@ -26,7 +26,7 @@ ifilename = fullfile(get_folderpath(preproccfg), 'preprocess.cfg');
 writecfg(preproccfg, ifilename)
 
 % run the NEIC Preprocessor.jar file
-system(['java -jar ' obj.preprocjar ' ' ifilename])
+system(['java -jar ' obj.preprocjar ' ' ifilename]);
 
 % move output cfg files to correct location
 SubspaceDetector.move_new_cfg_files(preproccfg);
@@ -42,7 +42,7 @@ outputcfg.T = preproccfg.T; % preserve event info
 
 % load waveform templates
 warning('Current implementation uses PLOTTEMPLATES to grab waveform objects. This function produces a plot. PLOTTEMPLATES, and therefore the automatic plot as well, may be deprecated in the future.')
-wtemplates = plotTemplates(get_folderpath(preproccfg));
+wtemplates = getTemplates(get_folderpath(preproccfg));
 
 % load summary .dat files produced by preprocessor - not yet
 % implemented

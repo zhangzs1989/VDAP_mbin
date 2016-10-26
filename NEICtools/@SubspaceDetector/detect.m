@@ -16,7 +16,7 @@ function T = detect( obj, subspacecfg)
     writecfg(subspacecfg, filename);
 
     % run the NEIC SubspaceDetector.jar file
-    system(['java -jar ' obj.detectjar ' ' filename])
+    system(['java -jar ' obj.detectjar ' ' filename]);
     
     % load .dat files that have detections
     files = fullfile(get_folderpath(subspacecfg), '*summary.dat');
