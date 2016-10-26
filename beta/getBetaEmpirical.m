@@ -145,7 +145,9 @@ end
                 % Na (defined later) = number of events in study time period
                 
                 % define random time windows
-                randtime = datetime(1) + (n) + (datetime(end)-(datetime(1)+ndays(n))).*rand(it,1); % the end of the test window; creates a set of it random times between t1 and t2 where t1 is ndays after the first event and t2 is the last event (see Matlab doc)
+%                 randtime = datetime(1) + (n) + (datetime(end)-(datetime(1)+ndays(n))).*rand(it,1); % the end of the test window; creates a set of it random times between t1 and t2 where t1 is ndays after the first event and t2 is the last event (see Matlab doc)
+                randtime = datetime(1)+ndays(n):datetime(end); % remove randomness, not needed (JP)
+                it = length(randtime);
                 br(it) = zeros; % empirical beta calculated for each iteration
                 bet = 2.57; % 2-sigma theoretical threshold
                 
@@ -165,7 +167,7 @@ end
                 p(n) = p(n)/it*100; % percent of trials above 95% or 2-sigma
                 
                 brs = sort(br,'descend');
-                be(n) = brs(be_thresPer*it); % empirical threshold as defined by SP triggering study
+                be(n) = brs(round(be_thresPer*it)); % empirical threshold as defined by SP triggering study
                 
                 background_N(n) = N;
                 background_T(n) = T;

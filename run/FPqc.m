@@ -11,8 +11,9 @@ minVEIb = params.VEI(1) ;
 % vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
 % vsort = 1;
 vsort = 1:size(files,1);% don't do anything special to sort the volcanoes
-pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions'};
+pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions','score','score2'};
 beta_ax = 2; % axis w/in beta figure for adding new anom lines
+numGTminVEI = 0
 
 for w=1:numel(params.ndays_all) % which window size to plot?
     
@@ -40,20 +41,33 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         
         %which VEIs to plot
         VEI = extractfield(eruptionData,'VEI');
+        eVEI = extractfield(eruptionData(1:end-1),'VEI'); %only those before eruptions
+
+        iv = VEI >= minVEIb;
+        eiv= eVEI >= minVEIb;
+        numGTminVEI = numGTminVEI + sum(iv);
         
-        
-        if sum(ir)>0 && sum(VEI>=minVEIb) > 0
+        if sum(ir)>0 && sum(iv) > 0
             
+            irv = logical(ir.*iv);
+            erv = logical(eir.*eiv);
             %         nerupts = sum(ir); %size(eruptionData,2) - 1;
             
-            fps = (extractfield(eruptionData(ir),'falsePositives'));
-            tps = (extractfield(eruptionData(ir),'truePositives'));
-            fpMaxBc = (extractfield(eruptionData(ir),'FalsPosMaxVals'));
-            tpMaxBc = (extractfield(eruptionData(ir),'TruePosMaxVals'));
+            if sum(irv) > 0
+                fps = (extractfield(eruptionData(irv),'falsePositives'));
+                tps = (extractfield(eruptionData(irv),'truePositives'));
+                fpMaxBc = (extractfield(eruptionData(irv),'FalsPosMaxVals'));
+                tpMaxBc = (extractfield(eruptionData(irv),'TruePosMaxVals'));
+            else
+                fps = 0;
+                tps = 0;
+                fpMaxBc = NaN;
+                tpMaxBc = NaN;
+            end
             
             TP = sum(tps(w:numel(params.ndays_all):end)); % #TPs
             FP = sum(fps(w:numel(params.ndays_all):end)); % #FPs
-            NE = sum(eir);
+            NE = sum(irv);
             
             TN = NE - TP;
             
@@ -66,7 +80,17 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             % trial and error.  Need a better one.  This is starting to
             % feel like an inverse problem
             %             pdata(n,5) = TP/NE - FP/NE - TN/NE + 1;
+                
             
+            if FP+TP~=0
+                pdata(n,5) = (1 - TP/NE) + FP/(FP+TP);
+                
+            else
+                pdata(n,5) = (1 - TP/NE) + 0;
+            end
+            
+            pdata(n,6) = (1 - TP/NE) + FP/NE;
+                      
             if bfigs
                 F = openfig([params.outDir,filesep,vname,filesep,vname,'_Beta_ANSS'],'new',bviz);
                 t1o=F.Children(beta_ax).XLim(1);
@@ -169,11 +193,18 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                 close(F)
             end
             
+        else
+        pdata(n,5) = NaN;   
+        pdata(n,6) = NaN;   
+        
         end
     end
     %     save([params.outDir,filesep,'ScoreStats_',int2str(win)],'pdata')
     outPdata(:,1) = lh;
     outPdata = [pdatar1; lh num2cell(pdata)];
+    score = mean(pdata(:,5),'omitnan');
+    score2= mean(pdata(:,6),'omitnan');
+    
     %     s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);
     
     if strcmp(params.visible,'off')
@@ -194,7 +225,9 @@ for w=1:numel(params.ndays_all) % which window size to plot?
 %         set(hax,'XTick',[0:4])
 %         xlim([-4 4])
         xlabel('Count')
-        title({[int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' year repose required']; ['VEI >= ',int2str(minVEIb)]})
+        title({['Ta = ',int2str(win),', Tp = ',int2str(params.AnomSearchWindow),', Tr = ',int2str(params.repose)]; ... 
+            ['VEI >= ',int2str(minVEIb),', R1 = ',int2str(params.srad(1)),', R2 = ',int2str(params.srad(2))]; ... 
+            ['score = ',num2str(score),', score = ',num2str(score2)]})
         %     title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']; ['score: ',int2str(sum(pdata(:,5)))]})
         
         %     legend('True Positives','False Positives','True Negatives','Eruptions','location','best')
@@ -217,7 +250,8 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     
     clear outData
     ct = 1;
-    outData(1,:) = {'volcano','lat','lon','elev','Eruptions','TP','FP'};
+    outData(1,:) = {'volcano','lat','lon','elev','Eruptions','TP','FP','Score'};
+
     for i=1:numel(lh)
         ct = ct +1;
         volcname = lh(i);
@@ -229,11 +263,12 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         outData(ct,5) = {pdata(vsort(i),4)};
         outData(ct,6) = {pdata(vsort(i),1)};
         outData(ct,7) = {pdata(vsort(i),2)};
+        outData(ct,8) = {pdata(vsort(i),5)};
         
         
     end
     s6_cellwrite([params.outDir,filesep,'FPs/FPvolcResultsVEI',int2str(minVEIb),'_',int2str(params.ndays_all(w)),'.csv'],outData,',')
 end
-
+numGTminVEI
 
 %%

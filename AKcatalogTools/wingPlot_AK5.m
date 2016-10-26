@@ -105,21 +105,33 @@ for i=1:length(Lat)
     mapData(ct,4) = {Depth(i)};
 end
 
-plotm(vinfo.vlats, vinfo.vlons,'dk','MarkerFaceColor','w','MarkerSize',6); % plot the volcano; make ared triangle
-plotm(latannO, longannO, 'k')
-
-ct2 = ct2 + 1;
-mapData2(ct2,1) = {'>'};
-mapData2(ct2,2) = {'-W1,0,--'};
-
-for i=1:length(latannI)
-    ct2=ct2+1;
-    mapData2(ct2,1) = {latannI(i)};
-    mapData2(ct2,2) = {longannI(i)};
+try
+    plotm(vinfo.vlats, vinfo.vlons,'dk','MarkerFaceColor','w','MarkerSize',6); % plot the volcano; make ared triangle
+catch
+    disp('No summit info available')
 end
+try
+    plotm(latannO, longannO, 'k')
+catch
+    disp('No annulus available')
+end
+
 ct2 = ct2 + 1;
 mapData2(ct2,1) = {'>'};
 mapData2(ct2,2) = {'-W1,0,--'};
+
+try
+    for i=1:length(latannI)
+        ct2=ct2+1;
+        mapData2(ct2,1) = {latannI(i)};
+        mapData2(ct2,2) = {longannI(i)};
+    end
+    ct2 = ct2 + 1;
+    mapData2(ct2,1) = {'>'};
+    mapData2(ct2,2) = {'-W1,0,--'};
+catch
+    disp('no inner annulus plotted')
+end
 
 for i=1:length(latannO)
     ct2=ct2+1;
