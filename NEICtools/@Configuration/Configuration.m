@@ -143,7 +143,7 @@ classdef Configuration
         % get method for folderpath
         function val = get_folderpath( obj )
             
-            val = fullfile( obj.project_folder, obj.name );
+            val = fullfile( obj.project_folder, obj.name, '/' );
             
         end
         
@@ -151,7 +151,7 @@ classdef Configuration
         % specific format of NS_
         function val = get_NS_strs( obj )
             
-            info = obj.T{:, {'NT', 'STA', 'LO', 'CHA'}};
+            info = obj.T{:, {'N', 'S', 'L', 'C'}};
             for n = 1:numel(info)
                 if strcmp(info{n}, '..'), info{n} = '--'; end;
             end
