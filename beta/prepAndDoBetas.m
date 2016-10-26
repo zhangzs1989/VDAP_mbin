@@ -60,13 +60,14 @@ else
     exclude_windows = eruption_windows(:,1:2);
 end
 
-back_windows = exclusion2testwindows(vinfo.NetworkStartDay, datenum(catalog(end).DateTime), exclude_windows); % (a)
+back_windows = exclusion2testwindows(datenum(catalog(1).DateTime), datenum(catalog(end).DateTime), exclude_windows); % (a)
 good_windows = series2period(back_windows, baddata, 1, 'exclude'); % (b)
 beta_back_catalog = filterTime( catalog, good_windows(:,1), good_windows(:,2)); disp(['Events: ',int2str(numel(catalog))]) % (c)
 beta_back_catalog_times = datenum(extractfield(beta_back_catalog, 'DateTime')); % (d)
 
 %%
-beta_output = run_betas( beta_back_catalog_times, good_windows, params.ndays_all, 'all', params.it, params.be_thresPer, params.spacing, params.retro); % calculates empirical beta and beta for moving windows
+beta_output = run_betas( beta_back_catalog_times, good_windows, 'all', params, vinfo); % calculates empirical beta and beta for moving windows
+% beta_output = run_betas( beta_back_catalog_times, good_windows, params.ndays_all, 'all', params.it, params.be_thresPer, params.spacing, params.retro); % calculates empirical beta and beta for moving windows
 
 % include 'next_eruption' info in each beta_structure - necessary later
 % for determining precursory activity

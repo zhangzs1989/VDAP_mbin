@@ -51,13 +51,13 @@ else
             days = STATION(:,1);
             
             II(:,j) = STATION(:,2) < dfracThres; % | (order(STATION(:,3)) - order(STATION(:,4)) < 2);
-                                                 % this above criterion makes a big difference in results       
-                                                 % it was inherited from
-                                                 % Helena, not sure about
-                                                 % it...
-        % "range in the timeseries be at least 2 orders of magnitude greater than
-        % the standard deviation of the time series. " HB
-
+            % this above criterion makes a big difference in results
+            % it was inherited from
+            % Helena, not sure about
+            % it...
+            % "range in the timeseries be at least 2 orders of magnitude greater than
+            % the standard deviation of the time series. " HB
+            
         else
             disp(['Cannot load file: ',fname])
             warning(['Cannot load file: ',fname])
@@ -76,7 +76,7 @@ else
     
     % QC fig
     figure('visible','off'), hold on
-%     figure, hold on
+    %     figure, hold on
     lh = {};
     for d = 1:numel(VOLCANO1.staname)
         
@@ -92,8 +92,15 @@ else
     text(days(1),d+1.1,'Network OFF')
     xlabel('Date')
     title({[VOLCANO1.name,' Seismic Network Status'],['(Day Fraction: ',num2str(dfracThres),', Min #stations: ',int2str(minsta),')']})
-%     legend(lh,'location','BestOutside')
-    print([params.outDir,filesep,VOLCANO1.name,filesep,VOLCANO1.name,'_NetworkStatus'],'-dpng')
+    %     legend(lh,'location','BestOutside')
+    iss=isspace(VOLCANO1.name);
+    if sum(iss) > 0
+        sp = find(iss==1);
+        vname=VOLCANO1.name([1:sp-1,sp+1:end]);
+    else
+        vname=volcname;
+    end
+    print([params.outDir,filesep,vname,filesep,vname,'_NetworkStatus'],'-dpng')
     
     
 end

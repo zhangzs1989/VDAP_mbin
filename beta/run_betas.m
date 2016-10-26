@@ -1,4 +1,5 @@
-function [beta_output] = run_betas(times, windows, ndays, background_type, iterations, per_thresh, spacing, retro)
+function [beta_output] = run_betas(times, windows, background_type, params, vinfo)
+
 disp(mfilename('fullpath'))
 %RUN_BETAS Calculates empirical beta and executes multiple runs of beta
 % statistic given time windows to test.
@@ -30,8 +31,8 @@ disp(mfilename('fullpath'))
 %% Empirical Beta
 
     % calculate empirical beta value using all events in the background catalog
-[Be, P, backT, backN] = getBetaEmpirical( background_type, times, windows, ndays, iterations, per_thresh );
-[beta_output] = getMovingBeta( times, windows, ndays, Be, P, backT, backN, spacing, retro );
+[Be, P, backT, backN] = getBetaEmpirical( background_type, times, windows, params, vinfo);
+[beta_output] = getMovingBeta( times, windows, params.ndays_all, Be, P, backT, backN, params.spacing, params.retro );
 
 
 

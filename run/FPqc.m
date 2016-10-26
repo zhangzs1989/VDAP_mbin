@@ -6,13 +6,14 @@ qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
 % bviz='invisible';
 bviz = 'visible';
-bfigs = false;
+bfigs = true;
 wingPlot = false;
-minVEIb = 3;
+minVEIb = params.minVEI;
 vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
-% vsort = 7;
+% vsort = 1;
 vsort = 1:size(files,1);% don't do anything special to sort the volcanoes
 pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions'};
+beta_ax = 2; % axis w/in beta figure for adding new anom lines
 
 for w=1:numel(params.ndays_all) % which window size to plot?
     
@@ -27,7 +28,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         istr = strfind(files(n).name,'/');
         vname = files(n).name(istr(end-1)+1:istr(end-0)-1);
         lh =[lh; {vname}];
-        disp(files(n).name)
+        disp(vname)
         vqcdir=[params.outDir,filesep,vname,filesep,qcdir];
         [SUCCESS,MESSAGE,MESSAGEID] = mkdir(vqcdir);
         
@@ -48,6 +49,8 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             
             fps = (extractfield(eruptionData(ir),'falsePositives'));
             tps = (extractfield(eruptionData(ir),'truePositives'));
+            fpMaxBc = (extractfield(eruptionData(ir),'FalsPosMaxVals'));
+            tpMaxBc = (extractfield(eruptionData(ir),'TruePosMaxVals'));            
             
             TP = sum(tps(w:numel(params.ndays_all):end)); % #TPs
             FP = sum(fps(w:numel(params.ndays_all):end)); % #FPs
@@ -67,12 +70,12 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             
             if bfigs
                 F = openfig([params.outDir,filesep,vname,filesep,vname,'_Beta_ANSS'],'new',bviz);
-                t1o=F.Children(1).XLim(1);
-                t2o=F.Children(1).XLim(2);
+                t1o=F.Children(beta_ax).XLim(1);
+                t2o=F.Children(beta_ax).XLim(2);
             end
             
             %% plot wing plot and beta plot around false positives
-            if wingPlot
+            if wingPlot || bfigs
                 vinfo = getVolcanoSpecs(vname,inputFiles,params);
                 [ catalog_b, outer, inner] = filterAnnulusm(catalog, vinfo.lat, vinfo.lon, params.srad); % filter annulus
                 
@@ -82,6 +85,10 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                         t1=cell2mat(eruptionData(b).FalsPosStart(w));
                         t2=cell2mat(eruptionData(b).FalsPosStop(w));
                         
+                        t1b=cell2mat(eruptionData(b).FalsPosMaxStart(w));
+                        t2b=t1b + params.ndays_all(w);
+                        maxBcs = cell2mat(eruptionData(b).FalsPosMaxVals(w));
+                        
                         plot_windows = [t1 t2];
                         plot_names=[]; cm = [];
                         for s = 1:numel(t1)
@@ -90,8 +97,10 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                                 plot_names=[plot_names,{str}];
                                 
                                 mp = (t1(s)+t2(s))/2;
+                                mp2= (t1b(s)+t2b(s))/2;
                                 if bfigs
-                                    plot(F.Children(1),[mp mp],[F.Children(1).YLim(1) F.Children(1).YLim(2)],'m--')
+                                    plot(F.Children(beta_ax),[mp mp],[F.Children(beta_ax).YLim(1) F.Children(beta_ax).YLim(2)],'m--',[mp2 mp2],[F.Children(beta_ax).YLim(1) F.Children(beta_ax).YLim(2)],'m-')
+                                    text(F.Children(beta_ax),mp2,maxBcs(s),num2str(maxBcs(s)))
                                     xlim([t1(s)-params.AnomSearchWindow t2(s)+params.AnomSearchWindow]);
                                     print(F,'-dpng',[vqcdir,filesep,vinfo.name,'_Beta_',str])
                                 end
@@ -102,7 +111,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                             
                             
                         end
-                        if sum(sum(isnan(plot_windows))) == 0 && ~isempty(plot_windows)
+                        if sum(sum(isnan(plot_windows))) == 0 && ~isempty(plot_windows) && wingPlot
                             [fh_wingplot] = prepAndDoWingPlot(vinfo,params,inputFiles,catalog_b,outer,inner,plot_windows,plot_names);
                             close(fh_wingplot)
                         end
@@ -115,6 +124,9 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                     try
                         t1=cell2mat(eruptionData(b).TruePosStart(w));
                         t2=cell2mat(eruptionData(b).TruePosStop(w));
+                        t1b=cell2mat(eruptionData(b).TruePosMaxStart(w));
+                        t2b=t1b + params.ndays_all(w);
+                        maxBcs = cell2mat(eruptionData(b).TruePosMaxVals(w));                        
                         
                         plot_windows = [t1 t2];
                         plot_names=[]; cm = [];
@@ -124,12 +136,14 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                                 plot_names=[plot_names,{str}];
                                 
                                 mp = (t1(s)+t2(s))/2;
+                                mp2= (t1b(s)+t2b(s))/2;                                
                                 if bfigs
-                                    plot(F.Children(1),[mp mp],[F.Children(1).YLim(1) F.Children(1).YLim(2)],'c--')
+                                    plot(F.Children(beta_ax),[mp mp],[F.Children(beta_ax).YLim(1) F.Children(beta_ax).YLim(2)],'c--',[mp2 mp2],[F.Children(beta_ax).YLim(1) F.Children(beta_ax).YLim(2)],'c-')
+                                    text(F.Children(beta_ax),mp2,maxBcs(s),num2str(maxBcs(s)))
                                     xlim([t1(s)-params.AnomSearchWindow t2(s)+params.AnomSearchWindow]);
                                     print(F,'-dpng',[vqcdir,filesep,vinfo.name,'_Beta_',str])
                                 end
- 
+                                
                             else
                                 disp('No TP')
                             end
@@ -141,7 +155,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
                     end
                     
                     if bfigs
-                        plot(F.Children(1),[eruptionData(b).t0_repose eruptionData(b).t0_repose],[F.Children(1).YLim(1) F.Children(1).YLim(2)],'LineStyle','-.', 'LineWidth', 2, 'Color', [0.5 0.5 0.5])
+                        plot(F.Children(beta_ax),[eruptionData(b).t0_repose eruptionData(b).t0_repose],[F.Children(beta_ax).YLim(1) F.Children(beta_ax).YLim(2)],'LineStyle','-.', 'LineWidth', 2, 'Color', [0.5 0.5 0.5])
                     end
                     
                 end
@@ -149,6 +163,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             end
             %         figure(F.Number)
             if bfigs
+                figure(F)
                 xlim([t1o t2o])
                 savefig(F,[params.outDir,filesep,vname,filesep,vname,'_Beta_FPwin',int2str(win)]);
                 print(F,'-dpng',[vqcdir,filesep,vname,'_Beta_FPwin',int2str(win)])
@@ -160,44 +175,45 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     %     save([params.outDir,filesep,'ScoreStats_',int2str(win)],'pdata')
     outPdata(:,1) = lh;
     outPdata = [pdatar1; lh num2cell(pdata)];
-%     s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);
+    %     s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);
     
     if strcmp(params.visible,'off')
         close all
     end
     
-    fig1=figure('visible',params.visible);
-    clf(fig1)
-    hax = axes('parent',fig1);
-    
-    h = barh(hax,pdata(vsort,[4 1 2]),'hist');
-    set(hax,'yticklabel',lh,'fontsize',15)
-    
-    h(1).FaceColor = [.8 0 0 ];  %'red';
-    h(3).FaceColor = 'cyan';
-    h(2).FaceColor = [0.25,0.5,0.9];
-    set(hax,'XTick',[-4:4])
-    xlim([-4 4])
-    xlabel('Count')
-    title({[int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' year repose required']; ['VEI >= ',int2str(minVEIb)]})
-    %     title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']; ['score: ',int2str(sum(pdata(:,5)))]})
-    
-    %     legend('True Positives','False Positives','True Negatives','Eruptions','location','best')
-    legend('Eruptions','True Positives','False Positives','location','bestOutside')
-    
-    
-    print([params.outDir,filesep,qcdir,filesep,'BetaStatsWin',int2str(win)],'-dpng')
-    
-%         figure('visible',params.visible);
-%         subplot(1,2,2)
-%         hist(fpvscm,1:.5:10)
-%         xlim([1 9])
-%         title(['FPs (',int2str(win),' day window)'])
-%         subplot(1,2,1)
-%         hist(tpvscm,1:.5:10)
-%         xlim([1 9])
-%         title(['TPs (',int2str(win),' day window)'])
-%         print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
+    try
+        fig1=figure('visible',params.visible);
+        clf(fig1)
+        hax = axes('parent',fig1);
+        
+        h = barh(hax,pdata(vsort,[4 1 2]),'hist');
+        set(hax,'yticklabel',lh,'fontsize',15)
+        
+        h(1).FaceColor = [.8 0 0 ];  %'red';
+        h(3).FaceColor = 'cyan';
+        h(2).FaceColor = [0.25,0.5,0.9];
+        set(hax,'XTick',[-4:4])
+        xlim([-4 4])
+        xlabel('Count')
+        title({[int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' year repose required']; ['VEI >= ',int2str(minVEIb)]})
+        %     title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']; ['score: ',int2str(sum(pdata(:,5)))]})
+        
+        %     legend('True Positives','False Positives','True Negatives','Eruptions','location','best')
+        legend('Eruptions','True Positives','False Positives','location','bestOutside')
+        
+        
+        print([params.outDir,filesep,qcdir,filesep,'BetaStatsWin',int2str(win)],'-dpng')
+    end
+    %         figure('visible',params.visible);
+    %         subplot(1,2,2)
+    %         hist(fpvscm,1:.5:10)
+    %         xlim([1 9])
+    %         title(['FPs (',int2str(win),' day window)'])
+    %         subplot(1,2,1)
+    %         hist(tpvscm,1:.5:10)
+    %         xlim([1 9])
+    %         title(['TPs (',int2str(win),' day window)'])
+    %         print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
     
 end
 

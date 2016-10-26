@@ -48,15 +48,23 @@ end
 if params.topo
     lonlim = mapdata.RA.LongitudeLimits;
     latlim = mapdata.RA.LatitudeLimits;
+%     latlim = [min([Lat'; latannO]) max([Lat'; latannO])];
+%     lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
     ZA = mapdata.ZA;
     RA = mapdata.RA;
-    crange = 200:200:max(max(ZA));    
+    crange = 200:200:max(max(ZA));
 else
-    latlim = [min([Lat'; latannO]) max([Lat'; latannO])];
-    lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
+    latlim = [min([latannO]) max([latannO])];
+    lonlim = [min([longannO]) max([longannO])];
     crange =[];
+    % deal with crossing 180 longitude for semisepochnoi
+    if sign(min(longannO)) ~= sign(max(longannO))
+        longannO(longannO<0) = longannO(longannO<0) + 360;
+        lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
+    end
 end
 
+%[latlim, lonlim] = bufgeoquad(latlim, lonlim, .005, .005);
 %% Figure
 
 scrsz = get(groot,'ScreenSize');
@@ -84,13 +92,24 @@ if params.coasts
 end
 % Plot earthquakes and the volcano
 colormap('jet')
-scatterm(ax, Lat, Lon, eq_plot_size, DateTime);
+try scatterm(ax, Lat, Lon, eq_plot_size, DateTime); catch warning('BUG??'); end %JP: came across a weird bug here that I can't explain 
 hcb=colorbar;
 caxis([t1 t2])
 datetickJP(hcb,'y',2); % this is a non-Matlab function, watch out!
 
-plotm(vinfo.vlats, vinfo.vlons,'dk','MarkerFaceColor','w','MarkerSize',6); % plot the volcano; make ared triangle
-plotm(latannO, longannO, 'k')
+try
+    plotm(vinfo.vlats, vinfo.vlons,'dk','MarkerFaceColor','w','MarkerSize',6); % plot the volcano; make ared triangle
+catch
+    disp('no summits available')
+    vinfo.vlats = [];
+    vinfo.vlons = [];
+    vinfo.velevs= [];
+end
+try
+    plotm(latannO, longannO, 'k')
+catch
+    disp('no annulus plotted')
+end
 try plotm(latannI, longannI, 'k'); catch, warning('No inner annulus plotted'), end % plot the annulus as a black line
 try plotm(mapdata.sta_lat, mapdata.sta_lon,'^k','MarkerFaceColor','k'); catch, warning('No other stations in the area'), end
 
@@ -166,11 +185,11 @@ plotm([B1.lat B2.lat],[B1.lon B2.lon]); % B-B' xsection
 
 %% Get locations relative to each xs line
 
-    % stub - send info to Command Window
+% stub - send info to Command Window
 % sprintf('A (degrees): %f',params.angleA/pi*180)
 % sprintf('B (degrees): %f',params.angleB/pi*180)
 
-    % earthquakes
+% earthquakes
 x0 = x - vx; y0 = y - vy; % adjust eq coordinates relative to volcano
 a = sqrt(x0.^2 + y0.^2); % distance from origin (volcano) to point (earthquake)
 angle = atan2(y0,x0); % angle from volcano (origin) to eq
@@ -179,7 +198,7 @@ phiBB = angle - params.angleB;
 AA0 = a .* cos(phiAA); % length along cross section A-A' from volcano (origin)
 BB0 = -1*(a .* cos(phiBB)); % length along cross section B-B' from volcano (origin)
 
-    % stations
+% stations
 sta_x0 = sta_x - vx; sta_y0 = sta_y - vy; % adjust station coordinates
 a = sqrt(sta_x0.^2 + sta_y0.^2); % distance from origin (volcano) to point (earthquake)
 angle = atan2(sta_y0,sta_x0); % angle from volcano (origin) to eq
@@ -188,7 +207,7 @@ phiBB = angle - params.angleB;
 sta_AA0 = a .* cos(phiAA); % length along cross section A-A' from volcano (origin)
 sta_BB0 = -1*(a .* cos(phiBB)); % length along cross section B-B' from volcano (origin)
 
-    % other volcanoes
+% other volcanoes
 px0 = px - vx; py0 = py - vy; % adjust station coordinates
 a = sqrt(px0.^2 + py0.^2); % distance from origin (volcano) to point (earthquake)
 angle = atan2(py0,px0); % angle from volcano (origin) to eq
@@ -223,8 +242,10 @@ if exist('ZA','var')
     hdist = deg2km(riA)/100000; hdist = hdist - mean(hdist); % convert degrees away from profile start to km away from center point
     pb1 = plot(hdist,ziA/1000,'r'); hold on;% elevation (ziA) needs to be converted from m to km
 end
-pb2 = plot(pAA0/1000,-vinfo.elev,'dk','MarkerFaceColor','w');hold on;
-pb3 = plot(sta_AA0/1000,mapdata.sta_elev,'^k','MarkerFaceColor','k');
+try
+    pb2 = plot(pAA0/1000,-vinfo.elev,'dk','MarkerFaceColor','w');hold on;
+    pb3 = plot(sta_AA0/1000,mapdata.sta_elev,'^k','MarkerFaceColor','k');
+end
 pb4 = scatter(AA0/1000,-Depth,eq_plot_size,DateTime); % convert AA0 to km
 colormap;
 caxis([t1 t2])
@@ -244,8 +265,10 @@ if exist('ZA','var')
     hdist = deg2km(riB)/100000; hdist = hdist - mean(hdist); % convert degrees away from profile start to km away from center point
     pr1 = plot(ziB/1000,hdist,'b'); hold on;% elevation (ziB) needs to be converted from m to km
 end
-pb2 = plot(-vinfo.elev,pBB0/1000,'dk','MarkerFaceColor','w');hold on;
-pb3 = plot(mapdata.sta_elev,sta_BB0/1000,'^k','MarkerFaceColor','k');
+try
+    pb2 = plot(-vinfo.elev,pBB0/1000,'dk','MarkerFaceColor','w');hold on;
+    pb3 = plot(mapdata.sta_elev,sta_BB0/1000,'^k','MarkerFaceColor','k');
+end
 pr2 = scatter(-Depth,BB0/1000,eq_plot_size,DateTime); % convert BB0 to km
 colormap;
 caxis([t1 t2])
