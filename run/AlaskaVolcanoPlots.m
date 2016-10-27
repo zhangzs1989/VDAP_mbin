@@ -70,6 +70,14 @@ stats(2,1) = {vinfo.name};
 stats(2,3) = {numel(baddata)};
 stats(2,2) = {datestr(vinfo.NetworkStartDay)};
 stats(2,4) = {datenum(2016,1,1,0,0,0)-vinfo.NetworkStartDay-numel(baddata)};
+for i=1:length(baddata)
+    spout(i,1)={datestr(baddata(i))};
+end  
+try
+    s6_cellwrite(fullfile(params.outDir,vinfo.name,filesep,[vinfo.name,'NetworkDownDays.csv']),spout);
+catch
+    warning('No baddata found')
+end
 s6_cellwrite(fullfile(params.outDir,vinfo.name,filesep,[vinfo.name,'NetworkStats.csv']),stats);
 
 % baddata = baddata1; % temp while running badger...
@@ -133,7 +141,7 @@ if params.wingPlot
     if ~isempty(eruption_windows)
         % plot activity since last eruption
         t1 = max(max(eruption_windows));
-        t2 = datenum(catalog(end).DateTime);
+        t2 = datenum(params.catalogEndDate);
         str = 'recent';
         plot_windows = [plot_windows; t1 t2];
         plot_names=[plot_names,{str}];
