@@ -11,7 +11,7 @@ minVEIb = params.VEI(1) ;
 % vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
 % vsort = 1;
 vsort = 1:size(files,1);% don't do anything special to sort the volcanoes
-pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions','score','score2'};
+pdatar1 = {'volcano','TruePositives','FalsePositives','TrueNegatives','nEruptions'};
 beta_ax = 2; % axis w/in beta figure for adding new anom lines
 numGTminVEI = 0
 
@@ -80,16 +80,15 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             % trial and error.  Need a better one.  This is starting to
             % feel like an inverse problem
             %             pdata(n,5) = TP/NE - FP/NE - TN/NE + 1;
-                
-            
-            if FP+TP~=0
-                pdata(n,5) = (1 - TP/NE) + FP/(FP+TP);
-                
-            else
-                pdata(n,5) = (1 - TP/NE) + 0;
-            end
-            
-            pdata(n,6) = (1 - TP/NE) + FP/NE;
+                        
+%             if FP+TP~=0
+%                 pdata(n,5) = (1 - TP/NE) + FP/(FP+TP);
+%                 
+%             else
+%                 pdata(n,5) = (1 - TP/NE) + 0;
+%             end
+%             
+%             pdata(n,6) = (1 - TP/NE) + FP/NE;
                       
             if bfigs
                 F = openfig([params.outDir,filesep,vname,filesep,vname,'_Beta_ANSS'],'new',bviz);
@@ -194,16 +193,16 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             end
             
         else
-        pdata(n,5) = NaN;   
-        pdata(n,6) = NaN;   
+%         pdata(n,5) = NaN;   
+%         pdata(n,6) = NaN;   
         
         end
     end
     %     save([params.outDir,filesep,'ScoreStats_',int2str(win)],'pdata')
     outPdata(:,1) = lh;
     outPdata = [pdatar1; lh num2cell(pdata)];
-    score = mean(pdata(:,5),'omitnan');
-    score2= mean(pdata(:,6),'omitnan');
+%     score = mean(pdata(:,5),'omitnan');
+%     score2= mean(pdata(:,6),'omitnan');
     
     %     s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);
     
@@ -263,7 +262,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         outData(ct,5) = {pdata(vsort(i),4)};
         outData(ct,6) = {pdata(vsort(i),1)};
         outData(ct,7) = {pdata(vsort(i),2)};
-        outData(ct,8) = {pdata(vsort(i),5)};
+%         outData(ct,8) = {pdata(vsort(i),5)};
         
         
     end

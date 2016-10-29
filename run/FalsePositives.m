@@ -234,18 +234,20 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 %                 itp = astops > t1 - params.AnomSearchWindow & astarts < t1;
                 itp = find(astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r);
                 
-                
                 % count tru/false positives
                 
-                % only want one TP per eruption, take larger
+                % only want one TP per eruption, take largest (or earliest?)
                 if numel(itp) > 1
                     
-                    [Y,I] = max(astartMaxVals(itp));
+                    [Y2,I2] = max(astartMaxVals(itp)); %largest
+                    [Y1,I1] = min(astarts(itp)); %largest
+                    
                     tp(j) = 1;
-                    itp = itp(I);
+                    itpm = itp(I2);
+                    itp = itp(I1);
                 else
                     tp(j) = numel(itp);
-
+                    itpm = itp;
                 end
                 fp(j) = numel(ifp);
                 
@@ -259,8 +261,8 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 eruptionData(i).FalsPosMaxStart(j) = {astartMaxes(ifp)};
                 eruptionData(i).FalsPosMaxVals(j) = {astartMaxVals(ifp)};
                 
-                eruptionData(i).TruePosMaxStart(j) = {astartMaxes(itp)};
-                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itp)};               
+                eruptionData(i).TruePosMaxStart(j) = {astartMaxes(itpm)};
+                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itpm)};               
             else
                 
                 tp(j) = 0;
@@ -374,15 +376,29 @@ for n = 1:length(files) % cycle over volcanoes analyzed
 
                 % is a flase positive if the following conditions are met:
                 % (1) occurs in the time between params.repose years after the last eruption to params.AnomSearchWindow before the next eruption               
-                ifp = astarts > t0r & astops <= t1 - params.AnomSearchWindow;
+                ifp = find(astarts > t0r & astops <= t1 - params.AnomSearchWindow);
                 
                 % is a true positive if the following three conditions are met:
                 % (1, 2) anomaly occurs within params.AnomSearchWindow years of the eruption
                 % (3) astarts occurs params.repose years after the start of the last eruption
-                itp = astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r;
+                itp = find(astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r);
                 
-                tp(j) = sum(itp); if tp(j) > 1; tp(j) = 1; end; % don't count multiple TPs, just say yes once
-                fp(j) = sum(ifp);
+                % count tru/false positives
+                
+                % only want one TP per eruption, take largest (or earliest?)
+                if numel(itp) > 1
+                    
+                    [Y2,I2] = max(astartMaxVals(itp)); %largest
+                    [Y1,I1] = min(astarts(itp)); %largest
+                    
+                    tp(j) = 1;
+                    itpm = itp(I2);
+                    itp = itp(I1);
+                else
+                    tp(j) = numel(itp);
+                    itpm = itp;
+                end
+                fp(j) = numel(ifp);
                 
                 eruptionData(i).FalsPosStart(j) = {astarts(ifp)};
                 eruptionData(i).FalsPosStop(j) = {astops(ifp)};
@@ -393,8 +409,8 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 eruptionData(i).FalsPosMaxStart(j) = {astartMaxes(ifp)};
                 eruptionData(i).FalsPosMaxVals(j) = {astartMaxVals(ifp)};
                 
-                eruptionData(i).TruePosMaxStart(j) = {astartMaxes(itp)};
-                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itp)};                    
+                eruptionData(i).TruePosMaxStart(j) = {astartMaxes(itpm)};
+                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itpm)};                    
             else
                 
                 tp(j) = 0;
