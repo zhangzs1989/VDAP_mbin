@@ -109,6 +109,9 @@ if params.doBeta
 [~] = prepAndDoBetas(vinfo,eruption_windows,params,inputFiles,catalog_b,baddata);
 end
 
+% csvcatalog = struct2table(catalog_b);
+% writetable(csvcatalog,[params.outDir,filesep,vinfo.name],'FileType','text')
+
 %% Wing plot
 if params.wingPlot
     

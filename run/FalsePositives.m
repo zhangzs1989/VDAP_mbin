@@ -381,7 +381,12 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 % is a true positive if the following three conditions are met:
                 % (1, 2) anomaly occurs within params.AnomSearchWindow years of the eruption
                 % (3) astarts occurs params.repose years after the start of the last eruption
-                itp = find(astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r);
+                
+                % actually in this case after last eruption before future
+                % possible eruption, there can be no TPs!! BUG FIX here
+                % (JP)
+%                 itp = find(astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r);
+                itp = [];
                 
                 % count tru/false positives
                 

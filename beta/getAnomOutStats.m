@@ -8,6 +8,8 @@ stats(1,5)={'MaxStartTime'};
 stats(1,6)={'1stStartTime'};
 % stats(1,6)={'Be'};
 stats(1,7)={'EruptionStart'};
+stats(1,8)={'1stStopTime'};
+
 % files = dir2(params.outDir, '-r', '*beta_output*');
 
 % get eruptionData.mat files from JP FalsePositives.m code run post
@@ -16,7 +18,7 @@ files = dir2(params.outDir, '-r', '*eruptionData.mat');
 
 AKeruptions = readtext(inputFiles.Eruptions);
 % stats(1,5)={'Eruption?'};
-    count = 1;
+count = 1;
 
 for w=1:numel(params.ndays_all) % loop over beta window sizes
     
@@ -44,7 +46,7 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
         
         %which VEIs to plot
         VEI = extractfield(eruptionData,'VEI');
-        et  = extractfield(eruptionData,'EruptionStart');
+%         et  = extractfield(eruptionData,'EruptionStart');
         
         if ~isempty(ir) && sum(VEI>=params.VEI(1)) > 0
             
@@ -61,10 +63,18 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                 tpMaxBcs = cell2mat(eruptionData(k).TruePosMaxVals(w));
                 
                 fpMaxBcsT = cell2mat(eruptionData(k).FalsPosMaxStart(w));
-                tpMaxBcsT = cell2mat(eruptionData(k).TruePosMaxStart(w));                
-
-%                 fp1stT = cell2mat(eruptionData(k).FalsPosStart(w));
-                tp1stT = cell2mat(eruptionData(k).TruePosStart(w));                
+                tpMaxBcsT = cell2mat(eruptionData(k).TruePosMaxStart(w));
+                
+                et = (eruptionData(k).EruptionStart(w));
+                %                 fp1stT = cell2mat(eruptionData(k).FalsPosStart(w));
+                tp1startT = cell2mat(eruptionData(k).TruePosStart(w));
+                tp1stopT = cell2mat(eruptionData(k).TruePosStop(w));
+                
+                if ~isnan(tp1startT)
+                    if tp1startT > et || (tp1stopT - (et-params.AnomSearchWindow) < 0)
+                        warning('ERROR: timing prob')
+                    end
+                end
                 
                 for fp=1:find(~isnan(fpMaxBcs))
                     count = count + 1;
@@ -74,22 +84,23 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                     stats(count,4) = {params.ndays_all(w)};
                     stats(count,5) = {datestr(fpMaxBcsT(fp),'yyyy-mm-ddTHH:MM:SS')};
                 end
-%                 for fp=1:find(~isnan(fp1stT))
-%                     stats(count,6) = {datestr(fp1stT(fp),'yyyy-mm-ddTHH:MM:SS')};
-% %                     stats(count,7) = {datestr(et(fp),'yyyy-mm-ddTHH:MM:SS')};
-%                 end
-                    
+                %                 for fp=1:find(~isnan(fp1stT))
+                %                     stats(count,6) = {datestr(fp1stT(fp),'yyyy-mm-ddTHH:MM:SS')};
+                % %                     stats(count,7) = {datestr(et(fp),'yyyy-mm-ddTHH:MM:SS')};
+                %                 end
+                
                 for tp=1:find(~isnan(tpMaxBcs))
                     count = count + 1;
                     stats(count,1) = {tpMaxBcs(tp)};
                     stats(count,2) = {volcname};
                     stats(count,3) = {'TP'};
-                    stats(count,4) = {params.ndays_all(w)}; 
-                    stats(count,5) = {datestr(tpMaxBcsT(tp),'yyyy-mm-ddTHH:MM:SS')};   
+                    stats(count,4) = {params.ndays_all(w)};
+                    stats(count,5) = {datestr(tpMaxBcsT(tp),'yyyy-mm-ddTHH:MM:SS')};
                 end
-                for tp=1:find(~isnan(tp1stT))
-                    stats(count,6) = {datestr(tp1stT(tp),'yyyy-mm-ddTHH:MM:SS')};                    
-                    stats(count,7) = {datestr(et(tp),'yyyy-mm-ddTHH:MM:SS')};                             
+                for tp=1:find(~isnan(tp1startT))
+                    stats(count,6) = {datestr(tp1startT(tp),'yyyy-mm-ddTHH:MM:SS')};
+                    stats(count,7) = {datestr(et,'yyyy-mm-ddTHH:MM:SS')};
+                    stats(count,8) = {datestr(tp1stopT(tp),'yyyy-mm-ddTHH:MM:SS')};
                 end
             end
             %             for e=1:nerupts
