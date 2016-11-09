@@ -11,15 +11,18 @@ function T = detect( obj, subspacecfg)
 %
 % SEE ALSO SubspaceDetector Configuration
 
-    % write out the cfg file
-    filename = fullfile(get_folderpath(subspacecfg), 'subspace.cfg');
-    writecfg(subspacecfg, filename);
+disp('  Running Subspace Detector...')
+disp('    system command output will not be printed to this screen')
 
-    % run the NEIC SubspaceDetector.jar file
-    system(['java -jar ' obj.detectjar ' ' filename]);
-    
-    % load .dat files that have detections
-    files = fullfile(get_folderpath(subspacecfg), '*summary.dat');
-    T = rdSummaryDat(files);
+% write out the cfg file
+filename = fullfile(get_folderpath(subspacecfg), 'subspace.cfg');
+writecfg(subspacecfg, filename);
+
+% run the NEIC SubspaceDetector.jar file
+[~, ~] = system(['java -jar ' obj.detectjar ' ' filename]);
+
+% load .dat files that have detections
+files = fullfile(get_folderpath(subspacecfg), '*summary.dat');
+T = rdSummaryDat(files);
 
 end
