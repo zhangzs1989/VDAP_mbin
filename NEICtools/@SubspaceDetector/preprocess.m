@@ -11,12 +11,37 @@ function [outputcfg, wtemplates, summaries ] = preprocess( obj, preproccfg )
 %
 % SEE ALSO SubspaceDetector Configuration
 
+%%
+
+% if isa(preproccfg, 'Configuration')
+%     
+%     cfgobj = 1;
+%     % continue with this code
+%     
+% elseif ~isempty(dir(preproccfg))
+%     
+%     cfgobj = 0;
+%     preprocess_fromfile(obj, preproccfg);
+%     
+% else
+%     
+%     error('The second input argument must be either a Configuration object or a .cfg file. Double-check your inputs.')
+% 
+% end
+
+%% Initial display
+disp('  Running Preprocessor...')
+% disp('    *system command output will not be printed to this screen')
+disp(['    Processing ' num2str(numel(preproccfg.T.dn1)) ' seed events into templates.'])
+
+%% Manage directories and files
+
 % make project folder, if necessary
 if ~exist(fullfile(preproccfg.project_folder), 'dir')
     mkdir(fullfile(preproccfg.project_folder));
 end
 
-% make analysis folder, if necessart
+% make analysis folder, if necessary
 if ~exist(fullfile(preproccfg.project_folder, preproccfg.name), 'dir')
     mkdir(fullfile(preproccfg.project_folder, preproccfg.name));
 end
@@ -25,28 +50,35 @@ end
 ifilename = fullfile(get_folderpath(preproccfg), 'preprocess.cfg');
 writecfg(preproccfg, ifilename)
 
+%% run
 % run the NEIC Preprocessor.jar file
-system(['java -jar ' obj.preprocjar ' ' ifilename]);
+% [~, ~] = system(['java -jar ' obj.preprocjar ' ' ifilename]) % defining [~, ~] as output arguments supresses the output to the command window
+system(['java -jar ' obj.preprocjar ' ' ifilename]) % not defining output arguments lets the output display to the command window
+
+%% Load output
 
 % move output cfg files to correct location
 SubspaceDetector.move_new_cfg_files(preproccfg);
 
 % load cfg file as Configuration object
-warning('This script is only set up to upload cfg files with the following string: ''RCKBUR''.')
-ofilename = dir(fullfile(get_folderpath(preproccfg), 'RCKBUR*cfg'));
+warning('This script is only set up to upload cfg files with the following string: ''RC''.')
+ofilename = dir(fullfile(get_folderpath(preproccfg), 'RC*cfg'));
 outputcfg = rdcfg(fullfile(get_folderpath(preproccfg), ofilename(1).name));
 outputcfg.project_folder = preproccfg.project_folder; % preserve folder name
 outputcfg.name = preproccfg.name; % preserve config name
-outputcfg.svd_indep = preproccfg.svd_indep;
+outputcfg.svd_indep = preproccfg.svd_indep; % preserve svd_indep setting
 outputcfg.T = preproccfg.T; % preserve event info
 
 % load waveform templates
-warning('Current implementation uses PLOTTEMPLATES to grab waveform objects. This function produces a plot. PLOTTEMPLATES, and therefore the automatic plot as well, may be deprecated in the future.')
 wtemplates = getTemplates(get_folderpath(preproccfg));
 
-% load summary .dat files produced by preprocessor - not yet
-% implemented
+% load summary .dat files produced by preprocessor
+% - not yet implemented
 summaries = [];
 
-end
+%% Final display
+disp( '    Subspace Pre-Processor complete.' )
+disp(['    - Seed events processed : ' num2str(numel(preproccfg.T.dn1)) ])
+disp(['    - Templates created     : ' num2str(numel(wtemplates)) ])
 
+end
