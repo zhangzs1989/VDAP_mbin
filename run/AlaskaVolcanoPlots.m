@@ -90,6 +90,15 @@ s6_cellwrite(fullfile(params.outDir,vinfo.name,filesep,[vinfo.name,'NetworkStats
 % disp(['max mag = ' num2str(max(extractfield(catalog,'Magnitude')))]);
 % disp('-------------------------------------------------------------------')
 
+%% NEW: now also remove events from VEI eruptions < params.VEI(1) but don't analyze them (JP)
+AKeruptions = readtext(inputFiles.Eruptions);
+small_eruption_windows = getEruptionsFromSteph(vinfo.volcname,AKeruptions,[0 params.VEI(1)-1],false);
+baddata3 = [];
+for i=1:size(small_eruption_windows,1)
+    baddata3 = floor(small_eruption_windows(i,1)):ceil(small_eruption_windows(i,2));
+end
+baddata = [baddata; baddata3'];
+%%
 fprintf('----------------------------------------------------------------\n')
 fprintf('  Subset of ANSS catalog                                        \n')
 fprintf('                   Imported Catalog |           Volcano Subset  \n')
