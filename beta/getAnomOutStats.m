@@ -1,4 +1,4 @@
-function [stats] = getAnomOutStats(params,inputFiles)
+function [statsA, statsB] = getAnomOutStats(params,inputFiles)
 %% get and save Be value table for all results
 stats(1,1)={'PosBcBeRatio'};
 stats(1,3)={'TF'};
@@ -9,6 +9,7 @@ stats(1,6)={'1stStartTime'};
 % stats(1,6)={'Be'};
 stats(1,7)={'EruptionStart'};
 stats(1,8)={'1stStopTime'};
+stats(1,9)={'MaxTp_dt'};
 
 % files = dir2(params.outDir, '-r', '*beta_output*');
 
@@ -32,7 +33,7 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
         load(file)
         
         si = strfind(file,filesep);
-        volcname = file(si(end-1)+1:si(end)-1);
+        volcname{v} = file(si(end-1)+1:si(end)-1);
         
         %loop over eruptions
         nerupts = sum(isfinite(unique(extractfield(eruptionData,'EruptionStart'))));
@@ -79,7 +80,7 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                 for fp=1:find(~isnan(fpMaxBcs))
                     count = count + 1;
                     stats(count,1) = {fpMaxBcs(fp)};
-                    stats(count,2) = {volcname};
+                    stats(count,2) = {volcname{v}};
                     stats(count,3) = {'FP'};
                     stats(count,4) = {params.ndays_all(w)};
                     stats(count,5) = {datestr(fpMaxBcsT(fp),'yyyy-mm-ddTHH:MM:SS')};
@@ -92,7 +93,7 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                 for tp=1:find(~isnan(tpMaxBcs))
                     count = count + 1;
                     stats(count,1) = {tpMaxBcs(tp)};
-                    stats(count,2) = {volcname};
+                    stats(count,2) = {volcname{v}};
                     stats(count,3) = {'TP'};
                     stats(count,4) = {params.ndays_all(w)};
                     stats(count,5) = {datestr(tpMaxBcsT(tp),'yyyy-mm-ddTHH:MM:SS')};
@@ -101,35 +102,30 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                     stats(count,6) = {datestr(tp1startT(tp),'yyyy-mm-ddTHH:MM:SS')};
                     stats(count,7) = {datestr(et,'yyyy-mm-ddTHH:MM:SS')};
                     stats(count,8) = {datestr(tp1stopT(tp),'yyyy-mm-ddTHH:MM:SS')};
+                    stats(count,9) = {et-tp1startT(tp)};                    
                 end
             end
-            %             for e=1:nerupts
-            %                 %loop over TPs
-            %                 nTPs = eruptionData(e).truePositives(w);
-            %                 nFPs = eruptionData(e).falsePositives(w);
-            %
-            %                 if nTPs > 0
-            %                     for tp = 1%:nTPs
-            %                         count = count + 1;
-            %                         stats(count,1) = {max(cell2mat(eruptionData(e).TruePosPeak(w,tp)))};
-            %                         stats(count,2) = {volcname};
-            %                         stats(count,3) = {1};
-            %                     end
-            %                 end
-            %                 if nFPs > 0
-            %                     for fp = 1:nFPs
-            %                         count = count + 1;
-            %                         stats(count,1) = {max(cell2mat(eruptionData(e).FalsPosPeak(w,fp)))};
-            %                         stats(count,2) = {volcname};
-            %                         stats(count,3) = {0};
-            %                     end
-            %                 end
-            %
+
         end
         % now do period after last eruption
         
     end
 end
-
+%%
+for i=1:numel(volcname)
+    out{i,1} = volcname(i)
+    iTP = (strcmp(stats(:,3),'TP') & strcmp(stats(:,2),volcname(i)));
+    if sum(iTP) > 1
+        warning('problem')
+    elseif sum(iTP)==1
+        out{i,2} = 'Y';
+    else
+        out{i,2} = 'N';
+    end
+    iFP = (strcmp(stats(:,3),'FP') & strcmp(stats(:,2),volcname(i)));
+    out{i,3} = sum(iFP);
+    out{i,4} = cell2mat(stats(iTP,1));
+    out{i,5} = cell2mat(stats(iTP,9));
 end
-
+outhead = {'volcano','TP?','#FP','MaxTPratio','MaxTP_dt'};
+out = [outhead; out];
