@@ -203,7 +203,20 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     outPdata = [pdatar1; lh num2cell(pdata)];
 %     score = mean(pdata(:,5),'omitnan');
 %     score2= mean(pdata(:,6),'omitnan');
+    [stats] = getAnomOutStats(params,inputFiles);
+    I = (strcmp(stats(2:end,3),'TP') & cell2mat(stats(2:end,4))==win);
+    I = logical([0;I]);
+    atimes=cell2mat(stats(I,6));
+    etimes=cell2mat(stats(I,7));
+    dtA2E = datenum(etimes,'yyyy-mm-ddTHH:MM:SS')-datenum(atimes,'yyyy-mm-ddTHH:MM:SS');
+    dtmean = mean(dtA2E);
     
+    EP = sum(pdata(:,1))/sum(pdata(:,4)); % %Eruptions Preceded by anoms
+    EF = sum(pdata(:,1))/(sum(pdata(:,1))+sum(pdata(:,2))); % %Eruptions Following anoms
+    EA = dtmean; %early anomaly factor
+    Tpmax = 16*30;
+    
+    score = EP + EF + EA/Tpmax;
     %     s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);
     
     if strcmp(params.visible,'off')
@@ -225,8 +238,8 @@ for w=1:numel(params.ndays_all) % which window size to plot?
 %         xlim([-4 4])
         xlabel('Count')
         title({['Ta = ',int2str(win),', Tp = ',int2str(params.AnomSearchWindow),', Tr = ',int2str(params.repose)]; ... 
-            ['VEI >= ',int2str(minVEIb),', R1 = ',int2str(params.srad(1)),', R2 = ',int2str(params.srad(2))]; ... 
-            ['score = ',num2str(score),', score = ',num2str(score2)]})
+            ['VEI >= ',int2str(minVEIb),', R1 = ',int2str(params.srad(1)),', R2 = ',int2str(params.srad(2))]; ...  
+            ['score = ',num2str(score)]})
         %     title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']; ['score: ',int2str(sum(pdata(:,5)))]})
         
         %     legend('True Positives','False Positives','True Negatives','Eruptions','location','best')
@@ -234,6 +247,8 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         
         
         print([params.outDir,filesep,qcdir,filesep,'BetaStatsWinVEI',int2str(minVEIb),'_',int2str(win)],'-dpng')
+    catch
+        warning('FP FIGURE PROBLEM');
     end
 
     %         figure('visible',params.visible);

@@ -65,7 +65,7 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                 fpMaxBcsT = cell2mat(eruptionData(k).FalsPosMaxStart(w));
                 tpMaxBcsT = cell2mat(eruptionData(k).TruePosMaxStart(w));
                 
-                et = (eruptionData(k).EruptionStart(w));
+                et = (eruptionData(k).EruptionStart);
                 %                 fp1stT = cell2mat(eruptionData(k).FalsPosStart(w));
                 tp1startT = cell2mat(eruptionData(k).TruePosStart(w));
                 tp1stopT = cell2mat(eruptionData(k).TruePosStop(w));

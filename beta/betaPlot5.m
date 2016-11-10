@@ -34,7 +34,7 @@ legend_text = '';
 
 %% basic data gathering
 
-max_bc_val = max(extractfield(beta_output,'bc')); if isnan(max_bc_val); max_bc_val =  0; end
+max_bc_val = max(extractfield(beta_output,'bc')); if isnan(max_bc_val); max_bc_val =  0; end; if max_bc_val < 1; max_bc_val =  0; end
 min_bc_val = min(extractfield(beta_output,'bc')); if isnan(min_bc_val); min_bc_val = -1; end
 
 
