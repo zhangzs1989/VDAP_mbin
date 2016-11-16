@@ -42,7 +42,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         %which VEIs to plot
         VEI = extractfield(eruptionData,'VEI');
         eVEI = extractfield(eruptionData(1:end-1),'VEI'); %only those before eruptions
-
+        
         iv = VEI >= minVEIb;
         eiv= eVEI >= minVEIb;
         numGTminVEI = numGTminVEI + sum(iv);
@@ -80,16 +80,16 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             % trial and error.  Need a better one.  This is starting to
             % feel like an inverse problem
             %             pdata(n,5) = TP/NE - FP/NE - TN/NE + 1;
-                        
-%             if FP+TP~=0
-%                 pdata(n,5) = (1 - TP/NE) + FP/(FP+TP);
-%                 
-%             else
-%                 pdata(n,5) = (1 - TP/NE) + 0;
-%             end
-%             
-%             pdata(n,6) = (1 - TP/NE) + FP/NE;
-                      
+            
+            %             if FP+TP~=0
+            %                 pdata(n,5) = (1 - TP/NE) + FP/(FP+TP);
+            %
+            %             else
+            %                 pdata(n,5) = (1 - TP/NE) + 0;
+            %             end
+            %
+            %             pdata(n,6) = (1 - TP/NE) + FP/NE;
+            
             if bfigs
                 F = openfig([params.outDir,filesep,vname,filesep,vname,'_Beta_ANSS'],'new',bviz);
                 t1o=F.Children(beta_ax).XLim(1);
@@ -193,18 +193,22 @@ for w=1:numel(params.ndays_all) % which window size to plot?
             end
             
         else
-%         pdata(n,5) = NaN;   
-%         pdata(n,6) = NaN;   
-        
+            %         pdata(n,5) = NaN;
+            %         pdata(n,6) = NaN;
+            
         end
     end
     %     save([params.outDir,filesep,'ScoreStats_',int2str(win)],'pdata')
     outPdata(:,1) = lh;
     outPdata = [pdatar1; lh num2cell(pdata)];
-%     score = mean(pdata(:,5),'omitnan');
-%     score2= mean(pdata(:,6),'omitnan');
+    %     score = mean(pdata(:,5),'omitnan');
+    %     score2= mean(pdata(:,6),'omitnan');
     [stats] = getAnomOutStats(params,inputFiles);
-    I = (strcmp(stats(2:end,3),'TP') & cell2mat(stats(2:end,4))==win);
+    try
+        I = (strcmp(stats(2:end,3),'TP') & cell2mat(stats(2:end,4))==win);
+    catch
+        I=[];
+    end
     I = logical([0;I]);
     atimes=cell2mat(stats(I,6));
     etimes=cell2mat(stats(I,7));
@@ -234,11 +238,11 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         h(1).FaceColor = [.8 0 0 ];  %'red';
         h(3).FaceColor = 'cyan';
         h(2).FaceColor = [0.25,0.5,0.9];
-%         set(hax,'XTick',[0:4])
-%         xlim([-4 4])
+        %         set(hax,'XTick',[0:4])
+        %         xlim([-4 4])
         xlabel('Count')
-        title({['Ta = ',int2str(win),', Tp = ',int2str(params.AnomSearchWindow),', Tr = ',int2str(params.repose)]; ... 
-            ['VEI >= ',int2str(minVEIb),', R1 = ',int2str(params.srad(1)),', R2 = ',int2str(params.srad(2))]; ...  
+        title({['Ta = ',int2str(win),', Tp = ',int2str(params.AnomSearchWindow),', Tr = ',int2str(params.repose)]; ...
+            ['VEI >= ',int2str(minVEIb),', R1 = ',int2str(params.srad(1)),', R2 = ',int2str(params.srad(2))]; ...
             ['score = ',num2str(score)]})
         %     title({'Beta Stats'; [int2str(win),' day beta window']; [int2str(params.AnomSearchWindow),' day pre-eruption search window']; [int2str(params.repose),' yr repose time']; ['score: ',int2str(sum(pdata(:,5)))]})
         
@@ -250,7 +254,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     catch
         warning('FP FIGURE PROBLEM');
     end
-
+    
     %         figure('visible',params.visible);
     %         subplot(1,2,2)
     %         hist(fpvscm,1:.5:10)
@@ -265,7 +269,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     clear outData
     ct = 1;
     outData(1,:) = {'volcano','lat','lon','elev','Eruptions','TP','FP','Score'};
-
+    
     for i=1:numel(lh)
         ct = ct +1;
         volcname = lh(i);
@@ -277,7 +281,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         outData(ct,5) = {pdata(vsort(i),4)};
         outData(ct,6) = {pdata(vsort(i),1)};
         outData(ct,7) = {pdata(vsort(i),2)};
-%         outData(ct,8) = {pdata(vsort(i),5)};
+        %         outData(ct,8) = {pdata(vsort(i),5)};
         
         
     end

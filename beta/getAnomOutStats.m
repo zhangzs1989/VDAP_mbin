@@ -1,4 +1,4 @@
-function [statsA, statsB] = getAnomOutStats(params,inputFiles)
+function [stats] = getAnomOutStats(params,inputFiles)
 %% get and save Be value table for all results
 stats(1,1)={'PosBcBeRatio'};
 stats(1,3)={'TF'};
@@ -113,7 +113,7 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
 end
 %%
 for i=1:numel(volcname)
-    out{i,1} = volcname(i)
+    out{i,1} = volcname(i);
     iTP = (strcmp(stats(:,3),'TP') & strcmp(stats(:,2),volcname(i)));
     if sum(iTP) > 1
         warning('problem')
