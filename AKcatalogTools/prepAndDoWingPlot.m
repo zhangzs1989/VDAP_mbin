@@ -68,6 +68,23 @@ if params.topo
         warning('TOPO NO BUENO')
     end
 end
+%% export topo
+topoOut = zeros(RA.RasterSize(1)*RA.RasterSize(2),3);
+tct=0;
+for i=1:RA.RasterSize(1)
+    ii = RA.LatitudeLimits(2)-(i-1)*RA.CellExtentInLatitude;
+    for j=1:RA.RasterSize(2)
+        jj = RA.LongitudeLimits(1)+(j-1)*RA.CellExtentInLongitude;
+        tct = tct + 1;
+        topoOut(tct,1:3) = [ii jj double(ZA(i,j))];
+    end
+end
+outDirName=[params.outDir,'/',vinfo.name];
+if ~exist(outDirName,'dir')
+    [~,~,~] = mkdir(outDirName);
+end
+
+save([outDirName,'/',vinfo.name,'_topo.xyz'],'topoOut','-ascii')
 %%
 % AK stations
 [~,AVlat,AVlon,AVelev] = importStationFile(inputFiles.AKstas);
@@ -81,26 +98,40 @@ disp(['# of events = ' num2str(length(elat))]);
 
 disp('Enter wing plot...')
 
-outDirName=[params.outDir,'/',vinfo.name];
-if ~exist(outDirName,'dir')
-    [~,~,~] = mkdir(outDirName);
-end
-
 if ~isfield(params,'catlabel')
     params.catlabel = '';
 end
 
 % now need to loop over window periods and make new maps
-for i=1:size(plot_windows,1)
+if params.retro
+    for i=1:size(plot_windows,1)
+        
+        t1 = plot_windows(i,1);
+        t2 = plot_windows(i,2);
+        catalog_t = filterTime(catalog,t1,t2);
+        %     csvcatalog = struct2table(catalog_t);
+        %     writetable(csvcatalog,[params.outDir,filesep,[vinfo.name,filesep,vinfo.name,char(plot_names(i)),'.csv']],'FileType','text')
+        fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params,i);
+        print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
+        
+    end
+else % load in previous results, only works after the fact for TPs! !! TEMPORARY KLUDGE
+    [data, result]= readtext(fullfile(params.outDir,'BetaAnomVals.csv'));
+    I=find(strcmp(vinfo.name,data(:,2)) & strcmp(data(:,3),'TP'));
+    for i=1:size(plot_windows,1)
+        
+        t1 = plot_windows(i,1);
+        t2 = plot_windows(i,2);
+        if i~=1 && i~=size(plot_windows,1)
+            t1 = datenum(data(I(i-1),10),'yyyy-mm-ddTHH:MM:SS');
+            t2 = datenum(data(I(i-1),6),'yyyy-mm-ddTHH:MM:SS');
+        end
+        catalog_t = filterTime(catalog,t1,t2);
+        %     csvcatalog = struct2table(catalog_t);
+        %     writetable(csvcatalog,[params.outDir,filesep,[vinfo.name,filesep,vinfo.name,char(plot_names(i)),'.csv']],'FileType','text')
+        fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params,i);
+        print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlotForward',params.catlabel,'_',char(plot_names(i))])
+        
+    end
     
-    t1 = plot_windows(i,1);
-    t2 = plot_windows(i,2);
-    catalog_t = filterTime(catalog,t1,t2);
-%     csvcatalog = struct2table(catalog_t);
-%     writetable(csvcatalog,[params.outDir,filesep,[vinfo.name,filesep,vinfo.name,char(plot_names(i)),'.csv']],'FileType','text')
-    fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params,i);
-    print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
-    
-end
-
 end

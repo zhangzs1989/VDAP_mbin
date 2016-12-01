@@ -65,6 +65,8 @@ try
 catch
     baddata = [baddata1'; baddata2];
 end
+
+%%
 stats(1,:) = {'volcano','startDay','#downDays','#upDays'};
 stats(2,1) = {vinfo.name};
 stats(2,3) = {numel(baddata)};

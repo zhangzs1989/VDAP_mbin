@@ -43,7 +43,7 @@ if nargin > 1;
                 % Input should be seismic moment
                 % display a warning if input looks like magnitude
             if input(n) < 1e5
-                display('Warning, you may have inputted a magnitude value.')
+%                display('Warning, you may have inputted a magnitude value.')
             end
         end
     end

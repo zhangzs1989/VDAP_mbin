@@ -230,7 +230,7 @@ function [h, nancolor] = checkArgs(args)
 % checkArgs  Validate input arguments to freezeColors
 
 nargs = length(args);
-error(nargchk(0,3,nargs,'struct'))
+nargoutchk(0,3,nargs,'struct');
 
 %grab handle from first argument if we have an odd number of arguments
 if mod(nargs,2),

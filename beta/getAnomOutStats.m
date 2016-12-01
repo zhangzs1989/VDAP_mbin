@@ -10,6 +10,7 @@ stats(1,6)={'1stStartTime'};
 stats(1,7)={'EruptionStart'};
 stats(1,8)={'1stStopTime'};
 stats(1,9)={'MaxTp_dt'};
+stats(1,10)={'1stStartTimeMinusTa'};
 
 % files = dir2(params.outDir, '-r', '*beta_output*');
 
@@ -90,20 +91,22 @@ for w=1:numel(params.ndays_all) % loop over beta window sizes
                 % %                     stats(count,7) = {datestr(et(fp),'yyyy-mm-ddTHH:MM:SS')};
                 %                 end
                 
-                for tp=1:find(~isnan(tpMaxBcs))
+                for tp=1:find(~isnan(tp1startT))
                     count = count + 1;
                     stats(count,1) = {tpMaxBcs(tp)};
                     stats(count,2) = {volcname{v}};
                     stats(count,3) = {'TP'};
                     stats(count,4) = {params.ndays_all(w)};
-                    stats(count,5) = {datestr(tpMaxBcsT(tp),'yyyy-mm-ddTHH:MM:SS')};
-                end
-                for tp=1:find(~isnan(tp1startT))
                     stats(count,6) = {datestr(tp1startT(tp),'yyyy-mm-ddTHH:MM:SS')};
                     stats(count,7) = {datestr(et,'yyyy-mm-ddTHH:MM:SS')};
                     stats(count,8) = {datestr(tp1stopT(tp),'yyyy-mm-ddTHH:MM:SS')};
                     stats(count,9) = {et-tp1startT(tp)};                    
+                    stats(count,10) = {datestr(tp1startT(tp)-params.ndays_all(w),'yyyy-mm-ddTHH:MM:SS')};                    
                 end
+                for tp=1:find(~isnan(tpMaxBcs))
+                    stats(count,5) = {datestr(tpMaxBcsT(tp),'yyyy-mm-ddTHH:MM:SS')};
+                end
+
             end
 
         end

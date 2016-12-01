@@ -46,6 +46,8 @@ for n = 1:length(files) % cycle over volcanoes analyzed
             anomStartTimes2 = anomStartTimes;
             anomStopTimes2 = anomStopTimes;
             
+            % NOTE: this doesn' seem to work for retro/spacing =1 forward
+            % option
             for l=2:numel(anomStartTimes)
                 
                 ic = find(anomStartTimes(l) == beta_output(i).t_checks(:,k));
@@ -73,10 +75,14 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 r = istart:istop;
                 bcs = beta_output(i).bc(r,k);
                 [Y,I] = max(bcs);
-                maxAnomStart(l) = beta_output(i).t_checks(r(I),k);
-                maxAnomValue(l) = Y/beta_output(i).Be(k); % ratio or val?
+                try
+                    maxAnomStart(l) = beta_output(i).t_checks(r(I),k);
+                    maxAnomValue(l) = Y/beta_output(i).Be(k); % ratio or val?
+                catch
+                    maxAnomStart(l) = NaN;% NOTE: will be NANs for params.spacing =1
+                    maxAnomValue(l) = NaN; % ratio or val?
+                end
             end
-                
             beta_output(i).AnomMaxStarts(k,:) = {maxAnomStart};
             beta_output(i).AnomMaxValues(k,:) = {maxAnomValue};
             
@@ -84,7 +90,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         
     end
     
-
+    
     
     
     
@@ -98,13 +104,13 @@ for n = 1:length(files) % cycle over volcanoes analyzed
     windows were terminated by an eruption (the alternative is that is was
     simply terminated by a bad network time).
     %}
-
-    nerupts = sum(isfinite(unique(extractfield(beta_output,'next_eruption'))));      
+    
+    nerupts = sum(isfinite(unique(extractfield(beta_output,'next_eruption'))));
     neruptsTot= neruptsTot + nerupts;
     eruptionData = [];
     
     
-        % JJW's notes:
+    % JJW's notes:
     %{
     At this point, we have the start date for each anomaly/sustained
     anomaly (is this for one particular background window, or is this all of
@@ -120,7 +126,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         
         tp = []; fp = []; % true positives and false positives
         ii = ii + 1;
-
+        
         anom_tot = 0;
         nanoms = zeros(3,1);
         
@@ -133,12 +139,12 @@ for n = 1:length(files) % cycle over volcanoes analyzed
             janoms1 = cell2mat(beta_output(ii).AnomStartTimes(j));
             janoms2 = cell2mat(beta_output(ii).AnomStopTimes(j));
             janoms3 = cell2mat(beta_output(ii).AnomMaxStarts(j));
-            janoms4 = cell2mat(beta_output(ii).AnomMaxValues(j));            
+            janoms4 = cell2mat(beta_output(ii).AnomMaxValues(j));
             
             eruptionData(i).BeginAnomTimes(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms1;
             eruptionData(i).EndAnomTimes(nanoms(j)+1:nanoms(j)+numel(janoms2),j) = janoms2;
             eruptionData(i).MaxAnomStarts(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms3;
-            eruptionData(i).MaxAnomValues(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms4;            
+            eruptionData(i).MaxAnomValues(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms4;
             
             nanoms(j) = nanoms(j) + numel(janoms1);
             
@@ -165,11 +171,11 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                     janoms2 = cell2mat(beta_output(ii).AnomStopTimes(j));
                     janoms3 = cell2mat(beta_output(ii).AnomMaxStarts(j));
                     janoms4 = cell2mat(beta_output(ii).AnomMaxValues(j));
-            
+                    
                     eruptionData(i).BeginAnomTimes(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms1;
                     eruptionData(i).EndAnomTimes(nanoms(j)+1:nanoms(j)+numel(janoms2),j) = janoms2;
                     eruptionData(i).MaxAnomStarts(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms3;
-                    eruptionData(i).MaxAnomValues(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms4;            
+                    eruptionData(i).MaxAnomValues(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms4;
                     
                     nanoms(j) = nanoms(j) + numel(janoms1);
                     
@@ -262,7 +268,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 eruptionData(i).FalsPosMaxVals(j) = {astartMaxVals(ifp)};
                 
                 eruptionData(i).TruePosMaxStart(j) = {astartMaxes(itpm)};
-                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itpm)};               
+                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itpm)};
             else
                 
                 tp(j) = 0;
@@ -278,7 +284,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 eruptionData(i).FalsPosMaxVals(j) = {NaN};
                 
                 eruptionData(i).TruePosMaxStart(j) = {NaN};
-                eruptionData(i).TruePosMaxVals(j) = {NaN};                
+                eruptionData(i).TruePosMaxVals(j) = {NaN};
             end
         end
         
@@ -313,12 +319,12 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 janoms1 = cell2mat(beta_output(ii).AnomStartTimes(j));
                 janoms2 = cell2mat(beta_output(ii).AnomStopTimes(j));
                 janoms3 = cell2mat(beta_output(ii).AnomMaxStarts(j));
-                janoms4 = cell2mat(beta_output(ii).AnomMaxValues(j));            
+                janoms4 = cell2mat(beta_output(ii).AnomMaxValues(j));
                 
                 eruptionData(i).BeginAnomTimes(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms1;
                 eruptionData(i).EndAnomTimes(nanoms(j)+1:nanoms(j)+numel(janoms2),j) = janoms2;
                 eruptionData(i).MaxAnomStarts(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms3;
-                eruptionData(i).MaxAnomValues(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms4;            
+                eruptionData(i).MaxAnomValues(nanoms(j)+1:nanoms(j)+numel(janoms1),j) = janoms4;
                 
                 nanoms(j) = nanoms(j) + numel(janoms1);
                 
@@ -346,9 +352,9 @@ for n = 1:length(files) % cycle over volcanoes analyzed
   
            prev                                             this
          eruption                                         eruption
-            ^                                                 ^  
+            ^                                                 ^
             _                                                ___
-           | |                 t0r                b         |   |      
+           | |                 t0r                b         |   |
         <--| |------------------|-----------------|---------|   |--> time
                                    false positive   true
                                    search window     pos
@@ -370,12 +376,12 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 astops  = nonzeros(eruptionData(i).EndAnomTimes(:,j)); % anomaly stop times
                 astartMaxes = nonzeros(eruptionData(i).MaxAnomStarts(:,j));
                 astartMaxVals = nonzeros(eruptionData(i).MaxAnomValues(:,j));
-                                
+                
                 % Here's where we decide if a true positive or a false
                 % positive occurred
-
+                
                 % is a flase positive if the following conditions are met:
-                % (1) occurs in the time between params.repose years after the last eruption to params.AnomSearchWindow before the next eruption               
+                % (1) occurs in the time between params.repose years after the last eruption to params.AnomSearchWindow before the next eruption
                 ifp = find(astarts > t0r & astops <= t1 - params.AnomSearchWindow);
                 
                 % is a true positive if the following three conditions are met:
@@ -385,7 +391,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 % actually in this case after last eruption before future
                 % possible eruption, there can be no TPs!! BUG FIX here
                 % (JP)
-%                 itp = find(astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r);
+                %                 itp = find(astops > t1 - params.AnomSearchWindow & astarts < t1 & astarts > t0r);
                 itp = [];
                 
                 % count tru/false positives
@@ -415,7 +421,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 eruptionData(i).FalsPosMaxVals(j) = {astartMaxVals(ifp)};
                 
                 eruptionData(i).TruePosMaxStart(j) = {astartMaxes(itpm)};
-                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itpm)};                    
+                eruptionData(i).TruePosMaxVals(j) = {astartMaxVals(itpm)};
             else
                 
                 tp(j) = 0;
@@ -431,7 +437,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 eruptionData(i).FalsPosMaxVals(j) = {NaN};
                 
                 eruptionData(i).TruePosMaxStart(j) = {NaN};
-                eruptionData(i).TruePosMaxVals(j) = {NaN};                     
+                eruptionData(i).TruePosMaxVals(j) = {NaN};
                 
             end
         end
