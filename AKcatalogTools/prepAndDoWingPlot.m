@@ -113,6 +113,7 @@ if params.retro
         %     writetable(csvcatalog,[params.outDir,filesep,[vinfo.name,filesep,vinfo.name,char(plot_names(i)),'.csv']],'FileType','text')
         fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params,i);
         print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
+        print(fh_wingplot,'-depsc2',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
         
     end
 else % load in previous results, only works after the fact for TPs! !! TEMPORARY KLUDGE
