@@ -51,6 +51,11 @@ if params.coasts
     %     delete(indexname)
 end
 
+outDirName=[params.outDir,'/',vinfo.name];
+if ~exist(outDirName,'dir')
+    [~,~,~] = mkdir(outDirName);
+end
+
 % add for topo
 if params.topo
     disp('  topo...')
@@ -67,24 +72,24 @@ if params.topo
     catch
         warning('TOPO NO BUENO')
     end
-end
-%% export topo
-topoOut = zeros(RA.RasterSize(1)*RA.RasterSize(2),3);
-tct=0;
-for i=1:RA.RasterSize(1)
-    ii = RA.LatitudeLimits(2)-(i-1)*RA.CellExtentInLatitude;
-    for j=1:RA.RasterSize(2)
-        jj = RA.LongitudeLimits(1)+(j-1)*RA.CellExtentInLongitude;
-        tct = tct + 1;
-        topoOut(tct,1:3) = [ii jj double(ZA(i,j))];
+    
+    %% export topo
+    if params.mkGMToutput
+        topoOut = zeros(RA.RasterSize(1)*RA.RasterSize(2),3);
+        tct=0;
+        for i=1:RA.RasterSize(1)
+            ii = RA.LatitudeLimits(2)-(i-1)*RA.CellExtentInLatitude;
+            for j=1:RA.RasterSize(2)
+                jj = RA.LongitudeLimits(1)+(j-1)*RA.CellExtentInLongitude;
+                tct = tct + 1;
+                topoOut(tct,1:3) = [ii jj double(ZA(i,j))];
+            end
+        end
+        save([outDirName,'/',vinfo.name,'_topo.xyz'],'topoOut','-ascii')
     end
 end
-outDirName=[params.outDir,'/',vinfo.name];
-if ~exist(outDirName,'dir')
-    [~,~,~] = mkdir(outDirName);
-end
 
-save([outDirName,'/',vinfo.name,'_topo.xyz'],'topoOut','-ascii')
+
 %%
 % AK stations
 [~,AVlat,AVlon,AVelev] = importStationFile(inputFiles.AKstas);
@@ -113,7 +118,9 @@ if params.retro
         %     writetable(csvcatalog,[params.outDir,filesep,[vinfo.name,filesep,vinfo.name,char(plot_names(i)),'.csv']],'FileType','text')
         fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params,i);
         print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
-        print(fh_wingplot,'-depsc2',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
+        if params.mkGMToutput
+            print(fh_wingplot,'-depsc2',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
+        end
         
     end
 else % load in previous results, only works after the fact for TPs! !! TEMPORARY KLUDGE

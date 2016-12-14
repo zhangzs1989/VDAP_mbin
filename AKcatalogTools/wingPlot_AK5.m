@@ -22,7 +22,7 @@ if size(catalog,2) > 0
     DateTime = datenum(extractfield(catalog, 'DateTime'));
     Magnitude = extractfield(catalog, 'Magnitude');
     Moment = magnitude2moment(Magnitude); % convert each magnitude to a moment
-    eq_plot_size = rescaleMoments(Moment,[5 100]); % base event marker size on moment (a way to make a log plot)
+    eq_plot_size = rescaleMoments(Moment,[5 100],[-1 5]); % base event marker size on moment (a way to make a log plot)
 else
     Lat = [];
     Lon = [];
@@ -44,18 +44,20 @@ if ~isnan(mapdata.inner)
 end
 %map axes
 
-% % [latlim, lonlim] = bufgeoquad(latlim, lonlim, .005, .005);
+% [latlim, lonlim] = bufgeoquad(latlim, lonlim, .005, .005);
+% lonlim = mapdata.lonlim;
+% latlim = mapdata.latlim;
+latlim = [min([Lat'; latannO]) max([Lat'; latannO])];
+lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
+    
 if params.topo
-    lonlim = mapdata.RA.LongitudeLimits;
-    latlim = mapdata.RA.LatitudeLimits;
     ZA = mapdata.ZA;
     RA = mapdata.RA;
     crange = 200:200:max(max(ZA));
 else
-    latlim = [min([Lat'; latannO]) max([Lat'; latannO])];
-    lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
+
     crange =[];
-    % deal with crossing 180 longitude for semisepochnoi
+%     deal with crossing 180 longitude for semisepochnoi
     if sign(min(longannO)) ~= sign(max(longannO))
         longannO(longannO<0) = longannO(longannO<0) + 360;
         lonlim = [min([Lon'; longannO]) max([Lon'; longannO])];
@@ -70,9 +72,6 @@ H = figure('Position',[scrsz(3)/2 scrsz(4)/2 scrsz(3)/2 scrsz(3)/2],'visible',pa
 H.Color = [1 1 1]; % sets the background of the figure panel to white
 H.InvertHardcopy = 'off'; % should make the printed figure look more like what is on the screen
 
-clear mapData mapData2
-ct = 0;
-ct2=0;
 %% Subplots
 
 subplot(3,3,[1 2 4 5]);
@@ -97,12 +96,43 @@ hcb=colorbar;
 caxis([t1 t2])
 datetickJP(hcb,'y',2); % this is a non-Matlab function, watch out!
 
-for i=1:length(Lat)
-    ct=ct+1;
-    mapData(ct,1) = {Lat(i)};
-    mapData(ct,2) = {Lon(i)};
-    mapData(ct,3) = {datestr(DateTime(i),'yyyy-mm-ddTHH:MM:SS')};
-    mapData(ct,4) = {Depth(i)};
+if params.mkGMToutput
+    clear mapData mapData2
+    ct = 0;
+    ct2=0;
+    for i=1:length(Lat)
+        ct=ct+1;
+        mapData(ct,1) = {Lat(i)};
+        mapData(ct,2) = {Lon(i)};
+        mapData(ct,3) = {datestr(DateTime(i),'yyyy-mm-ddTHH:MM:SS')};
+        mapData(ct,4) = {Depth(i)};
+    end
+    ct2 = ct2 + 1;
+    mapData2(ct2,1) = {'>'};
+    mapData2(ct2,2) = {'-W1,0,--'};
+    
+    try
+        for i=1:length(latannI)
+            ct2=ct2+1;
+            mapData2(ct2,1) = {latannI(i)};
+            mapData2(ct2,2) = {longannI(i)};
+        end
+        ct2 = ct2 + 1;
+        mapData2(ct2,1) = {'>'};
+        mapData2(ct2,2) = {'-W1,0,--'};
+    catch
+        disp('no inner annulus plotted')
+    end
+    
+    for i=1:length(latannO)
+        ct2=ct2+1;
+        mapData2(ct2,1) = {latannO(i)};
+        mapData2(ct2,2) = {longannO(i)};
+    end
+    if ~isempty(Lat)
+        s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,['mapData',int2str(ii),'.xy']],mapData,' ')
+    end
+    s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,'mapDataB.xy'],mapData2,' ')
 end
 
 try
@@ -115,33 +145,6 @@ try
 catch
     disp('No annulus available')
 end
-
-ct2 = ct2 + 1;
-mapData2(ct2,1) = {'>'};
-mapData2(ct2,2) = {'-W1,0,--'};
-
-try
-    for i=1:length(latannI)
-        ct2=ct2+1;
-        mapData2(ct2,1) = {latannI(i)};
-        mapData2(ct2,2) = {longannI(i)};
-    end
-    ct2 = ct2 + 1;
-    mapData2(ct2,1) = {'>'};
-    mapData2(ct2,2) = {'-W1,0,--'};
-catch
-    disp('no inner annulus plotted')
-end
-
-for i=1:length(latannO)
-    ct2=ct2+1;
-    mapData2(ct2,1) = {latannO(i)};
-    mapData2(ct2,2) = {longannO(i)};
-end
-if ~isempty(Lat)
-    s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,['mapData',int2str(ii),'.xy']],mapData,' ')
-end
-s6_cellwrite([params.outDir,filesep,vinfo.name,filesep,'mapDataB.xy'],mapData2,' ')
 
 try plotm(latannI, longannI, 'k'); catch, warning('No inner annulus plotted'), end % plot the annulus as a black line
 try plotm(mapdata.sta_lat, mapdata.sta_lon,'^k','MarkerFaceColor','k'); catch, warning('No other stations in the area'), end
@@ -156,7 +159,6 @@ h = scaleruler('Units','km','RulerStyle','patches');
 [px, py] = mfwdtran(vinfo.vlats, vinfo.vlons); % location of other summit *p*eaks
 
 % z = Depth;
-
 
 %% Map & XSection
 
