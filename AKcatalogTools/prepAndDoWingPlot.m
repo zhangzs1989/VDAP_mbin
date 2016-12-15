@@ -10,7 +10,7 @@ longannO = outer(:,2); latannO=outer(:,1);
 %%
 %map axes
 % catalog = filterTime( catalog, t1, t2);
-if size(catalog,2) > 0
+if size(catalog,2) > 0 && ~isempty(catalog)
     elat = extractfield(catalog, 'Latitude');
     elong = extractfield(catalog, 'Longitude');
 else

@@ -19,13 +19,13 @@ function [ out_catalog ] = filterTime( in_catalog, varargin )
 % BETWEEN TWO DATES
 % >> % filter a catalog to events that occurred in March 2014
 % >> subcatalog = filterTime( original_catalog, datenum('2014/03/01 00:00:00'), datenum('2014/03/31 23:59:59'));
-% 
+%
 % BETWEEN VECTOR OF DATES
 % >> % filter a catalog to events that occured in March 2013, March 2014, or May 2014
 % >> starts = {'2013/03/01 00:00:00','2014/03/01 00:00:00','2014/05/01 00:00:00'}
 % >> stops = {'2013/03/31 23:59:59','2014/03/31 23:59:59','2014/05/31 23:59:59'}
 % >> subcatalog = filterTime(catalog, starts, stops)
-% 
+%
 % KEEP EVENTS
 % >> % filter a catalog to keep events that occured on given dates
 % >> dates_of_interest = datenum('2014/03/01'):datenum('2014/03/31')
@@ -77,10 +77,12 @@ precision of dates given was usually down to the second. [jjw]
 2015-Nov-16: Allow start and stop times to be vectors
 %}
 %%
-
-% get event times from the catalog - returned in Matlab date format
-DateTime = datenum(extractfield(in_catalog, 'DateTime'));
-
+if ~isempty(in_catalog)
+    % get event times from the catalog - returned in Matlab date format
+    DateTime = datenum(extractfield(in_catalog, 'DateTime'));
+else
+    DateTime = [];
+end
 % assumes on of the following
 % (1) varargin{1} is 'keep' or 'remove', and varargin{2} is a vector
 % of dates. In this case, varargin{1} is of 'char' variable type
@@ -91,7 +93,7 @@ DateTime = datenum(extractfield(in_catalog, 'DateTime'));
 if ischar(varargin{1})
     
     switch varargin{1}
-
+        
         case 'keep'
             
             on_given_day_index = getIndexForEventsOnDate( varargin, DateTime );
@@ -129,6 +131,7 @@ end
 
 
 
+end
 %% LOCAL FUNCTIONS
 
 function [on_given_day_index] = getIndexForEventsOnDate( original_varargin, DateTime )
@@ -150,4 +153,3 @@ end
 
 end
 
-end
