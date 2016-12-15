@@ -15,7 +15,7 @@ screen.
 %% Data Prep
 
 % Extract all necessary data from the catalog
-if size(catalog,2) > 0
+if size(catalog,2) > 0 && ~isempty(catalog)
     Lat = extractfield(catalog, 'Latitude');
     Lon = extractfield(catalog, 'Longitude');
     Depth = extractfield(catalog, 'Depth');
