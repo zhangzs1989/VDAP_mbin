@@ -38,8 +38,8 @@ function [ out_catalog, outer_ann, inner_ann ] = filterAnnulusm( in_catalog, lat
 %%
 
 out_catalog = in_catalog;
-outer_ann = [nan; nan];
-inner_ann = [nan; nan];
+outer_ann = [nan, nan];
+inner_ann = [nan, nan];
 
 
 
