@@ -91,6 +91,7 @@ if params.coasts
 end
 % Plot earthquakes and the volcano
 colormap('jet')
+disp(['# of events = ' num2str(length(Lat))]);
 scatterm(ax, Lat, Lon, eq_plot_size, DateTime);
 hcb=colorbar;
 caxis([t1 t2])
