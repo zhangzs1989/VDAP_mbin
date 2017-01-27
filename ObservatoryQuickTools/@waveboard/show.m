@@ -26,6 +26,7 @@ if strcmp(obj.squishY, 'on')
 end
 
 axh = ax;
+linkaxes(axh, 'x')
 
 end
 

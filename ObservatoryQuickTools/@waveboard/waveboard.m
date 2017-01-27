@@ -27,9 +27,25 @@ classdef waveboard
     methods
         
         % Constructor method for a waveboard object
-        function obj = waveboard( w )
+        function obj = waveboard( w, varargin )
            
             obj.w = w;
+            
+            warning('Wavboard constructor is specifically designed to interpret << ''squishY'', ''on'' >> as optional input arguments.')
+            if numel(varargin)==2
+                
+                if strcmp(varargin{1}, 'squishY')
+                    
+                    if strcmp(varargin{2}, 'on')
+                        
+                        obj.squishY = 'on';
+                        
+                    end
+                    
+                end
+                
+            end
+            
             
         end
         

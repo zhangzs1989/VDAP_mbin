@@ -2,15 +2,20 @@ function T = rdSummaryDat(inputfiles, startRow, endRow)
 %RDSUMMARYDAT Reads a *Summary.dat file produced by the NEIC Subspace
 %Detector
 %   T
-%   = IMPORTFILE(FILENAME) Reads data from text file FILENAME for the
+%   = rdSummaryDat(FILENAME) Reads data from text file FILENAME for the
 %   default selection.
 %
-%   [DATE1,TIME1,LAT,LON,DEPTH,MAG,MAG_TYPE,N,S,C,L,PHASE,DATE2,TIME2,CC,CC_THRESH,S2N]
-%   = IMPORTFILE(FILENAME, STARTROW, ENDROW) Reads data from rows STARTROW
+%   T
+%   = rdSummaryDat(FILENAME, STARTROW, ENDROW) Reads data from rows STARTROW
 %   through ENDROW of text file FILENAME.
 %
 % Example:
-%   [date1,time1,lat,lon,depth,mag,mag_type,N,S,C,L,phase,date2,time2,cc,cc_thresh,s2n] = importfile('KBUR_2015_145const_thresh_summary.txt',1, 30);
+%   T = rdSummaryDat('KBUR_2015_145const_thresh_summary.txt',1, 30);
+%
+% Future Implementation
+%   T = rdSummaryDat(foldername, tag, date)
+%     where 'tag' is one or more ChannelTag objects
+%     and 'date' is a series of datnum, datestr, or datevec objects
 %
 %    See also TEXTSCAN.
 

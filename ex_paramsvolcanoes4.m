@@ -42,7 +42,7 @@ params.volcanoes = {
 %         'Shishaldin'
     };
 
-params.volcanoes = {'Augustine'};
+params.volcanoes = {'Tanaga'};
 % params.volcanoes = 'Erupt'; % you can now do all seismically monitored eruptions 
 % params.volcanoes = 'NoErupt'; % you can now do all seismically monitored volcanoes without eruptions 
 % params.volcanoes = 'All'; % you can now do all seismically monitored volcanoes 
@@ -118,4 +118,4 @@ volcanoInputsAllTime2 % runs analysis for all volcanoes listed in params.volcano
 
 % JP
 % FalsePositives % run analysis for combined stats
-% FPqc % QC FP plots
+% FPqc, % QC FP plots

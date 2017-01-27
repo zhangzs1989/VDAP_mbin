@@ -1,3 +1,20 @@
+%% IMPORTANSSCATALOG3
+% VDAP ANSS CATALOG STRUCTURE:
+%
+% Catalog
+% .DateTime
+% .Latitude
+% .Longitude
+% .Depth
+% .Magnitude
+% .MagType
+% .NbStations
+% .Gap
+% .Distance
+% .RMS
+% .Source
+% .EventID
+%
 %{
 This function reads in an ANSS catalog from the .csv format and saves it as
 a Matlab structure such that each event is its own entry in the structure. 

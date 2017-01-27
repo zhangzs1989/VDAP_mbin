@@ -1,7 +1,6 @@
 function [ bin_mag ] = cumMagByBetaBin( bin_sizes, bins, eq_times, eq_magnitudes )
 % CUMMAGBYBETABINS Calculates the cumulative magnitude from earthquakes
 % released during a given beta window
-%   Detailed explanation goes here
 %
 % INPUT
 % BINS - [n-by-m double] An n-by-m matrix of dates that represent the start

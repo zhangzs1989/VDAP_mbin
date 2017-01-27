@@ -93,8 +93,8 @@ function w = savesac2(w, direc, fname)
    
    for n=1: numel(w) %fname is a cell array
       %first column of SAC is times, seocond is data. third will be header
-      sacHeader = waveform2sacheader(w(n));
+      sacHeader = waveform2sacheader2(w(n));
       outputFileName = fullfile(direc,fname{n});
-      writesac(outputFileName,sacHeader, get(w,'data'));
+      writesac2(outputFileName,sacHeader, get(w,'data'));
    end
 end

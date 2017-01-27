@@ -1,4 +1,5 @@
-function [ RSAM_OBJ ] = quickRSAM( ds, tag, tstart, tstop, method, sampling_period, filterobj )
+function [ RSAM_OBJ ] = quickRSAM( ds, tag, tstart, tstop, method, ...
+    sampling_period, varargin )
 %QUICKRSAM Quickly produces RSAM from a given set of data
 % This is a wrapper for WAVEFORM2RSAM that allows you to compute RSAM
 % directly from a datasource. The continuous data can also be filtered
@@ -6,32 +7,46 @@ function [ RSAM_OBJ ] = quickRSAM( ds, tag, tstart, tstop, method, sampling_peri
 % object, which is easier to use for the purposes of plotting, etc.
 %
 % INPUT
-% + ds - datasource
-% + tag
-% + method
-% + sampling period
-% + filt_obj - filterobject
-% + output_dir
+% + ds                  : datasource
+% + tag                 : 1-by-n ChannelTag objects
+% + tstart              :
+% + tstop               :
+% + method              : see WAVEFORM/WAVEFORM2RSAM for more help
+% + sampling_period     : rsam interval in minutes 
+% + (filt_obj)          : filters the waveform before plotting 
 %
 % OUTPUT
 % + RSAM_OBJ - RSAM data stored as a waveform object
 %
-% SEE ALSO DATASOURCE WAVEFORM CHANNELTAG WAVEFORM2RSAM FILTEROBJET WAVEFORM/FILTFILT
+% SEE ALSO DATASOURCE WAVEFORM CHANNELTAG WAVEFORM/WAVEFORM2RSAM FILTEROBJECT WAVEFORM/FILTFILT
+
+%% parse user input
+
+% if there are extra input arguments
+if numel(varargin) > 0
+    
+    % assume the first extra input argument is the filter object
+    filterData = 1;
+    filterobj = varargin{1};
+    
+else
+    
+    filterData = 0;
+    
+end
 
 %% run
+
+tstart = datenum(tstart);
+tstop = datenum(tstop);
 
 for s = 1:numel(tag)
     
     
     %% auto-preparation
-    
-    output_dir = [base_dir tag(s).string '/'];
-    mkdir(base_dir);
-    mkdir(output_dir);
-    
+        
     %     load('colors.mat')
     rsam = waveform(); rsam = set(rsam, 'ChannelTag', tag(s)); % initialize rsam object
-    % w_all = waveform(); w_all = set(w_all, 'ChannelTag', tag); % initialize waveform object for all data
     
     %% compute RSAM
     
@@ -43,13 +58,12 @@ for s = 1:numel(tag)
         w = demean(w);
         w = fillgaps(w, 0, NaN);
         
-        if ~isempty(w)
-            
-            if ~isempty(w)
+        if ~isempty(w)           
                 
-                w = filtfilt(filterobj, w);
-                
-                
+                if filterData && numel(get(w, 'data')) > 12 % waveform/filtfilt requires data length to be greater than 12 samples
+                    w = filtfilt(filterobj, w);
+                end
+
                 sampling_period_sec = sampling_period*60;
                 tmp_rsam = waveform2rsam(w, method, sampling_period_sec);
                 tmp_wrsam = waveform();
@@ -59,8 +73,6 @@ for s = 1:numel(tag)
                 tmp_wrsam = set(tmp_wrsam, 'data', tmp_rsam.data);
                 
                 rsam = combine([rsam tmp_wrsam]);
-
-            end
             
         end
         
@@ -71,8 +83,7 @@ for s = 1:numel(tag)
         
     end
     
-    RSAM(s) = rsam;
-    %     writeRSAM2file( RSAM(s), output_dir );
+    RSAM_OBJ(s) = rsam;
     
 end
 

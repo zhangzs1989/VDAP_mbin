@@ -1,6 +1,19 @@
 function [ ax ] = addXAxes( eruptions, ax, xaxes, xaxesloc )
-%ADDXAXES Adds additional x-axes (for repose time and precursor time) to a
+%ADDXAXES Adds additional X-axes (for repose time and precursor time) to a
 %plot of eruptions
+%
+% INPUT
+% eruptions - ERUPTION objects
+% ax - axis handle for the plot that will receive updated axes
+% (xaxes) - options to add 'repose' times or 'precursor' times
+% (xaxesloc) - options to add additional axes to the top or the bottom
+%
+% OUTPUT
+% ax - new axes handles
+%
+% USAGE
+% >> addXAxes(redoubt_dataset, ax, {'repose', 'precursor'}, 'bb')
+%
 % Known Issues:
 % A "year" (for "Years in Repose" and "Years to Eruption") is defined as
 % exactly 365 days

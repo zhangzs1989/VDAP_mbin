@@ -1,6 +1,5 @@
 function [ result ] = magnitude2moment( input, varargin )
-%{
-% magnitude2moment.m
+% MAGNITUDE2MOMENT
 % ------------------
 % Converts from magnitude to moment. Add 'reverse' as a second input
 % variable to convert moment to magnitude. Calculations are completed as
@@ -17,7 +16,6 @@ function [ result ] = magnitude2moment( input, varargin )
 % >>Mw = magnitude2moment(Mo,'reverse')
 % Mw =
 %     3.5000
-%}
 
 % @Jay Wellik, Michigan Technological University
 % Updated: 2014 April 20

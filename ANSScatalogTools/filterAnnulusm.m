@@ -41,8 +41,6 @@ out_catalog = in_catalog;
 outer_ann = [nan; nan];
 inner_ann = [nan; nan];
 
-
-
 %% Set up projection System: Transverse UTM
 
     % define utm zone and geoid
@@ -102,7 +100,5 @@ end
 %% Check the data by applying inverse projection to the volcano points
 
 % [lat, lon] = minvtran(mstruct, x, y)
-
-
 
 end
