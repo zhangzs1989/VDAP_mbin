@@ -19,7 +19,7 @@ function makeHelicorderFromWinston(ds, tag, tstart, tstop, output_dir)
 % + output_dir - string - 
 %
 % OUTPUT:
-% + prints an figure window and saves the figure and associated jpg to
+% + prints a figure window and saves the figure and associated jpg to
 % output_dir
 %
 
