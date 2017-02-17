@@ -113,7 +113,7 @@ if length(distance_km) > 1 && min(distance_km) > 0
     id2 = ~inpolygon(ex(id), ey(id), i_x, i_y);
     
     try
-        out_catalog = in_catalog(id2);
+        out_catalog = out_catalog(id2);
     catch
         warning('structure not of catalog type, may not filter all fields')
         NAMES = char(fieldnames(in_catalog));

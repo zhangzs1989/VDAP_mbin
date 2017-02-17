@@ -4,8 +4,8 @@ disp('QC')
 files = subdir(fullfile(params.outDir, 'eruptionData.mat'));
 qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
-bviz = 'invisible';
-bfigs = false;
+bviz = 'visible';
+bfigs = true;
 wingPlot = false;
 minVEIb = params.VEI(1) ;
 % vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
@@ -218,7 +218,8 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     EP = sum(pdata(:,1))/sum(pdata(:,4)); % %Eruptions Preceded by anoms
     EF = sum(pdata(:,1))/(sum(pdata(:,1))+sum(pdata(:,2))); % %Eruptions Following anoms
     EA = dtmean; %early anomaly factor
-    Tpmax = 16*30;
+    warning('HARD CODED TpMax!')
+    Tpmax = 24*30;
     
     score = EP + EF + EA/Tpmax;
     %     s6_cellwrite([params.outDir,filesep,'ScoreStats_',int2str(win),'.csv'],outPdata);

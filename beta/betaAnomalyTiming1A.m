@@ -32,7 +32,7 @@ for n = 1:length( beta_structure )
     % create vectors that identify:
     % is_over_beta : whether the beta value for each t_check is anomalous or not
     % dev_from_beta : the percent which the beta value differs from beta empirical
-    is_over_beta = bc > Be_matrix;
+    is_over_beta = bc > Be_matrix;  %%JP: should this be >= ???
     bcBe_ratio = bc./Be_matrix;
        
         % days and bins of anomalies - reported in amount of time before
