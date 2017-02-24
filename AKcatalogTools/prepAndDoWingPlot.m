@@ -119,7 +119,7 @@ if params.retro
         fh_wingplot = wingPlot_AK5(vinfo, t1, t2, catalog_t, mapdata, params,i);
         print(fh_wingplot,'-dpng',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
         if params.mkGMToutput
-            print(fh_wingplot,'-depsc2',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i,:))])
+            print(fh_wingplot,'-depsc2',[outDirName,'/',vinfo.name,'_WingPlot',params.catlabel,'_',char(plot_names(i))])
         end
         
     end

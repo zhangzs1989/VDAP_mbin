@@ -4,8 +4,8 @@ disp('QC')
 files = subdir(fullfile(params.outDir, 'eruptionData.mat'));
 qcdir = 'FPs/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
-bviz = 'visible';
-bfigs = true;
+bviz = 'invisible';
+bfigs = false;
 wingPlot = false;
 minVEIb = params.VEI(1) ;
 % vsort = [1 3 6 8 5 7 9 4 2]; % sort volcanoes by type instead of alphabet
@@ -268,26 +268,25 @@ for w=1:numel(params.ndays_all) % which window size to plot?
     %         print([params.outDir,filesep,qcdir,filesep,'TPsVsFPs_Win',int2str(win)],'-dpng')
     
     clear outData
-    ct = 1;
+    ct2 = 1;
     outData(1,:) = {'volcano','lat','lon','elev','Eruptions','TP','FP','Score'};
     
     for i=1:numel(lh)
-        ct = ct +1;
+        ct2 = ct2 +1;
         volcname = lh(i);
         vinfo = getVolcanoSpecs(volcname,inputFiles,params);
-        outData(ct,1) = volcname;
-        outData(ct,2) = {vinfo.lat};
-        outData(ct,3) = {vinfo.lon};
-        outData(ct,4) = {vinfo.elev};
-        outData(ct,5) = {pdata(vsort(i),4)};
-        outData(ct,6) = {pdata(vsort(i),1)};
-        outData(ct,7) = {pdata(vsort(i),2)};
-        %         outData(ct,8) = {pdata(vsort(i),5)};
+        outData(ct2,1) = volcname;
+        outData(ct2,2) = {vinfo.lat};
+        outData(ct2,3) = {vinfo.lon};
+        outData(ct2,4) = {vinfo.elev};
+        outData(ct2,5) = {pdata(vsort(i),4)};
+        outData(ct2,6) = {pdata(vsort(i),1)};
+        outData(ct2,7) = {pdata(vsort(i),2)};
+        %         outData(ct2,8) = {pdata(vsort(i),5)};
         
         
     end
     s6_cellwrite([params.outDir,filesep,'FPs/FPvolcResultsVEI',int2str(minVEIb),'_',int2str(params.ndays_all(w)),'.csv'],outData,',')
 end
 numGTminVEI
-
 %%
