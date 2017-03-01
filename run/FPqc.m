@@ -1,8 +1,8 @@
 %% QC PLOTs of FPs and TPs, etc
 
 disp('QC')
-files = subdir(fullfile(params.outDir, 'eruptionData.mat'));
-qcdir = 'FPs/';
+files = subdir(fullfile(params.outDir, 'eruptionData2.mat'));
+qcdir = 'FPs2/';
 [SUCCESS,MESSAGE,MESSAGEID] = mkdir([params.outDir,filesep,qcdir]);
 bviz = 'invisible';
 bfigs = false;
@@ -286,7 +286,7 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         
         
     end
-    s6_cellwrite([params.outDir,filesep,'FPs/FPvolcResultsVEI',int2str(minVEIb),'_',int2str(params.ndays_all(w)),'.csv'],outData,',')
+    s6_cellwrite([params.outDir,filesep,qcdir,filesep,'FPvolcResultsVEI',int2str(minVEIb),'_',int2str(params.ndays_all(w)),'.csv'],outData,',')
 end
 numGTminVEI
 %%

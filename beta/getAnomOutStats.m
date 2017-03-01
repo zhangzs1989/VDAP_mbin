@@ -16,7 +16,7 @@ stats(1,10)={'1stStartTimeMinusTa'};
 
 % get eruptionData.mat files from JP FalsePositives.m code run post
 % analysis
-files = dir2(params.outDir, '-r', '*eruptionData.mat');
+files = dir2(params.outDir, '-r', '*eruptionData2.mat');
 
 AKeruptions = readtext(inputFiles.Eruptions);
 % stats(1,5)={'Eruption?'};

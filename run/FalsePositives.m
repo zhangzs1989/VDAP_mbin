@@ -73,7 +73,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 istart = find(anomStartTimes2(l) == beta_output(i).t_checks(:,k));
                 istop  = find(anomStopTimes2(l)  == beta_output(i).t_checks(:,k));
                 r = istart:istop;
-                bcs = beta_output(i).bc(r,k);
+                bcs = beta_output(i).bc(r,k);%NOTE: HERE JP
                 [Y,I] = max(bcs);
                 try
                     maxAnomStart(l) = beta_output(i).t_checks(r(I),k);
@@ -246,7 +246,8 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 if numel(itp) > 1
                     
                     [Y2,I2] = max(astartMaxVals(itp)); %largest
-                    [Y1,I1] = min(astarts(itp)); %largest
+%                     [Y1,I1] = min(astarts(itp)); %largest
+                    [Y1,I1] = max(astarts(itp)); %JP: change here for 2017 v3 draft
                     
                     tp(j) = 1;
                     itpm = itp(I2);
@@ -400,8 +401,9 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 if numel(itp) > 1
                     
                     [Y2,I2] = max(astartMaxVals(itp)); %largest
-                    [Y1,I1] = min(astarts(itp)); %largest
-                    
+%                     [Y1,I1] = min(astarts(itp)); %largest
+                    [Y1,I1] = max(astarts(itp)); %JP: change here for 2017 v3 draft
+                                        
                     tp(j) = 1;
                     itpm = itp(I2);
                     itp = itp(I1);
@@ -448,7 +450,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
         eruptionData(i).yrsInRepose = etime(datevec(now),datevec(beta_output(inan(1)).start))/60/60/24/365; % years in repose
     end
     %%
-    save([params.outDir,filesep,volcname,filesep,'eruptionData'],'eruptionData')
+    save([params.outDir,filesep,volcname,filesep,'eruptionData2'],'eruptionData')
     
 end % end compiling TP/FP info from beta_output > eruptionData.mat files
 
