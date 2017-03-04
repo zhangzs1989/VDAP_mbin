@@ -29,8 +29,10 @@ for w=1:numel(params.ndays_all) % which window size to plot?
         vname = files(n).name(istr(end-1)+1:istr(end-0)-1);
         lh =[lh; {vname}];
         disp(vname)
-        vqcdir=[params.outDir,filesep,vname,filesep,qcdir];
-        [SUCCESS,MESSAGE,MESSAGEID] = mkdir(vqcdir);
+        if bfigs
+            vqcdir=[params.outDir,filesep,vname,filesep,qcdir];
+            [SUCCESS,MESSAGE,MESSAGEID] = mkdir(vqcdir);
+        end
         
         %how many with long enough repose?
         reposes = extractfield(eruptionData,'yrsInRepose'); % including those after last eruption

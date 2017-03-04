@@ -75,32 +75,32 @@ else
     baddata = baddata1(ib2);
     
     % QC fig
-    figure('visible','off'), hold on
-    %     figure, hold on
-    lh = {};
-    for d = 1:numel(VOLCANO1.staname)
-        
-        plot(datetime(datevec(days)),~II(:,d)*d,'.')
-        text(days(1),d+.1,[char(VOLCANO1.staname(d)),' ON'])
-        lhv = [char(VOLCANO1.staname(d)),' ON'];
-        lh = [lh,lhv];
-        
-    end
-    ylim([0.5 numel(VOLCANO1.staname)+1.5])
-    plot(datetime(datevec(days)),ib*(d+1),'.')
-    lh = [lh,'Network OFF'];
-    text(days(1),d+1.1,'Network OFF')
-    xlabel('Date')
-    title({[VOLCANO1.name,' Seismic Network Status'],['(Day Fraction: ',num2str(dfracThres),', Min #stations: ',int2str(minsta),')']})
-    %     legend(lh,'location','BestOutside')
-    iss=isspace(VOLCANO1.name);
-    if sum(iss) > 0
-        sp = find(iss==1);
-        vname=VOLCANO1.name([1:sp-1,sp+1:end]);
-    else
-        vname=volcname;
-    end
-    print([params.outDir,filesep,vname,filesep,vname,'_NetworkStatus'],'-dpng')
+%     figure('visible','off'), hold on
+%     %     figure, hold on
+%     lh = {};
+%     for d = 1:numel(VOLCANO1.staname)
+%         
+%         plot(datetime(datevec(days)),~II(:,d)*d,'.')
+%         text(days(1),d+.1,[char(VOLCANO1.staname(d)),' ON'])
+%         lhv = [char(VOLCANO1.staname(d)),' ON'];
+%         lh = [lh,lhv];
+%         
+%     end
+%     ylim([0.5 numel(VOLCANO1.staname)+1.5])
+%     plot(datetime(datevec(days)),ib*(d+1),'.')
+%     lh = [lh,'Network OFF'];
+%     text(days(1),d+1.1,'Network OFF')
+%     xlabel('Date')
+%     title({[VOLCANO1.name,' Seismic Network Status'],['(Day Fraction: ',num2str(dfracThres),', Min #stations: ',int2str(minsta),')']})
+%     %     legend(lh,'location','BestOutside')
+%     iss=isspace(VOLCANO1.name);
+%     if sum(iss) > 0
+%         sp = find(iss==1);
+%         vname=VOLCANO1.name([1:sp-1,sp+1:end]);
+%     else
+%         vname=volcname;
+%     end
+%     print([params.outDir,filesep,vname,filesep,vname,'_NetworkStatus'],'-dpng')
     
     
 end

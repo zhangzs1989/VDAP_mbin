@@ -73,7 +73,7 @@ for n = 1:length(files) % cycle over volcanoes analyzed
                 istart = find(anomStartTimes2(l) == beta_output(i).t_checks(:,k));
                 istop  = find(anomStopTimes2(l)  == beta_output(i).t_checks(:,k));
                 r = istart:istop;
-                bcs = beta_output(i).bc(r,k);%NOTE: HERE JP
+                bcs = beta_output(i).bc(r,k);
                 [Y,I] = max(bcs);
                 try
                     maxAnomStart(l) = beta_output(i).t_checks(r(I),k);
