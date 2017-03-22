@@ -1,4 +1,4 @@
-function [ out_catalog ] = filterMag( in_catalog, min_mag )
+function [ out_catalog ] = filterMag( in_catalog, MagRange )
 %FILTERDEPTH Filters the ANSS catalog to all events shallower than (<=) a
 %specified depth
 % This function is meant to be used with the ANSS catalog. It is meant to
@@ -25,16 +25,18 @@ function [ out_catalog ] = filterMag( in_catalog, min_mag )
 % DATE: 2015-Sep
 
 %%
-
-% Find the index for all depths below threshold from the catalog
+if isempty(in_catalog)
+    out_catalog = in_catalog;
+else
+    % Find the index for all depths below threshold from the catalog
     % subselection
-Mag = extractfield(in_catalog, 'Magnitude');
-% id = find(Mag >= min_mag);
-id = Mag >= min_mag;
+    Mag = extractfield(in_catalog, 'Magnitude');
+    % id = find(Mag >= min_mag);
+    id = Mag >= MagRange(1) & Mag < MagRange(2);
     % Subselection of events within time, distance, and depth window
-% out_catalog = in_catalog(id);
-out_catalog = in_catalog(id);
-
-
+    % out_catalog = in_catalog(id);
+    out_catalog = in_catalog(id);
+    
+end
 end
 
