@@ -91,7 +91,7 @@ else
     try
         out_catalog = in_catalog(id);
     catch % addition for filtering non standard catalogs but with lat/lon fields (i.e. volcano coords)
-        warning('structure not of catalog type, may not filter all fields')
+%         warning('structure not of catalog type, may not filter all fields')
         NAMES = char(fieldnames(in_catalog));
         for i=1:size(NAMES,1)
             tmp = getfield(in_catalog,NAMES(i,:));
@@ -118,7 +118,7 @@ else
         try
             out_catalog = out_catalog(id2);
         catch
-            warning('structure not of catalog type, may not filter all fields')
+%             warning('structure not of catalog type, may not filter all fields')
             NAMES = char(fieldnames(in_catalog));
             for i=1:size(NAMES,1)
                 tmp = getfield(in_catalog,NAMES(i,:));
