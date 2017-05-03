@@ -1,7 +1,7 @@
 function [ RSAM_OBJ ] = quickRSAM( ds, tag, tstart, tstop, method, ...
     sampling_period, varargin )
 %QUICKRSAM Quickly produces RSAM from a given set of data
-% This is a wrapper for WAVEFORM2RSAM that allows you to compute RSAM
+% This is a wrapper for GISMO/WAVEFORM2RSAM that allows you to compute RSAM
 % directly from a datasource. The continuous data can also be filtered
 % directly from this function. The results are returned as a waveform
 % object, which is easier to use for the purposes of plotting, etc.
@@ -56,7 +56,7 @@ for s = 1:numel(tag)
         w = waveform(ds, tag(s), t, t+1);
         
         w = demean(w);
-        w = fillgaps(w, 0, NaN);
+        w = fillgaps(w, 0);
         
         if ~isempty(w)           
                 
