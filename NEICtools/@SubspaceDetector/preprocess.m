@@ -3,11 +3,11 @@ function [outputcfg, wtemplates, summaries ] = preprocess( obj, preproccfg )
 %
 % CURRENT USAGE
 % Run the Preprocessor from a Configuration object
-% >> [subspacecfg, templates, ~] = preprocess(obj, preprocesscfg)
+% >> [subspacecfg, templates, ~] = preprocess(SubspaceDetector(...), preprocesscfg)
 %
 % ADDITIONAL FUTURE USAGE
 % Run the Preprocessor from a .cfg file
-% >> [subspacecfg, templates, ~] = preprocess(SD, 'Users/myfolder/preprocess.cfg')
+% >> [subspacecfg, templates, ~] = preprocess(SubspaceDetector(...), 'Users/myfolder/preprocess.cfg')
 %
 % SEE ALSO SubspaceDetector Configuration
 
@@ -53,7 +53,7 @@ writecfg(preproccfg, ifilename)
 %% run
 % run the NEIC Preprocessor.jar file
 % [~, ~] = system(['java -jar ' obj.preprocjar ' ' ifilename]) % defining [~, ~] as output arguments supresses the output to the command window
-system(['java -jar ' obj.preprocjar ' ' ifilename]) % not defining output arguments lets the output display to the command window
+[status, cmdout] = system(['java -jar ' obj.preprocjar ' ' ifilename]) % not defining output arguments lets the output display to the command window
 
 %% Load output
 
@@ -61,13 +61,14 @@ system(['java -jar ' obj.preprocjar ' ' ifilename]) % not defining output argume
 SubspaceDetector.move_new_cfg_files(preproccfg);
 
 % load cfg file as Configuration object
-warning('This script is only set up to upload cfg files with the following string: ''RC''.')
-ofilename = dir(fullfile(get_folderpath(preproccfg), 'RC*cfg'));
+warning('This script is only set up to upload cfg files with a hardcoded network code.')
+ofilename = dir(fullfile(get_folderpath(preproccfg), 'AV*cfg'));
 outputcfg = rdcfg(fullfile(get_folderpath(preproccfg), ofilename(1).name));
-outputcfg.project_folder = preproccfg.project_folder; % preserve folder name
+% outputcfg.project_folder = preproccfg.project_folder; % preserve folder name
 outputcfg.name = preproccfg.name; % preserve config name
 outputcfg.svd_indep = preproccfg.svd_indep; % preserve svd_indep setting
 outputcfg.T = preproccfg.T; % preserve event info
+
 
 % load waveform templates
 wtemplates = getTemplates(get_folderpath(preproccfg));

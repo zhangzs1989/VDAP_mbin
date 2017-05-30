@@ -1,4 +1,4 @@
-function w = load_miniseed(request)
+function w = load_miniseed2(request)
    %LOAD_MINISEED loads a waveform from MINISEED files
    % combineWaves isn't currently used!
    

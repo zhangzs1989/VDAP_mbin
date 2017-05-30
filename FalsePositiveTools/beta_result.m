@@ -64,6 +64,8 @@ classdef beta_result
         is_over_beta; % logical expression telling whether or not each beta value is above or below the anomaly
         bcBe_ratio; % ratio between measured beta value and empirical beta
 
+        anomaly_table; % table of info for each anomaly
+
         % individual anomalies
         n_anomalies; % number of anomalies for each bin size; same size as bin_sizes
         anomaly_dates; % datenum for each individual anomaly
@@ -229,7 +231,7 @@ classdef beta_result
     %% anomaly related functions
     
     methods
-        
+               
         % logic matrix corresponding to bc; tells whether or not the beta
         % value is above the threshold
         function val = get.is_over_beta(obj)

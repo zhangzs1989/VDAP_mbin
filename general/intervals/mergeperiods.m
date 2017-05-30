@@ -1,5 +1,7 @@
 function p2 = mergeperiods( p )
 %MERGEPERIODS
+% This function has been renamed to MERGEINTERVALS. Please use that 
+% function instead.
 %
 % E.g.,
 % >> p
@@ -12,6 +14,7 @@ function p2 = mergeperiods( p )
 %     21    23
 %     24    25
 %      2     4
+%
 % >> mergeperiods(p)
 % ans =
 %      1     9
@@ -19,8 +22,14 @@ function p2 = mergeperiods( p )
 %     21    23
 %     24    25
 %
+% SEE ALSO MERGEINTERVALS
+
+%%
 
 % SEE PROGRAMMER'S NOTE BELOW FOR DETAILS
+
+warning('This function has been renamed to MERGEINTERVALS. Please use that function instead.')
+
 
 % sort the start and stop times each in ascending order
 p(:,1) = sort(p(:,1));

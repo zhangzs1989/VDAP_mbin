@@ -55,11 +55,13 @@ classdef alertLevelSchema
         function plot(obj)
             
             nlevels = numel(obj.level);
+            i = 0;
             for n = nlevels:-1:1
                 
-                ax(n) = subplot(nlevels,1,n); patch([0 0 1 1], [0 1 1 0], obj.clr(n, :))
+                i = i+1;
+                ax(n) = subplot(nlevels,1,n); patch([0 0 1 1], [0 1 1 0], obj.clr(i, :))
                 ax(n).XTick = []; ax(n).YTick = [];
-                ax(n).XLabel.String = obj.level(n);
+                ax(n).XLabel.String = obj.level(i);
                 ax(n).XLabel.Rotation = 0;
                 ax(n).XLabel.FontWeight = 'bold';
                 
@@ -89,6 +91,12 @@ classdef alertLevelSchema
         
         function obj = predefined(input)
             
+            % color definitions
+            std_green = [0 0.7 0.3];
+            std_yellow = [1 1 0.4];
+            std_orange = [1 0.5 0];
+            std_red = [1 0.25 0.25];
+            
             obj = alertLevelSchema(input, {'tmp'}, [1 1 1]);
             
             switch upper(input)
@@ -98,11 +106,11 @@ classdef alertLevelSchema
                     obj.name = 'Alaska Volcano Observatory';
                     obj.level = {'UNASSIGNED'; 'GREEN'; 'YELLOW'; 'ORANGE'; 'RED'};
                     obj.clr = [
-                        0 0.7 0.3; ...
-                        0 0.7 0.3; ...
-                        1 1 0.4; ...
-                        1 0.5 0; ...
-                        1 0.25 0.25
+                        std_green; ...
+                        std_green; ...
+                        std_yellow; ...
+                        std_orange; ...
+                        std_red
                         ];
                     
                 case {'PVMBG', 'CVGHM'}
@@ -110,10 +118,10 @@ classdef alertLevelSchema
                     obj.name = 'PVMBG/CVGHM - Indonesia';
                     obj.level = {'NORMAL'; 'WASPADA'; 'SIAGA'; 'AWAS'};
                     obj.clr = [
-                        0 0.7 0.3; ...
-                        1 1 0.4; ...
-                        1 0.5 0; ...
-                        1 0.25 0.25
+                        std_green; ...
+                        std_yellow; ...
+                        std_orange; ...
+                        std_red
                         ];
                     
                 case 'VHP AVIATION'
@@ -121,9 +129,10 @@ classdef alertLevelSchema
                     obj.name = 'USGS Volcano Hazards Program - Aviation';
                     obj.level = {'GREEN'; 'YELLOW'; 'ORANGE'; 'RED'};
                     obj.clr = [
-                        1 1 0.4; ...
-                        1 0.5 0; ...
-                        1 0.25 0.25
+                        std_green; ...
+                        std_yellow; ...
+                        std_orange; ...
+                        std_red
                         ];
                     
                 case 'VHP GROUND'
@@ -131,9 +140,10 @@ classdef alertLevelSchema
                     obj.name = 'USGS Volcano Hazards Program - Ground';
                     obj.level = {'NORMAL'; 'ADVISORY'; 'WATCH'; 'WARNING'};
                     obj.clr = [
-                        1 1 0.4; ...
-                        1 0.5 0; ...
-                        1 0.25 0.25
+                        std_green; ...
+                        std_yellow; ...
+                        std_orange; ...
+                        std_red
                         ];
                     
                 case 'CVO PRE-1980'

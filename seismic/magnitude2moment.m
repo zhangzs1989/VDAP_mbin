@@ -23,6 +23,8 @@ function [ result ] = magnitude2moment( input, varargin )
 
 %% Magnitude to Moment
 
+result = NaN;
+
     % Mo = 10^(1.5*Mw+16.1); where "Mo->Moment" and "Mw->Moment Magnitude"
 for n = 1:length(input)
     result(n) = 10^(1.5*input(n)+16.1);
@@ -31,7 +33,7 @@ end
 %% Moment to Magnitude
 % (cont'd if input includes 'reverse')
 
-if nargin > 1;
+if nargin > 1
     if strcmp(varargin{1},'reverse')
         
         for n = 1:length(input)

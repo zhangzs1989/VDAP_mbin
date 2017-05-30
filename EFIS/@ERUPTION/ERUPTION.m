@@ -12,9 +12,12 @@ classdef ERUPTION
     % first_phreatic : datetime      : Date of first phreatic eruption
     %                                   Defined manually or dynamically
     % first_magmatic : datetime      : Date of first phreatic eruption
-    %                                   Defined manually or dynamically    
+    %                                   Defined manually or dynamically
     % explosions     : explosion     : Array of explosion objects tied to a
     %                                   a particular eruption
+    %
+    % Dependent Properties (use GET)
+    % start_stop    : n-by-2 datetime   : start/stop pairs for eruptions
     %
     % METHODS
     % >> E = ERUPTION(start, stop, max_vei)
@@ -24,13 +27,54 @@ classdef ERUPTION
     
     properties
         
-        er_id;
+        volcano;
         vid;
-        start;              % no specific definition
-        stop;               % no specific definition
+        vnum;
+        explosion_id;
+        echron_activity_id;
+        activity_id;
+        episode_id;
+        subevent_yn;
+        number_exp;
+        number_exp_mod;
+        event_name;
+        colh_above_summit;
+        max_colh_asl;
+        max_col_h_error;
+        vol_dre;
+        vol_dre_error;
+        vei;
+        vei_source;
+        vei_method;
+        type_code;
+        style;
+        keywords;
+        comments;
+        start;        
+        qual;
+        start_date_error;
+        start_time_mod;
+        start_time_error;
+        stop;
+        end_day_mod;
+        end_date_error;
+        end_time_mod;
+        end_time_error;
+        
+        parents;
+        children;
+        
+        er_id;
+%         vid;
+%         start;              % no specific definition
+%         stop;               % no specific definition
         max_vei;
         first_phreatic;
         first_magmatic;     
+%         type_code;
+%         style;
+%         keywords;
+%         comments;
         explosions;         
         
         % temp fields used to hold info from Stephanie
@@ -60,21 +104,19 @@ end
 
 methods
     
-    % ERUPTION class constructor
-    function obj = ERUPTION( start, stop, max_vei )
+    % Class Constructor
+    function obj = ERUPTION(start, stop, max_vei)
         
-        % temporary user message
-        warning('This is still a preliminary class constructor. It is not very flexible. Please open up the source code to see how it is supposed to be used.')
-        
-        % error catching
-        if start > stop
-            error('Start time must be before stop time.')
+        if nargin ~= 0
+            
+            for n = 1:numel(start)
+                obj(n) = ERUPTION;
+                obj(n).start = start(n);
+                obj(n).stop = stop(n);
+                obj(n).max_vei = max_vei(n);
+            end
+            
         end
-        
-        % construct class
-        obj.start = datetime(datevec(start));
-        obj.stop = datetime(datevec(stop));
-        obj.max_vei = max_vei;
         
     end
     
@@ -89,84 +131,12 @@ end
     
 %% Dependent GET functions
 
-% methods
-%
-%     % These are codes assigned by SP in her spreadsheet
-%     function val = get.forecastyn_str(obj) 
-%     
-%         switch obj.forecastyn
-%             
-%             case -1
-%                 
-%                 val = 'No network';
-%                 
-%             case 0
-%                 
-%                 val = 'Not forecast';
-%                 
-%             case 1
-%                 
-%                 val = 'Forecast';
-%                 
-%             case 2
-%                 
-%                 val = 'Forecast unclear';
-%                 
-%             otherwise
-%                 
-%         end
-%             
-%     
-%     end
-%     
-%     % duration of the eruption in days
-%     function val = get.duration(obj)
-%        
-%         val = obj.stop - obj.start;
-%         
-%     end
-%     
-% end
+
 
 %% GET/SET FUNCTIONS
 
 methods
     
-    % GET
-    function val = get(obj, prop)
-        
-        
-        for j = 1:length(obj)
-            
-            switch prop
-                
-                case 'volcano_name'
-                    
-                    val{j} = obj(j).volcano_name;
-                    
-                case 'max_vei'
-                    
-                    val(j) = obj(j).max_vei;
-                    
-                case 'forecastyn'    
-                    
-                    val(j) = obj(j).forecastyn;
-                    
-                case 'start'    
-                    
-                    val(j) = obj(j).start;
-                    
-                case 'stop'
-                    
-                    val(j) = obj(j).stop;
-                    
-                otherwise
-                    
-            end
-            
-        end
-        
-    end
     
 end % methods
 
@@ -183,5 +153,12 @@ methods
     end % sort
 
 end % methods
+
+methods(Static)
+    
+    % Controls the datacursor display on an eruption plot
+    output_text = eruption_datacursor(~, event_obj, obj, ax_start)
+    
+end % static Methods
 
 end

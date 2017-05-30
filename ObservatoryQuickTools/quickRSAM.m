@@ -1,4 +1,4 @@
-function [ RSAM_OBJ ] = quickRSAM( ds, tag, tstart, tstop, method, ...
+function [ RSAM_OBJ, W ] = quickRSAM( ds, tag, tstart, tstop, method, ...
     sampling_period, varargin )
 %QUICKRSAM Quickly produces RSAM from a given set of data
 % This is a wrapper for GISMO/WAVEFORM2RSAM that allows you to compute RSAM
@@ -50,13 +50,28 @@ for s = 1:numel(tag)
     
     %% compute RSAM
     
+    i = 0;
     t = tstart;
     while(t <= tstop)
         
-        w = waveform(ds, tag(s), t, t+1);
         
-        w = demean(w);
-        w = fillgaps(w, 0);
+        i = i+1;
+        
+        w = waveform(ds, tag(s), t, t+1);
+        W(i) = w;
+        
+        
+        % removes spikes greater than 10000 counts (this is assumed as the
+        % dynamic range)
+%         d = get(w, 'data');
+%         dr = 10000;
+%         d(abs(d)>dr) = NaN;
+%         w = set(w, 'data', d);
+%         w = fillgaps(w, 0);
+%         w = detrend(w);
+
+%         w = quickClean(w, 60000, 1, []);
+%         w = findCalPulse(w);
         
         if ~isempty(w)           
                 

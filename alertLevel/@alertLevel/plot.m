@@ -5,14 +5,23 @@ function h = plot( obj )
 % known issues
 % t1 and t2 should be defined differently
 
-t1 = [obj.plot_start; obj.date];
-t2 = [obj.date; obj.plot_end];
+plot_start = datenum(obj.plot_start);
+plot_end = datenum(obj.plot_end);
+date = datenum(obj.date);
+% plot_start = obj.plot_start;
+% plot_end = obj.plot_end;
+% date = obj.date;
+
+
+t1 = [plot_start; date];
+t2 = [date; plot_end];
 dates = [t1 t2];
 heights = [zeros(size(t1)) ones(size(t1))];
 clrs = obj.patch_colors;
 clrs = [clrs(1,:,:); clrs];
 
 patch2(dates, heights, clrs);
+% fill2(dates, heights, clrs);
 
 ax = gca;
 ax.YTick = [];
@@ -20,7 +29,7 @@ ax.Box = 'on';
 datetick(gca)
 zoom('xon')
 
-makedatetimexaxis;
+% makedatetimexaxis;
 
 end
 

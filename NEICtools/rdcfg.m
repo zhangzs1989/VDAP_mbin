@@ -62,7 +62,7 @@ while true
                 
             case 'output_path'
                 
-                cfg.output_path = val;
+                % dyamically created
                 
             case 'station_coordinates'
                 
@@ -107,31 +107,57 @@ while true
                 current_year = datenum(current_year, 1, 1);
                 
                 data = textscan(tline, '%s %s %s %f %f %f %f %s %s %s %s %s %s %s %s %s');
-%                 cfg.T.name = data{1}
+
+                % version 1
+%                 date1 = data{2};
+%                 time1 = data{3};
+%                 dn1 = datenum(date1) + datenum(time1, 'HH:MM:SS') - current_year;
+%                 dt1 = datetime(datestr(dn1));
+%                 cfg.T{ne, 'dn1'} = dn1;
+%                 cfg.T{ne, 'dt1'} = dt1;
+%                 cfg.T{ne, 'lat'} = data{4};
+%                 cfg.T{ne, 'lon'} = data{5};
+%                 cfg.T{ne, 'depth'} = data{6};
+%                 cfg.T{ne, 'mag'} = data{7};
+%                 cfg.T{ne, 'mag_type'} = data{8};
+%                 cfg.T{ne, 'N'} = data{9};
+%                 cfg.T{ne, 'S'} = data{10};
+%                 cfg.T{ne, 'C'} = data{11};
+%                 cfg.T{ne, 'L'} = data{12};
+%                 cfg.T{ne, 'phase'} = data{13};
+%                 date2 = data{14};
+%                 time2 = data{15};
+%                 dn2 = datenum(date2) + datenum(time2, 'HH:MM:SS') - current_year;
+%                 dt2 = datetime(datestr(dn2));
+%                 cfg.T{ne, 'dn2'} = dn2;
+%                 cfg.T{ne, 'dt2'} = dt2;
+%                 if ne==1, cfg.svd_indep = data{16}{:}; end;
+
+                % version 2
                 date1 = data{2};
                 time1 = data{3};
                 dn1 = datenum(date1) + datenum(time1, 'HH:MM:SS') - current_year;
                 dt1 = datetime(datestr(dn1));
-                cfg.T{ne, 'dn1'} = dn1;
-                cfg.T{ne, 'dt1'} = dt1;
-                cfg.T{ne, 'lat'} = data{4};
-                cfg.T{ne, 'lon'} = data{5};
-                cfg.T{ne, 'depth'} = data{6};
-                cfg.T{ne, 'mag'} = data{7};
-                cfg.T{ne, 'mag_type'} = data{8};
-                cfg.T{ne, 'N'} = data{9};
-                cfg.T{ne, 'S'} = data{10};
-                cfg.T{ne, 'C'} = data{11};
-                cfg.T{ne, 'L'} = data{12};
-                cfg.T{ne, 'phase'} = data{13};
+                lat = data{4};
+                lon = data{5};
+                depth = data{6};
+                mag = data{7};
+                mag_type = data{8};
+                N = data{9};
+                S = data{10};
+                C = data{11};
+                L = data{12};
+                phase = data{13};
                 date2 = data{14};
                 time2 = data{15};
                 dn2 = datenum(date2) + datenum(time2, 'HH:MM:SS') - current_year;
                 dt2 = datetime(datestr(dn2));
-                cfg.T{ne, 'dn2'} = dn2;
-                cfg.T{ne, 'dt2'} = dt2;
+
                 if ne==1, cfg.svd_indep = data{16}{:}; end;
-                
+                T = table(dn1, dt1, lat, lon, depth, mag, mag_type, N, S, C, L, phase, dn2, dt2);
+                cfg.T = [cfg.T; T];
+                clear T
+
         end
         
         

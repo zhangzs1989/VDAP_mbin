@@ -5,11 +5,15 @@ classdef SubspaceDetector
     % directory structure for these JAR files must be consistent with the
     % way the software is provided by the NEIC. I.e.,
     %
-    %   |-> Subspace
-    %       |-> preprocess
-    %           |-> *Preprocess*.jar
-    %       |-> subspace
-    %           |-> *Subspace*.jar
+    % PROPERTIES
+    % software_folder   : 'string' : path to the parent directory that
+    % contains the preprocessor and subspace detecor jar files
+    %
+    % * After providing SOFTWARE_FOLDER, this object assumes that the
+    % preprocessor and subspace detector jar files are stored in the
+    % following locations:
+    %  - SOFTWARE_FOLDER/preprocess/*Preprocess*.jar
+    %  - SOFTWARE_FOLDER/subspace/*Subspace*.jar
     %
     
     properties
@@ -96,7 +100,7 @@ classdef SubspaceDetector
         % assumes that preprocessor put new cfg files in the ./ directory
         function move_new_cfg_files(cfg)
             
-            warning('This code currently assumes that the new configuration files have been written to Matlab''s pwd and is moving them ot the project oflder.')
+            warning('This code currently assumes that the new configuration files have been written to Matlab''s pwd and is moving them ot the project folder.')
             
                 movefile('./*.cfg', ...
                     fullfile(cfg.project_folder, cfg.name));
