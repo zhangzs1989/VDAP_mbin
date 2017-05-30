@@ -1,0 +1,6 @@
+  EVENTID,AUTHOR   ,DATE      ,TIME       ,LAT     ,LON      ,DEPTH,DEPFIX,AUTHOR   ,TYPE  ,MAG 
+   760822,ISC      ,1973-05-25,13:42:52.80, 14.0053, -89.5831,  0.0,TRUE  ,ISC      ,mb    , 4.3,LAO      ,M     , 4.2
+   758526,ISC      ,1973-07-20,14:56:00.72, 13.1332, -88.2643,  0.0,TRUE  ,ISC      ,mb    , 4.2,LAO      ,M     , 4.6
+   699681,ISC      ,1977-04-11,10:01:24.07, 13.2102, -88.0733, 10.0,TRUE  ,ISC      ,mb    , 5.0,NEIS     ,mb    , 5.2,NEIS     ,MSZ   , 4.3
+   592806,ISC      ,1982-09-29,03:48:01.67, 14.5212, -89.1246, 25.0,      ,ISC      ,mb    , 5.1,ISC      ,MS    , 4.6,HFS      ,mb    , 4.8,HFS      ,MS    , 4.9,NEIS     ,mb    , 5.1,NEIS     ,MS    , 4.4,NAO      ,mb    , 5.0
+   592812,ISC      ,1982-09-29,05:50:34.79, 14.4879, -89.1183, 27.2,      ,ISC      ,mb    , 5.5,ISC      ,MS    , 5.1,NEIS     ,mb    , 5.5,NEIS     ,MS    , 5.1,NAO      ,mb    , 5.4

@@ -1,0 +1,35 @@
+%% params
+% The script will use all entries from the configuration file to make all
+% possible combinations of these variables, run the time series anlaysis,
+% and save the output for each test
+
+%% Catalog Parameters
+
+catalog_type = 'locations'; % { 'counts' | 'detections' | 'locations' }
+catalog_scope = 'master'; % { 'separate' | ['master'] }
+background_time = {[2002/01/01, 2013/01/01]}
+Mc_type = 'static'; % { 'static' | 'timeseries' }
+minmag = {0};
+maxdepth = {30}
+annulus = {[2 30] [2 45] [0 30]} % (a.k.a., srad)
+
+%% Window parameters
+t_window = {-30 30; -60 60]; [-14 14]; [-7 7]; [1 1]; [1 7]; [1 14]; [1 30]};
+% t_window = {[-30 30]; [-60 60]; [-14 14]; [-7 7]; [1 1]; [1 7]; [1 14]; [1 30]};
+% t_step
+% t_width
+
+%% Network downtime
+
+ntwk_down = [];
+
+%% Beta parameters
+it = {10000} % iterations for empirical beta
+emp_threshold = {0.05} % confidence level; aka, be_thresPer
+
+%% Analysis parameters
+vei_reset = {2} % repose time is reset after each eruption of vei >= x
+vei_forecast = {3} % success of forecast is determined for all eruptions of vei >= x
+preEruptSearchTime =  {8*30} % days
+repose_time = {0:1:25} % years
+dur_variation = {0.2} % percent by which to vary eruption durations; subtracted and added from eruption end date
