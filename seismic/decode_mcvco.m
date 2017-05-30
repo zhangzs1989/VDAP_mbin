@@ -29,6 +29,10 @@ function varargout = decode_mcvco(wave,varargin)
 %         bvl   - battery voltage levels (1x1 double)
 %         amp   - tone amplitude (from Goertzel Algorithm)
 
+% UPDATES
+% ~2017 May 25 -- Provided by Dane Ketner to Jay Wellik
+% 2017 May 30, JJW -- replace nanmean(...) with mean(...,'omitnan')
+
 
 %% INITIALIZATIONS
 if ~isempty(wave)
@@ -47,18 +51,18 @@ n = 1;                  % Ref to left edge of window
 %% LOOK FOR RIGHT EDGE OF 21.25 Hz Tone
 while (edge_found==0) && ((n+(18+25)*Fs) < v_l)
    chk_v = v(n:n+chk_dur-1);   % Window to check for tone
-   chk_v = chk_v - nanmean(chk_v);
+   chk_v = chk_v - mean(chk_v, 'omitnan');
    s = gmax(chk_v,tone_freq);
    if (s < 10000) && (tone_found == 0)
       n = n+chk_per;
    elseif (s > 10000) && (tone_found == 0)
       tone_found = 1;
       max_s = s;
-      off = nanmean(chk_v);
+      off = mean(chk_v, 'omitnan');
    elseif (tone_found == 1) && (edge_found == 0)
       if s > max_s
          max_s = s;
-         off = nanmean(chk_v);
+         off = mean(chk_v, 'omitnan');
          n = n + 1;
       elseif s < max_s*(.75)
          edge_found = 1;
@@ -95,7 +99,7 @@ if edge_found
                     pre = [];
                     pre_start = 1;
                 else
-                    pre = nanmean(v(t1-2*Fs:t1-Fs));
+                    pre = mean(v(t1-2*Fs:t1-Fs), 'omitnan');
                     pre_start = t1-2*Fs;
                 end
                 k = floor(t2 + 18.75*Fs);
