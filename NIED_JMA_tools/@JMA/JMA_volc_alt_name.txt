@@ -1,0 +1,18 @@
+volc_alt_name, vid, vnum, name
+Akitakomagatake, 11146, 283230, Akita-Komagatake
+Akitayakeyama, 11150, 283260, Akita-Yakeyama
+Zao  an, 11142, 283190, Zaozan
+ZAO‚šAN, 11142, 283190, Zaozan
+TAISETUSAN, 11319, 285060, Taisetsuzan
+Izu-Tobu Volcanoes, 11114, 283010, Izu-Tobu
+Izu-TobuVolcanoes, 11114, 283010, Izu-Tobu
+Atosanupuri, 11363, 290050, Etorofu-Atosanupuri [Atosanupuri]
+Atosanupri, 11363, 290050, Etorofu-Atosanupuri [Atosanupuri]
+Tsurumidake and Garandake, 11089, 282130, Yufu-Tsurumi
+Tsurumidake-Garandake, 11089, 282130, Yufu-Tsurumi
+Fuji, 11117, 283030, Fujisan
+Me-akan-dake, 11320, 285070, Akan
+Meakan-dake, 11320, 285070, Akan
+Meakandake, 11320, 285070, Akan
+KIRISHIMAYAMA(OHACHI), 11085, 282090, Kirishimayama
+KIRISHIMAYAMA(SHINMOEDAKE), 11085, 282090, Kirishimayama

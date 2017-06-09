@@ -1,0 +1,12 @@
+## Known Mis-Spellings or Alternate Names for Volcanoes
+Vnum, PreferredName, AlternateNames
+283230, Akita-Komagatake, Akitakomagatake
+283260, Akita-Yakeyama, Akitayakeyama
+283190, Zaozan, Zao  an
+285060, Taisetsuzan, TAISETUSAN
+283010, Izu-Tobu, Izu-Tobu Volcanoes/Izu-TobuVolcanoes
+290050, Atosanupuri, Etorofu-Atosanupuri/Atosanupri # dobule check this one
+282130, Tsurumidake-Garandake, Tsurumidake and Garandake/Yufu-Tsurumi # double check this one
+283030, Fujisan, Fuji
+285070, Akan, Meakandake / Meakan-dake / Me-akan-dake
+282090, Kirishimayama, KIRISHIMAYAMA(OHACHI)/ KIRISHIMAYAMA(SHINMOEDAKE)
