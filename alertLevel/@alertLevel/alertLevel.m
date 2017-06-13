@@ -61,8 +61,8 @@ classdef alertLevel
             T = table(DATE, LEVEL);
             disp(T)
             disp(' ')
-            disp(['     plot_start : ' obj.plot_start])
-            disp(['     plot_end   : ' obj.plot_end])
+            disp(['     plot_start : ' datestr(obj.plot_start, 'yyyy-mm-dd HH:MM:SS')])
+            disp(['     plot_end   : ' datestr(obj.plot_end, 'yyyy-mm-dd HH:MM:SS')])
             
         end
         
