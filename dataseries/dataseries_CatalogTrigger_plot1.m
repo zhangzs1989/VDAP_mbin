@@ -4,7 +4,7 @@
 
 % ! load command only works if the LOG is limited to 1 volcano
 
-load(fullfile('/Users/jaywellik/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/data/',LOG.volcano_name{1},'trigger.mat'))
+load(fullfile('~/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/data/',LOG.volcano_name{1},'trigger.mat'))
 trigger2 = trigger(isnan(trigger.LAT), :);
 triggerLP = trigger2(strcmpi(trigger2.TYPE, 'longperiod'), :);
 triggerVT = trigger2(strcmpi(trigger2.TYPE, 'local'), :);
@@ -25,7 +25,7 @@ j = 5;
 % ds = datasource('winston', 'localhost', 16022);
 % tag = ChannelTag('D.REF.--.EHZ');
 % R = quickRSAM(ds, tag, datetime(2009,2,15), datetime(2009,06,01), 'rms', 10);
-load('/Users/jaywellik/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/data/Augustine/R0.mat')
+load(fullfile('~/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/data/', LOG.volcano_name{1}, '/R0.mat'))
 
 %% Plot
 
@@ -37,11 +37,11 @@ plot(LOG.DATA(j).E); hold on
 
 r = get(R, 'data');
 t = datetime2(get(R, 'timevector'));
-p(1) = plot(t,r,'Color', [0.5 0.5 0.5]); % RSAM
+p(1) = plot(t,r,'Color', 'g'); % RSAM
 
 % p(1) = stairs(LOG.DATA(j).tc, LOG.DATA(j).binCounts, 'Color', [0.5 0.5 0.5], 'LineWidth', 2); hold on
 yyaxis('right');
-p(2) = stairs(tLoc(1:end-1), nLoc, 'Color', 'g', 'LineWidth', 2, 'LineStyle', '-'); hold on
+p(2) = stairs(tLoc(1:end-1), nLoc, 'Color', [0.5 0.5 0.5], 'LineWidth', 2, 'LineStyle', '-'); hold on
 p(3) = stairs(tVT(1:end-1), nVT, 'k', 'LineWidth', 2, 'LineStyle', '-');
 p(4) = stairs(TLP(1:end-1), NLP, 'b', 'LineWidth', 2);
 
