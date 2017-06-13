@@ -1,5 +1,6 @@
 function RESULTS = ps2ts( t, d, start_stop, t_step, t_width )
 %PS2TS Converts a point series to a time series
+% * accepts negative numbers for t_step
 %
 % INPUT
 % * t           : 1-by-n datetime   : vector of point series times
@@ -18,6 +19,9 @@ function RESULTS = ps2ts( t, d, start_stop, t_step, t_width )
 %   .bv         : 1-by-m double     : beta value for each window
 %   .N          : double            : total # of eqs in entire window
 %   .T          : double            : total time (days) in entire window
+%
+% USAGE
+% >>
 %
 % NOTE: N may vary slightly from numel(binCounts) and T may vary slightly from
 % numel(tc) * t_width because of the way window spacing happens
