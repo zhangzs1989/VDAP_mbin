@@ -4,6 +4,14 @@ function [edgest, N, bins] = histcountst(X, varargin)
 % If no input arguments are given, the script assumes you want to make day
 % long counts and creates enough bins with the proper BinEdges to make sure
 % this happens.
+% Note the difference in the output arguments with HISTCOUNTS
+% Note: this script is much slower than PS2TS, which accomplishes the same
+% task
+%
+% USAGE
+% [edgest, N, bins] = histcountst(X, varargin)
+%
+% SEE ALSO HISTCOUNTS PS2TS
 
 X = datenum(X);
 
