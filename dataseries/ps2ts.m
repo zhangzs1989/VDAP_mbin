@@ -21,7 +21,12 @@ function RESULTS = ps2ts( t, d, start_stop, t_step, t_width )
 %   .T          : double            : total time (days) in entire window
 %
 % USAGE
-% >>
+% where eqt is a vector of earthquake event times
+%       eqMo is a vector of corresponding moments for those earthquakes
+%       background_time is an n-by-2 vector of times over which to make the
+%       time series
+%       return 30 day sums recalculated every day moving forward in time
+% >> TS = ps2ts(eqt, eqMo, background_time, 1, 30);
 %
 % NOTE: N may vary slightly from numel(binCounts) and T may vary slightly from
 % numel(tc) * t_width because of the way window spacing happens
