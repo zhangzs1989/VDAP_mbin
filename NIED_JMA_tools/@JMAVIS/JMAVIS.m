@@ -1,5 +1,13 @@
 classdef JMAVIS
     %JMAVIS Information pertaining to Visual Observations at JMA volcanoes
+    % Each object contains information for one volcano & observatory pair
+    % ??????? [Distant Observation Data (via Google)]
+    %
+    % Data are downloaded from the following website:
+    %   http://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/bulletin/enbo.html
+    %
+    % See the following website for information and notes on the format:
+    %   http://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/bulletin/data/format/vvifmt_j.html
     %
     % Properties
     %

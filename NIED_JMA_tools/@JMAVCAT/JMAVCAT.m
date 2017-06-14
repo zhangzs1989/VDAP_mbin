@@ -1,5 +1,14 @@
 classdef JMAVCAT
-    %JMAVCAT 
+    %JMAVCAT Unlocated catalog of earthquakes associated with each volcano
+    % "???????" [Seismic observation data (via Google)]
+    %
+    % Each object contains information for one volcano & observatory pair
+    %
+    % Data are downloaded from the following website:
+    %   http://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/bulletin/vobs.html
+    %
+    % See the following website for information and notes on the format:
+    %   http://www.data.jma.go.jp/svd/vois/data/tokyo/STOCK/bulletin/data/format/veofmt_j.html
     %
     % Properties
     %
