@@ -1,11 +1,13 @@
 function E = rdarrivaltimes( file )
-%RDARRIVALTIMES Reads .txt file of arrival time info
-%   Files can be downloaded under the Subsection of "Arrival time data" at
-%   the following website:
-%   https://hinetwww11.bosai.go.jp/auth/JMA/?LANG=en
-%   *(Users must be registered)
+%RDARRIVALTIMES Reads .txt file of arrival times or hypocenters
+%   Arrival times with picks can be downloaded under the Subsection of "Arrival time data" at:
+%       https://hinetwww11.bosai.go.jp/auth/JMA/?LANG=en
+%       * Users must be registered
+%       * Use the "UNIX format [LF]" for the download type
 %
-%   Use the "UNIX format [LF]" for the download type
+%   Hypocenter files can be downloaded from:
+%       http://www.data.jma.go.jp/svd/eqev/data/bulletin/hypo.html
+%       File format explanation: http://www.data.jma.go.jp/svd/eqev/data/bulletin/data/format/hypfmt_j.html
 %
 %   Returns a table of events
 
@@ -81,10 +83,5 @@ while true
 end
 
 E = struct2table(event);
-
-%%
-
-warning('SCRIPT IS INCOMPLETE.')
-warning('NOTE TO USER: This script only reads event info. It does not read pick info.')
 
 end
