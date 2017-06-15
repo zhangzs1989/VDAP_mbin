@@ -25,7 +25,7 @@ while true
     % new events have a line that starts with the letter J
     if strcmp(tline(1), 'J')
         
-        disp(tline);
+        %disp(tline);
         
         n = n+1;
         event(n).type = tline(1);
