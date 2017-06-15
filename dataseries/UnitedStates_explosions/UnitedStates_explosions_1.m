@@ -17,7 +17,7 @@ test_volcanoes = {...
 %     'Spurr', 'Redoubt', 'Augustine', ...
 %     'Veniaminof', 'Pavlof', 'St. Helens', ...
 %     }; % SSA examples
-test_volcanoes = {'Augustine'}; % other
+% test_volcanoes = {'Redoubt'}; % other
 volcanoes = volcano_list(ismember(volcano_list.name, test_volcanoes), :)
 
 % eruptions - study subset
@@ -163,7 +163,7 @@ LOG
 
 %%
 
-dataseries_plot4_forExplosions
-% dataseries_pd_plot3
+% dataseries_plot4_forExplosions
+dataseries_pd_plot3
 % dataseries_CatalogTrigger_plot1
 % run_AKtriggered_routines

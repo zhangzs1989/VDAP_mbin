@@ -17,7 +17,7 @@ maxdepth = {30}
 % annulus = {[2 30] [2 45] [0 30]}
 annulus = {[0 2] [2 30] [0 30]}
 include_intraeruption = {1}
-use_triggers = {1} % 1 - use triggers; 0 - do not use triggers; -1 - triggers requested but file not available (automatically reset by computer)
+use_triggers = {[0] [1]} % 1 - use triggers; 0 - do not use triggers; -1 - triggers requested but file not available (automatically reset by computer)
 
 %% Explosions Data
 
