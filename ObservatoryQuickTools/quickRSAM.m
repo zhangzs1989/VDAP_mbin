@@ -59,20 +59,7 @@ for s = 1:numel(tag)
         
         w = waveform(ds, tag(s), t, t+1);
         W(i) = w;
-        
-        
-        % removes spikes greater than 10000 counts (this is assumed as the
-        % dynamic range)
-%         d = get(w, 'data');
-%         dr = 10000;
-%         d(abs(d)>dr) = NaN;
-%         w = set(w, 'data', d);
-%         w = fillgaps(w, 0);
-%         w = detrend(w);
-
-%         w = quickClean(w, 60000, 1, []);
-%         w = findCalPulse(w);
-        
+                
         if ~isempty(w)           
                 
                 if filterData && numel(get(w, 'data')) > 12 % waveform/filtfilt requires data length to be greater than 12 samples
