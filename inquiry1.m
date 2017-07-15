@@ -111,37 +111,54 @@ L.String(end) = {'Rabaul'};
 %% Add in Hawaii based on Chronologies and global8 catalog
 
 % volcanoes
-v(1).name = 'Kilauea';
-v(1).lat = 19.421;
-v(1).lon = 155.287;
+volc(1).name = 'Kilauea';
+volc(1).lat = 19.421;
+volc(1).lon = -155.287;
 
-v(2).name = 'Mauna Loa';
-v(2).lat = 19.475;
-v(2).lon = 155.608;
+volc(2).name = 'Mauna Loa';
+volc(2).lat = 19.475;
+volc(2).lon = -155.608;
 
 % load chronologies
 load('~/Dropbox/JAY-DATA/HawaiiChron_PassarelliBrodsky.mat'); % loads table variable 'chron'
 
-for n = 1:numel(v)
+for n = 1%:numel(volc)
     
     % load catalogs
-    catalog = global8cat(fullfile('~/Dropbox/global8/UnitedStates', v(n).name, 'ANSS_332010.mat'));
+    file = dir(fullfile('~/Dropbox/global8/UnitedStates', strrep(volc(n).name, ' ', ''), 'ANSS_*.mat'));
+    if ~isempty(file)
+        catalog = global8cat(fullfile(file.folder, file.name));
+    else
+        break
+    end
     
     % radial filter
-    radial_d = distance(v(n).lat, v(n).lon, catalog.Latitude, catalog.Longitude);
+    radial_d = distance(volc(n).lat, volc(n).lon, catalog.Latitude, catalog.Longitude);
     radial_d = deg2km(radial_d);
     catalog(radial_d > 30, :) = [];
     
     % extract volcano-specific chronology
-    chron2 = chron(strcmpi(chron.Volcano, v(n).name), :);
+    chron2 = chron(strcmpi(chron.Volcano, volc(n).name), :);
     
     % pair catalog with chronology
     % * use at least 14 days prior to eruption
     if chron2.runup_days < 14, chron2.runup_start = chron2.eruption_start - 14; end
     for i = 1:height(chron2)
-        chron2.EQMags = catalog(catalog.DateTime >= chron2.runup_start & catalog.DateTime < chron2.eruption_start, 'Magnitude');        
+        chron2.MaxMag(i) = NaN; % initialize
+        eqmags = catalog{catalog.DateTime >= chron2.runup_start(i) & catalog.DateTime < chron2.eruption_start(i), 'Magnitude'};
+        if isempty(eqmags)
+            chron2.MaxMag(i) = NaN;
+        else
+            chron2.MaxMag(i) = max(eqmags);
+        end
+        chron2.CumMag(i) = magnitude2moment(sum(magnitude2moment(eqmags), 'omitnan'), 'reverse');
     end
+    
+    plot(chron2.repose_days, chron2.CumMag, 'or')
+    text(chron2.repose_days, chron2.CumMag, volc(n).name);
     
 end
 
+L.String(end-1) = {'Kilauea'};
+L.String(end) = {'Mauna Loa'};
 
