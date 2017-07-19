@@ -27,15 +27,15 @@ function [data, idx_vec, idx_mat] = withininterval( data, interval, logic )
 %
 
 if isa(data, 'datetime')
-    data = datenum(datetime);
+    data = datenum(data);
 else
     data = double(data);
 end
 
 if isa(interval, 'datetime')
-    data = datenum(datetime);
+    interval = datenum(interval);
 else
-    data = double(data);
+    interval = double(interval);
 end
 
 % data = double(data); interval = double(interval);
