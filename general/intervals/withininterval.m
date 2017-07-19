@@ -26,7 +26,19 @@ function [data, idx_vec, idx_mat] = withininterval( data, interval, logic )
 %
 %
 
-data = double(data); interval = double(interval);
+if isa(data, 'datetime')
+    data = datenum(datetime);
+else
+    data = double(data);
+end
+
+if isa(interval, 'datetime')
+    data = datenum(datetime);
+else
+    data = double(data);
+end
+
+% data = double(data); interval = double(interval);
 data = reshape(data, 1, numel(data)); % force to be column vector
 
 m1 = interval(:,1)<data;
