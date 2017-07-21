@@ -26,11 +26,11 @@ v_desc = {'Preceding Max Magnitude'; 'Preceding Cum. Magnitude'; 'Preceding Coun
     'Preceding n days Max Magnitude'; 'Preceding n days Cum Magnitude'; 'Prec. n days Counts'};
 v = 6;
 
-figure;
+f = figure;
 
 for l = 1:height(TESTLOG)
     
-    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG
+    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax
     
     ET = obj2table(TESTLOG.DATA(l).E);
     ess = mergeintervals([ET.start ET.stop]);
@@ -39,7 +39,7 @@ for l = 1:height(TESTLOG)
     repose(1) = ess(1,1)-pEFISt(l);
     repose.Format = 'dd:hh:mm:ss';
     
-    % get largest earthquake before each event
+    % get the windows before each eruption
     tfind = interinterval(ess, TESTLOG.catalog_background_time(l,1), TESTLOG.catalog_background_time(l,2));
     tfind = tfind(1:end-1, :); % we don't need the last one because it is a time window after the last eruption
     
@@ -51,7 +51,7 @@ for l = 1:height(TESTLOG)
         tfind(d>days(maxdays),1) = tfind(d>days(maxdays),2) - days(maxdays);
     end
     
-    
+    % get the EQs for each pre-explosion window
     for n = 1:numel(tfind(:,1))
         
         i = TESTLOG.DATA(l).CAT.DateTime >= datenum(tfind(n,1)) & TESTLOG.DATA(l).CAT.DateTime < datenum(tfind(n,2));
@@ -93,19 +93,36 @@ L = legend(TESTLOG.volcano_name, 'location', 'eastoutside');
 f = gcf;
 f.Children(1).FontSize = 15; f.Children(2).FontSize = 15;
 
-%% Add in Information from literature searches
+%% Add in Information from literature searches -- Iceland
 
 hold on
-LIT = readtable('/Users/jjw2/Dropbox/JAY-DATA/PreExplosionSeismicity_LiteratureSearches.xlsx');
-lit_repose = LIT.EruptionDate - LIT.Repose_Start;
-plot(days(lit_repose), LIT.CumMag, '*k')
-L.String(end) = {'Iceland'};
+% LIT = readtable('/Users/jjw2/Dropbox/JAY-DATA/PreExplosionSeismicity_LiteratureSearches.xlsx');
+% lit_repose = LIT.EruptionDate - LIT.Repose_Start;
+% plot(days(lit_repose), LIT.CumMag, '*k')
+% L.String(end) = {'Iceland'};
 
-%% Add in random examples from Jeremy
+%% Add in random examples
 
-%%% Rabaul
-plot(18533, 5.24, 'sk')
-L.String(end) = {'Rabaul'};
+% %%% Rabaul -- from Jeremy
+% plot(18533, 5.24, 'sk')
+% text(18533, 5.24, 'Rabaul')
+% 
+% %%% Raung --
+% % 2012 October is roughly when the 2012 activity started
+% % 2014-11-11 is when gliding tremor started again
+% x = days(datetime(2014,11,11) - datetime(2012,10,15));
+% y = magnitude2moment(sum(magnitude2moment([2 2])), 'reverse');
+% plot(x, y, 'sk')
+% text(x, y, 'Raung 2014-11')
+% 
+% % 2015-07-09 First ash eruption
+% x = days(datetime(2015,07,09) - datetime(2014,11,11));
+% y = magnitude2moment(sum(magnitude2moment([2.5 2.5 2.5 2.5])), 'reverse');
+% plot(x, y, 'sk')
+% text(x, y, 'Raung 2015-07')
+% 
+% L.String(end-3:end-1) = [];
+% L.String(end) = {'Other'};
 
 
 %% Add in Hawaii based on Chronologies and global8 catalog
@@ -119,10 +136,13 @@ volc(2).name = 'Mauna Loa';
 volc(2).lat = 19.475;
 volc(2).lon = -155.608;
 
-% load chronologies
-load('~/Dropbox/JAY-DATA/HawaiiChron_PassarelliBrodsky.mat'); % loads table variable 'chron'
+% load chronologies -- Passarelli & Brodsky
+% load('~/Dropbox/JAY-DATA/HawaiiChron_PassarelliBrodsky.mat'); % loads table variable 'chron'
 
-for n = 1%:numel(volc)
+% load chronologies -- Passarelli & Brodsky and Orr et al.
+chron = readtable('~/Dropbox/JAY-DATA/HawaiiChron_varsources.xlsx');
+
+for n = 1:numel(volc)
     
     % load catalogs
     file = dir(fullfile('~/Dropbox/global8/UnitedStates', strrep(volc(n).name, ' ', ''), 'ANSS_*.mat'));
@@ -142,7 +162,12 @@ for n = 1%:numel(volc)
     
     % pair catalog with chronology
     % * use at least 14 days prior to eruption
-    if chron2.runup_days < 14, chron2.runup_start = chron2.eruption_start - 14; end
+%     chron2.runup_start(chron2.runup_days < 14, :) = chron2.eruption_start(chron2.runup_days < 14) - 14;
+    % * use up to 14 days prior to the eruption
+    chron2.runup_start = chron2.repose_start;
+    chron2.runup_days = chron2.eruption_start - chron2.runup_start;
+    chron2.runup_start(chron2.repose_days > 14) = chron2.eruption_start(chron2.runup_days > 14) - 14;
+    chron2.runup_days = days(chron2.eruption_start - chron2.runup_start);
     for i = 1:height(chron2)
         chron2.MaxMag(i) = NaN; % initialize
         eqmags = catalog{catalog.DateTime >= chron2.runup_start(i) & catalog.DateTime < chron2.eruption_start(i), 'Magnitude'};
@@ -161,4 +186,95 @@ end
 
 L.String(end-1) = {'Kilauea'};
 L.String(end) = {'Mauna Loa'};
+
+%% Add in Sinabung data ?? not for presentation purposes
+
+% file = '/Users/jjw2/Dropbox/JAY-DATA/SinabungData/EKUM_VA_VB_2011-2013.csv';
+% SinabungCatalog = readtable(file, 'HeaderLines', 6, 'ReadVariableNames', false);
+% SinabungCatalog.Properties.VariableNames{3} = 'DateTime';
+% SinabungCatalog.Properties.VariableNames{8} = 'Magnitude';
+% SinabungCatalog.Properties.VariableNames{11} = 'Type';
+% SinabungCatalog.DateTime = datetime(SinabungCatalog.DateTime);
+% SinabungCatalog.Magnitude = str2double(SinabungCatalog.Magnitude);
+% SinabungCatalog(1:10, :)
+% 
+% %%% Sinabung eruptions from "Sinabung-timeline" Excel spreadsheet (info
+% %%% only down to the hour) -- caveat emptor!!! --
+% estart = [datetime(2010,8,15)-years(400), ...
+%     datetime(2010,8,15), ... % "erupted in August after had been inactive for 400 years"
+%     datetime(2013,9,15,2,51,00), ... % time zone WIB
+%     datetime(2013,9,17), ...
+%     datetime(2013,9,18), ...
+%     datetime(2013,10,15), ...
+%     datetime(2013,10,23), ...
+%     datetime(2013,10,24), ...
+%     datetime(2013,10,25), ...
+%     datetime(2013,10,26), ...
+%     datetime(2013,10,29), ...
+%     datetime(2013,10,30), ...
+%     datetime(2013,10,31), ...
+%     datetime(2013,11,1), ...
+%     datetime(2013,11,3), ...
+%     datetime(2013,11,4), ...
+%     datetime(2013,11,5), ...
+%     datetime(2013,11,17), ...
+%     datetime(2013,11,23), ...
+%     datetime(2013,12,6), ...
+%     datetime(2013,12,19), ... % dome appears
+%     datetime(2014,1,8), ...
+%     datetime(2014,1,15)];
+% 
+% ess = [estart' estart']; % turn vector of eruption dates into start/stop pairs
+% tfind = interinterval(ess, ess(1), ess(end)); % find interevent times
+% tfind(tfind(:,2)-tfind(:,1) > 14,1) = tfind(tfind(:,2)-tfind(:,1) > 14, 2) - 14; % truncate intervals to max of 14 days 
+% 
+% [~, ~, idx_mat] = withininterval(SinabungCatalog.DateTime, tfind, 3);
+% idx_mat(idx_mat==0) = NaN;
+% mag_mat = SinabungCatalog.Magnitude'.*idx_mat;
+% mom_mat = 10.^(1.5.*mag_mat+16.1);
+% max_mag = max(mag_mat, [], 2);
+% cum_mom = sum(mom_mat, 2, 'omitnan');
+% cum_mag = (log10(cum_mom)-16.1)/1.5;
+% cum_mag(cum_mag==-Inf) = NaN;
+% 
+% repose = days(diff(estart));
+% semilogx(repose,cum_mag, '^k');
+% L.String(end) = {'Sinabung'};
+
+
+%% Add Regression Line
+
+f = gcf;
+ax = f.Children(2);
+XData = [];
+YData = [];
+
+for l = 1:numel(ax.Children)
+    
+   if isa(ax.Children(l), 'matlab.graphics.chart.primitive.Line')
+    
+       XData = [XData ax.Children(l).XData];
+       YData = [YData ax.Children(l).YData];
+       
+   end
+    
+end
+
+XData(isnan(YData)) = [];
+YData(isnan(YData)) = [];
+
+P = polyfit(log(XData), YData,1);
+yfit = exp(polyval(P,log(XData)));
+x1 = linspace(min(XData),max(XData));
+y1 = log(exp(polyval(P,log(x1))));
+hold on, plot(x1, y1,'LineStyle','--','color',[1 0 0],'LineWidth',2),grid on , box on
+
+yresid = YData - log(yfit);
+SSresid = sum(yresid.^2);
+SStotal = (length(YData)-1) * var(YData);
+rsq(i) = 1 - SSresid/SStotal;
+text(max(x1),max(y1),['R^2 = ',num2str(rsq(i),'%3.2f')],'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
+
+L.String(end) = [];
+
 
