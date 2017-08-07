@@ -94,6 +94,7 @@ properties (Dependent)
     
 %     volcano_name;
     start_stop = [obj.start obj.stop];
+    intereventt;
     
 %     forecastyn_str;
 %     duration;

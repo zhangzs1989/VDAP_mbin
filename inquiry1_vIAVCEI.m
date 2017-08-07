@@ -3,23 +3,14 @@
 load('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/LOG.mat')
 OLOG = LOG;
 
-% pre-EFIS eruption dates -- start dates
-pEFISt(8) = datetime(1953, 9, 9); % Spurr
-pEFISt(6) = datetime(1986, 3,27); % Augustine
-pEFISt(7) = datetime(1967,12, 6); % Redoubt
-pEFISt(4) = datetime(1990, 3, 5); % Pavlof
-pEFISt(5) = datetime(1995,11,15); % Veniaminof
-pEFISt(9) = datetime(1857, 4, 15); % St. Helens -- "1857 Apr"
-pEFISt(2) = datetime(1760, 6,15); % Kasatochi -- "1760"
-pEFISt(1) = datetime(1995, 6, 19); % Kanaga
-pEFISt(3) = datetime(1999, 2,  9); % Shishaldin
+vdict = readtable('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/vdict.txt', 'Delimiter', ',')
 
 %%
 
+% TESTLOG reduces the entire LOG to just one entry per voclano
 TESTLOG = LOG(LOG.annulus(:,1)==0 & LOG.annulus(:,2)==30 & LOG.t_window(:,1)==1 & LOG.t_window(:,2)==30 & LOG.use_triggers==0, :);
 
 c = colormap('lines');
-s = 'oo**vss^^';
 
 % First 4 options search the entire repose period; 5 and beyond only search
 % up to n days before the next eruption
@@ -31,7 +22,13 @@ f = figure;
 
 for l = 1:height(TESTLOG)
     
-    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax
+    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax vdict
+    
+    %%% Get the volcano name for TESTLOG and use the features in vdict for
+    %%% the matching volcano
+    vname = TESTLOG.volcano_name{l};
+    v_idx = find(strcmpi(vdict.vname,vname));
+    
     
     ET = obj2table(TESTLOG.DATA(l).E);
     ess = mergeintervals([ET.start ET.stop]);
@@ -71,14 +68,18 @@ for l = 1:height(TESTLOG)
     % plotting
     switch v
         case {1 2 5 6}
-            semilogx(days(repose), y, s(l), 'Color', c(l,:) ), hold on
+            semilogx(days(repose), y, vdict.symbol{v_idx}, 'Color', vdict.color{v_idx} ), hold on
         case {3 7}
-            semilogx(days(repose), y, s(l), 'Color', c(l,:) ), hold on
+            semilogx(days(repose), y, vdict.symbol{v_idx}, 'Color', vdict.color{v_idx} ), hold on
 %             ax = gca; ax.YLim(1) = 1
         case {4 8}
-            loglog(days(repose), y'./days(repose), s(l), 'Color', c(l,:) ), hold on
+            loglog(days(repose), y'./days(repose), vdict.symbol{v_idx}, 'Color', vdict.color{v_idx} ), hold on
         otherwise
     end
+    % add the label based on the volcano dictionary
+    marker_label = [vdict.label{v_idx}];
+%     text(days(repose), y, marker_label); 
+    
     
 end
 
@@ -277,5 +278,4 @@ rsq(i) = 1 - SSresid/SStotal;
 text(max(x1),max(y1),['R^2 = ',num2str(rsq(i),'%3.2f')],'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
 
 L.String(end) = [];
-
 
