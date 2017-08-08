@@ -20,18 +20,20 @@ TESTLOG = LOG(LOG.annulus(:,1)==0 & LOG.annulus(:,2)==30 & LOG.t_window(:,1)==1 
 
 c = colormap('lines');
 s = 'oo**vss^^';
+ms = 10; % MarkerSize
+maxdays = 14;
 
 % First 4 options search the entire repose period; 5 and beyond only search
 % up to n days before the next eruption
 v_desc = {'Preceding Max Magnitude'; 'Preceding Cum. Magnitude'; 'Preceding Counts'; 'EQ Rate'; ...
-    'Preceding n days Max Magnitude'; 'Preceding n days Cum Magnitude'; 'Prec. n days Counts'};
-v = 1;
+    sprintf('Preceding %i days Max Mag', maxdays); sprintf('Preceding %i days Cum Mag', maxdays); sprintf('Preceding %i days Counts', maxdays)};
+v = 6;
 
 f = figure;
 
 for l = 1:height(TESTLOG)
     
-    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax
+    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax f ms maxdays
     
     ET = obj2table(TESTLOG.DATA(l).E);
     ess = mergeintervals([ET.start ET.stop]);
@@ -47,7 +49,6 @@ for l = 1:height(TESTLOG)
     % if the repose period is greater than n days, only use the n days
     % before the eruption
     if v >= 5
-        maxdays = 14;
         d = tfind(:,2) - tfind(:,1);
         tfind(d>days(maxdays),1) = tfind(d>days(maxdays),2) - days(maxdays);
     end
@@ -68,20 +69,41 @@ for l = 1:height(TESTLOG)
         end
     end
         
-    % plotting
+    %%% plotting
+    
+    % Master Plot
+    figure(f)
     switch v
         case {1 2 5 6}
-            semilogx(days(repose), y, s(l), 'Color', c(l,:) ), hold on
+            semilogx(days(repose), y, s(l), 'Color', c(l,:), ...
+                'MarkerSize', ms ), hold on
         case {3 7}
-            semilogx(days(repose), y, s(l), 'Color', c(l,:) ), hold on
+            semilogx(days(repose), y, s(l), 'Color', c(l,:), ...
+                'MarkerSize', ms), hold on
 %             ax = gca; ax.YLim(1) = 1
         case {4 8}
-            loglog(days(repose), y'./days(repose), s(l), 'Color', c(l,:) ), hold on
+            loglog(days(repose), y'./days(repose), s(l), 'Color', c(l,:), ...
+                'MarkerSize', ms), hold on
         otherwise
     end
     
+    % Individual Time Series Plot
+    
+%     figure
+%     cat = TESTLOG.DATA(l).CAT; e = TESTLOG.DATA(l).E;
+%     r = ps2ts(cat.DateTime, magnitude2moment(cat.Magnitude), ...
+%         [datetime(1970,1,1) datetime('now')], 1, maxdays);
+%     plot(e), hold on
+%     plot(r.tc, r.binCounts, 'k', 'LineWidth', 2)
+%     yyaxis right
+%     plot(r.tc, magnitude2moment(r.binData, 'reverse'), 'b', 'LineWidth', 2)
+%     title(TESTLOG.volcano_name{l})
+    
+    
+    
 end
 
+figure(f)
 xlabel('Repose (days)')
 ylabel(v_desc{v})
 title('Observations during Intra-eruptive episodes')
@@ -167,7 +189,7 @@ for n = 1:numel(volc)
     % * use up to 14 days prior to the eruption
     chron2.runup_start = chron2.repose_start;
     chron2.runup_days = chron2.eruption_start - chron2.runup_start;
-    chron2.runup_start(chron2.repose_days > 14) = chron2.eruption_start(chron2.runup_days > 14) - 14;
+    chron2.runup_start(chron2.repose_days > maxdays) = chron2.eruption_start(chron2.runup_days > maxdays) - maxdays;
     chron2.runup_days = days(chron2.eruption_start - chron2.runup_start);
     for i = 1:height(chron2)
         chron2.MaxMag(i) = NaN; % initialize
@@ -180,7 +202,7 @@ for n = 1:numel(volc)
         chron2.CumMag(i) = magnitude2moment(sum(magnitude2moment(eqmags), 'omitnan'), 'reverse');
     end
     
-    plot(chron2.repose_days, chron2.CumMag, 'or')
+    plot(chron2.repose_days, chron2.CumMag, 'or', 'MarkerSize', ms)
     text(chron2.repose_days, chron2.CumMag, volc(n).name);
     
 end
@@ -245,6 +267,40 @@ L.String(end) = {'Mauna Loa'};
 
 %% Add Regression Line
 
+% f = gcf;
+% ax = f.Children(2);
+% XData = [];
+% YData = [];
+% 
+% for l = 1:numel(ax.Children)
+%     
+%    if isa(ax.Children(l), 'matlab.graphics.chart.primitive.Line')
+%     
+%        XData = [XData ax.Children(l).XData];
+%        YData = [YData ax.Children(l).YData];
+%        
+%    end
+%     
+% end
+% 
+% XData(isnan(YData)) = [];
+% YData(isnan(YData)) = [];
+% 
+% P = polyfit(log(XData), YData,1);
+% yfit = exp(polyval(P,log(XData)));
+% x1 = linspace(min(XData),max(XData));
+% y1 = log(exp(polyval(P,log(x1))));
+% hold on, plot(x1, y1,'LineStyle','--','color',[1 0 0],'LineWidth',2),grid on , box on
+% 
+% yresid = YData - log(yfit);
+% SSresid = sum(yresid.^2);
+% SStotal = (length(YData)-1) * var(YData);
+% rsq(i) = 1 - SSresid/SStotal;
+% text(max(x1),max(y1),['R^2 = ',num2str(rsq(i),'%3.2f')],'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
+% L.String(end) = [];
+
+%% Add Regression Line (v2)
+
 f = gcf;
 ax = f.Children(2);
 XData = [];
@@ -261,21 +317,26 @@ for l = 1:numel(ax.Children)
     
 end
 
+XData = XData'; YData = YData';
 XData(isnan(YData)) = [];
 YData(isnan(YData)) = [];
+YData(XData==0) = [];
+XData(XData==0) = [];
 
-P = polyfit(log(XData), YData,1);
-yfit = exp(polyval(P,log(XData)));
-x1 = linspace(min(XData),max(XData));
-y1 = log(exp(polyval(P,log(x1))));
-hold on, plot(x1, y1,'LineStyle','--','color',[1 0 0],'LineWidth',2),grid on , box on
+% [XData, sI] = sort(XData);
+% YData = YData(sI);
 
-yresid = YData - log(yfit);
+logXData = log10(XData);
+A = [ones(size(YData)), logXData];
+c = A\YData;
+YFit = A*c;
+plot(XData, YFit, 'r-', 'LineWidth', 2)
+
+yresid = YData - log(YFit);
 SSresid = sum(yresid.^2);
 SStotal = (length(YData)-1) * var(YData);
-rsq(i) = 1 - SSresid/SStotal;
-text(max(x1),max(y1),['R^2 = ',num2str(rsq(i),'%3.2f')],'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
+rsq = 1 - SSresid/SStotal;
+text(max(XData),max(YData),sprintf('R^2 = %3.2f', rsq),'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
 
 L.String(end) = [];
-
 
