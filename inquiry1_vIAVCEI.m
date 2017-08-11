@@ -3,7 +3,20 @@
 load('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/LOG.mat')
 OLOG = LOG;
 
+% pre-EFIS eruption dates -- start dates
+pEFISt(8) = datetime(1953, 9, 9); % Spurr
+pEFISt(6) = datetime(1986, 3,27); % Augustine
+pEFISt(7) = datetime(1967,12, 6); % Redoubt
+pEFISt(4) = datetime(1990, 3, 5); % Pavlof
+pEFISt(5) = datetime(1995,11,15); % Veniaminof
+pEFISt(9) = datetime(1857, 4, 15); % St. Helens -- "1857 Apr"
+pEFISt(2) = datetime(1760, 6,15); % Kasatochi -- "1760"
+pEFISt(1) = datetime(1995, 6, 19); % Kanaga
+pEFISt(3) = datetime(1999, 2,  9); % Shishaldin
+
 vdict = readtable('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/vdict.txt', 'Delimiter', ',')
+
+
 
 %%
 
@@ -11,18 +24,20 @@ vdict = readtable('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedState
 TESTLOG = LOG(LOG.annulus(:,1)==0 & LOG.annulus(:,2)==30 & LOG.t_window(:,1)==1 & LOG.t_window(:,2)==30 & LOG.use_triggers==0, :);
 
 c = colormap('lines');
+ms = 10;
+maxdays = 14;
 
 % First 4 options search the entire repose period; 5 and beyond only search
 % up to n days before the next eruption
 v_desc = {'Preceding Max Magnitude'; 'Preceding Cum. Magnitude'; 'Preceding Counts'; 'EQ Rate'; ...
-    'Preceding n days Max Magnitude'; 'Preceding n days Cum Magnitude'; 'Prec. n days Counts'};
-v = 1;
+    sprintf('Preceding %i days Max Mag', maxdays); sprintf('Preceding %i days Cum Mag', maxdays); sprintf('Preceding %i days Counts', maxdays)};
+v = 3;
 
-f = figure;
+% f = figure;
 
 for l = 1:height(TESTLOG)
     
-    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax vdict
+    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax vdict ms maxdays
     
     %%% Get the volcano name for TESTLOG and use the features in vdict for
     %%% the matching volcano
@@ -44,7 +59,6 @@ for l = 1:height(TESTLOG)
     % if the repose period is greater than n days, only use the n days
     % before the eruption
     if v >= 5
-        maxdays = 14;
         d = tfind(:,2) - tfind(:,1);
         tfind(d>days(maxdays),1) = tfind(d>days(maxdays),2) - days(maxdays);
     end
@@ -68,12 +82,18 @@ for l = 1:height(TESTLOG)
     % plotting
     switch v
         case {1 2 5 6}
-            semilogx(days(repose), y, vdict.symbol{v_idx}, 'Color', vdict.color{v_idx} ), hold on
+            semilogx(days(repose), y, vdict.symbol{v_idx}, ...
+                'Color', vdict.color{v_idx}, 'MarkerSize', ms, ...
+                'LineWidth', 2), hold on
         case {3 7}
-            semilogx(days(repose), y, vdict.symbol{v_idx}, 'Color', vdict.color{v_idx} ), hold on
+            semilogx(days(repose), y, vdict.symbol{v_idx}, ...
+                'Color', vdict.color{v_idx}, 'MarkerSize', ms, ...
+                'LineWidth', 2), hold on
 %             ax = gca; ax.YLim(1) = 1
         case {4 8}
-            loglog(days(repose), y'./days(repose), vdict.symbol{v_idx}, 'Color', vdict.color{v_idx} ), hold on
+            loglog(days(repose), y'./days(repose), vdict.symbol{v_idx}, ...
+                'Color', vdict.color{v_idx}, 'MarkerSize', ms, ...
+                'LineWidth', 2), hold on
         otherwise
     end
     % add the label based on the volcano dictionary
@@ -91,9 +111,11 @@ title('Observations during Intra-eruptive episodes')
 % ylim([0 7])
 % xlim([10^0 10^6]), ylim([0 7])
 axis('square')
-L = legend(TESTLOG.volcano_name, 'location', 'eastoutside');
+L = legend(TESTLOG.volcano_name, 'location', 'northwest');
 f = gcf;
-f.Children(1).FontSize = 15; f.Children(2).FontSize = 15;
+f.Children(1).FontSize = 15; f.Children(2).FontSize = 22;
+f.Position = [125   500   780   780];
+f.Color = [1 1 1];
 
 %% Add in Information from literature searches -- Iceland
 
@@ -168,7 +190,7 @@ for n = 1:numel(volc)
     % * use up to 14 days prior to the eruption
     chron2.runup_start = chron2.repose_start;
     chron2.runup_days = chron2.eruption_start - chron2.runup_start;
-    chron2.runup_start(chron2.repose_days > 14) = chron2.eruption_start(chron2.runup_days > 14) - 14;
+    chron2.runup_start(chron2.repose_days > maxdays) = chron2.eruption_start(chron2.runup_days > maxdays) - maxdays;
     chron2.runup_days = days(chron2.eruption_start - chron2.runup_start);
     for i = 1:height(chron2)
         chron2.MaxMag(i) = NaN; % initialize
@@ -181,7 +203,8 @@ for n = 1:numel(volc)
         chron2.CumMag(i) = magnitude2moment(sum(magnitude2moment(eqmags), 'omitnan'), 'reverse');
     end
     
-    plot(chron2.repose_days, chron2.CumMag, 'or')
+    plot(chron2.repose_days, chron2.CumMag, ...
+        'or', 'MarkerSize', ms, 'LineWidth', 2)
     text(chron2.repose_days, chron2.CumMag, volc(n).name);
     
 end
@@ -244,7 +267,7 @@ L.String(end) = {'Mauna Loa'};
 % L.String(end) = {'Sinabung'};
 
 
-%% Add Regression Line
+%% Add Regression Line (v2)
 
 f = gcf;
 ax = f.Children(2);
@@ -262,20 +285,33 @@ for l = 1:numel(ax.Children)
     
 end
 
+XData = XData'; YData = YData';
 XData(isnan(YData)) = [];
 YData(isnan(YData)) = [];
+XData(abs(YData)==Inf) = [];
+YData(abs(YData)==Inf) = [];
+YData(XData==0) = [];
+XData(XData==0) = [];
 
-P = polyfit(log(XData), YData,1);
-yfit = exp(polyval(P,log(XData)));
-x1 = linspace(min(XData),max(XData));
-y1 = log(exp(polyval(P,log(x1))));
-hold on, plot(x1, y1,'LineStyle','--','color',[1 0 0],'LineWidth',2),grid on , box on
+% YData(XData < 10^3) = [];
+% XData(XData < 10^3) = [];
 
-yresid = YData - log(yfit);
+% [XData, sI] = sort(XData);
+% YData = YData(sI);
+
+logXData = log10(XData);
+A = [ones(size(YData)), logXData];
+c = A\YData;
+YFit = A*c;
+plot(XData, YFit, 'r-', 'LineWidth', 2)
+
+yresid = (YData) - (YFit);
+% yresid = log(YData) - log(YFit);
+% yresid = log10(YData) - log10(YFit);
 SSresid = sum(yresid.^2);
 SStotal = (length(YData)-1) * var(YData);
-rsq(i) = 1 - SSresid/SStotal;
-text(max(x1),max(y1),['R^2 = ',num2str(rsq(i),'%3.2f')],'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
+rsq = 1 - SSresid/SStotal;
+% text(max(XData),max(YData),sprintf('R^2 = %3.2f', rsq),'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
 
-L.String(end) = [];
+L.String(end) = {sprintf('R^2 = %3.2f', rsq)};
 

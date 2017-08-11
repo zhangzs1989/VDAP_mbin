@@ -10,7 +10,14 @@ Eruption' for all M4s
 load('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/LOG.mat')
 OLOG = LOG;
 
-vdict = readtable('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/vdict.txt', 'Delimiter', ',')
+vdict = readtable('/Users/jjw2/Documents/MATLAB/VDAP_mbin/dataseries/UnitedStates_explosions/vdict.txt', 'Delimiter', ',');
+
+ylabels{1} = {'Cum. % of EQs'};
+ylabels{2} = {'Cum. # of EQs'};
+ori = [ 1 2 ]; % subplot orientation
+
+ver = 'Intra'; % {'All', 'Inter', 'Intra'}
+
 
 %%
 
@@ -25,8 +32,6 @@ c = colormap('lines');
 %     'Preceding n days Max Magnitude'; 'Preceding n days Cum Magnitude'; 'Prec. n days Counts'};
 % v = 1;
 
-f = figure;
-
 P_ = [];
 R_ = [];
 
@@ -35,13 +40,21 @@ min_mag_thresh = 4;
 max_repose_thresh = 150; % days since last explosion (effectively defines 'intra-eruptive')
 bw = 14;
 
+f = figure;
+p = uipanel('Parent', f, 'BorderType', 'none');
+% p.Title = ['Intra-eruptive M' num2str(min_mag_thresh) '+ Earthquakes'];
+p.Title = sprintf('Intra-eruptive M%i+ Earthquakes', min_mag_thresh);
+p.TitlePosition = 'centertop';
+p.FontSize = 22;
+p.FontWeight = 'bold';
+
 for l = 1:height(TESTLOG)
     
-    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax vdict P_ R_ min_mag_thresh max_repose_thresh bw
+    clearvars -except TESTLOG LOG c s l v ver v_desc pEFISt OLOG spax vdict P_ R_ min_mag_thresh max_repose_thresh bw ylabels f p ori
        
     %%% Get the volcano name for TESTLOG and use the features in vdict for
     %%% the matching volcano
-    vname = TESTLOG.volcano_name{l}
+    vname = TESTLOG.volcano_name{l};
     v_idx = find(strcmpi(vdict.vname,vname));
     
     % Get eruption table and catalog for this volcano given the magnitude
@@ -74,43 +87,65 @@ for l = 1:height(TESTLOG)
     % repose times (inf if no prev. eruption)
     R = EQTm - STPm; % result is m-by-n matrix
     R(R < 0) = inf; % result is m-by-n matrix
-    R = min(R, [], 1) % result is 1-by-n vector
+    R = min(R, [], 1); % result is 1-by-n vector
     
     % precursor times (nan if no subsequent eruption)
     P = STTm - EQTm; % m-by-n
     P(P < 0) = NaN; % m-by-n
-    P = min(P, [], 1) % 1-by-n
+    P = min(P, [], 1); % 1-by-n
     
     % Master list for all volcanoes
     P_ = [P_ P];
     R_ = [R_ R];
     
-    % Remove earthquakes that occurred n days after the last
-    % eruption/explosion
-%     P_(R_ > max_repose_thresh)= [];
-%     R_(R_ > max_repose_thresh) = [];
-    
     whos EQTm STPm STTm R P 
-
-%     figure
-%     plot(TESTLOG.DATA(l).E); hold on
-%     plot(datetime2(CAT.DateTime), CAT.Magnitude, 'ok');
-%     xlabel('Time')
-%     ylabel('Magnitude')
 
 end
 
-ax(1) = subplot(2,1,1);
+% Limit data on Inter- or Intra-eruptive, if specified in settings
+if strcmpi(ver, 'Intra')
+
+    % Limit to intra-eruptive earthquakes
+    P_(R_ > max_repose_thresh)= [];
+    R_(R_ > max_repose_thresh) = [];
+
+elseif strcmpi(ver, 'Inter')
+
+    % Limit to inter-eruptive earthquakes
+    P_(R_ < max_repose_thresh)= [];
+    R_(R_ < max_repose_thresh) = [];
+    P_(isnan(R_)) = [];
+    R_(isnan(R_)) = [];
+    
+    
+elseif strcmpi(ver, 'All')
+    
+    % do nothing
+    
+end
+
+%% AK + CONUS plots
+
+ax(1) = subplot(ori(1),ori(2),1, 'Parent', p);
 H(1) = histogram(P_, 'BinWidth', bw, ...
     'Normalization', 'cdf');
 axis square
-ylabel('Cumulative Probability (%)')
+ylabel(ylabels{1})
 perc = H(1).Values(1)/numel(P_)*100;
 str = [num2str(H(1).Values(1)) ' of ' num2str(numel(P_))];
 % title({['Intra-eruptive M' num2str(min_mag_thresh) '+ Earthquakes (AK + Cont. US)']; ...
 %     [str ' (' num2str(perc, '%2.1f') '%) occur w/in 14 days' ]; 'of next eruption'})
-title(['Intra-eruptive M' num2str(min_mag_thresh) '+ Earthquakes (AK + Cont. US)'])
+title('AK + Cont. US')
 xlabel('Time to Next Eruption (days)')
+
+% Add second yaxis
+% yyaxis(ax(1), 'right');
+% yticklabels = [0:75:300 numel(P_)];
+% ytickvalues = yticklabels / numel(P_);
+% ax(1).YAxis(2).TickValues = ytickvalues;
+% ax(1).YAxis(2).TickLabels = yticklabels;
+% ax(1).YAxis(2).Color = 'k';
+% ax(1).YAxis(2).Label.String = ylabels{2};
 
 %% Add in Hawaii based on Chronologies and global8 catalog
 
@@ -176,51 +211,79 @@ for n = 1:numel(volc)
     % repose times (inf if no prev. eruption)
     R = EQTm - STPm; % result is m-by-n matrix
     R(R < 0) = inf; % result is m-by-n matrix
-    R = min(R, [], 1) % result is 1-by-n vector
+    R = min(R, [], 1); % result is 1-by-n vector
     
     % precursor times (nan if no subsequent eruption)
     P = STTm - EQTm; % m-by-n
     P(P < 0) = NaN; % m-by-n
-    P = min(P, [], 1) % 1-by-n
+    P = min(P, [], 1); % 1-by-n
     
     % Master list for all volcanoes
     P_ = [P_ P];
     R_ = [R_ R];
-    
+      
+end
+
+% Limit data on Inter- or Intra-eruptive, if specified in settings
+if strcmpi(ver, 'Intra')
+
     % Limit to intra-eruptive earthquakes
-%     P_(R_ > max_repose_thresh)= [];
-%     R_(R_ > max_repose_thresh) = [];
+    P_(R_ > max_repose_thresh)= [];
+    R_(R_ > max_repose_thresh) = [];
+
+elseif strcmpi(ver, 'Inter')
+
+    % Limit to inter-eruptive earthquakes
+    P_(R_ < max_repose_thresh)= [];
+    R_(R_ < max_repose_thresh) = [];
+    
+elseif strcmpi(ver, 'All')
+    
+    % do nothing
     
 end
 
-ax(2) = subplot(2,1,2);
+%% HI plot
+
+ax(2) = subplot(ori(1),ori(2),2, 'Parent', p);
 H(2) = histogram(P_, 'BinWidth', bw, ...
     'Normalization', 'cdf');
 axis square
-ylabel('Cumulative Probability (%)')
+ylabel(ylabels{1});
 perc = H(2).Values(1)/numel(P_)*100;
 str = [num2str(H(2).Values(1)) ' of ' num2str(numel(P_))];
 % title({['Intra-eruptive M' num2str(min_mag_thresh) '+ Earthquakes (Hawaii)']; ...
 %     [str ' (' num2str(perc, '%2.1f') '%) occur w/in 14 days' ]; 'of next eruption'})
-title(['Intra-eruptive M' num2str(min_mag_thresh) '+ Earthquakes (Hawaii)'])
+title('Hawaii')
 xlabel('Time to Next Eruption (days)')
+
+% Add second yaxis
+% yyaxis(ax(2), 'right');
+% yticklabels = [0:5000:15000 numel(P_)];
+% ytickvalues = yticklabels / numel(P_);
+% ax(2).YAxis(2).TickValues = ytickvalues;
+% ax(2).YAxis(2).TickLabels = yticklabels;
+% ax(2).YAxis(2).Color = 'k';
+% ax(2).YAxis(2).Label.String = ylabels{2};
 
 %% Beautify Plots
 
 f = gcf;
+f.Position = [150 650 1000 500];
+p.BackgroundColor = [1 1 1];
 ax(1).FontSize = 15;
 ax(2).FontSize = 15;
 linkaxes(ax, 'x')
 ax(1).XLim = [0 90];
-ax(1).XTick = [0:14:max_repose_thresh];
-ax(2).XTick = [0:14:max_repose_thresh];
+ax(1).XTick = 0:14:max_repose_thresh;
+ax(2).XTick = 0:14:max_repose_thresh;
 
 yticks = 0:0.25:1;
-ax(1).YLim = [0 1];
-ax(1).YTick = yticks;
-ax(1).YTickLabels = yticks*100;
+ax(1).YAxis(1).Limits = [0 1];
+ax(1).YAxis(1).TickValues = yticks;
+ax(1).YAxis(1).TickLabels = yticks*100;
 
 yticks = 0:0.25:1;
-ax(2).YLim = [0 1];
-ax(2).YTick = yticks;
-ax(2).YTickLabels = yticks*100;
+ax(2).YAxis(1).Limits = [0 1];
+ax(2).YAxis(1).TickValues = yticks;
+ax(2).YAxis(1).TickLabels = yticks*100;

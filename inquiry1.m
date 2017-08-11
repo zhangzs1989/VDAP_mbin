@@ -16,6 +16,12 @@ pEFISt(3) = datetime(1999, 2,  9); % Shishaldin
 
 %%
 
+legend_opts = {'location', 'northwest'};
+
+
+
+%%
+
 TESTLOG = LOG(LOG.annulus(:,1)==0 & LOG.annulus(:,2)==30 & LOG.t_window(:,1)==1 & LOG.t_window(:,2)==30 & LOG.use_triggers==0, :);
 
 c = colormap('lines');
@@ -33,7 +39,7 @@ f = figure;
 
 for l = 1:height(TESTLOG)
     
-    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax f ms maxdays
+    clearvars -except TESTLOG LOG c s l v v_desc pEFISt OLOG spax f ms maxdays legend_opts
     
     ET = obj2table(TESTLOG.DATA(l).E);
     ess = mergeintervals([ET.start ET.stop]);
@@ -89,15 +95,17 @@ for l = 1:height(TESTLOG)
     
     % Individual Time Series Plot
     
-%     figure
-%     cat = TESTLOG.DATA(l).CAT; e = TESTLOG.DATA(l).E;
-%     r = ps2ts(cat.DateTime, magnitude2moment(cat.Magnitude), ...
-%         [datetime(1970,1,1) datetime('now')], 1, maxdays);
-%     plot(e), hold on
-%     plot(r.tc, r.binCounts, 'k', 'LineWidth', 2)
-%     yyaxis right
-%     plot(r.tc, magnitude2moment(r.binData, 'reverse'), 'b', 'LineWidth', 2)
-%     title(TESTLOG.volcano_name{l})
+    figure
+    cat = TESTLOG.DATA(l).CAT; e = TESTLOG.DATA(l).E;
+    r = ps2ts(cat.DateTime, magnitude2moment(cat.Magnitude), ...
+        [datetime(1970,1,1) datetime('now')], 1, maxdays);
+    plot(e), hold on
+    plot(r.tc, r.binCounts, 'k', 'LineWidth', 2)
+    yyaxis right
+    plot(r.tc, magnitude2moment(r.binData, 'reverse'), 'b', 'LineWidth', 2)
+    plot(datetime2(TESTLOG.DATA(l).CAT.DateTime), TESTLOG.DATA(l).CAT.Magnitude, ...
+        'ob', 'LineWidth', 2)
+    title(TESTLOG.volcano_name{l})
     
     
     
@@ -112,7 +120,7 @@ title('Observations during Intra-eruptive episodes')
 % ylim([0 7])
 % xlim([10^0 10^6]), ylim([0 7])
 axis('square')
-L = legend(TESTLOG.volcano_name, 'location', 'eastoutside');
+L = legend(TESTLOG.volcano_name, legend_opts{:});
 f = gcf;
 f.Children(1).FontSize = 15; f.Children(2).FontSize = 15;
 
@@ -332,11 +340,13 @@ c = A\YData;
 YFit = A*c;
 plot(XData, YFit, 'r-', 'LineWidth', 2)
 
-yresid = YData - log(YFit);
+yresid = (YData) - (YFit);
+% yresid = log(YData) - log(YFit);
+% yresid = log10(YData) - log10(YFit);
 SSresid = sum(yresid.^2);
 SStotal = (length(YData)-1) * var(YData);
 rsq = 1 - SSresid/SStotal;
-text(max(XData),max(YData),sprintf('R^2 = %3.2f', rsq),'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
+% text(max(XData),max(YData),sprintf('R^2 = %3.2f', rsq),'VerticalAlignment','bottom','HorizontalAlignment','right','FontSize',10,'FontWeight','Normal')
 
-L.String(end) = [];
+L.String(end) = {sprintf('R^2 = %3.2f', rsq)};
 
