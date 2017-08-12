@@ -120,27 +120,48 @@ disp(c), disp(' ')
 no = 1
 yes = 15
 
+
+a_closed = a(contains(a.volcano_name, closed_volcanoes), :);
+a_open = a(~contains(a.volcano_name, closed_volcanoes), :);
+
+%%% Greater than Pre-Eruptive (Closed & Open)
 pf = figure
 
-subplot(1,2,2)
-p = pie([no yes])
-p(3).FaceColor = [0 78/255 196/255]
-p(3).LineWidth = 2
-p(1).FaceColor = [221/255 0 0]
-p(1).LineWidth = 2
-p(2).FontSize = 28
-p(4).FontSize = 28
-p(4).String = sprintf('Yes - %i (%s)', yes, p(4).String)
-p(2).String = sprintf('No - %i (%s)', no, p(2).String)
+subplot(1,2,1) % Closed
+yes = sum(a_closed.maxcounts1(:, 3) >= a_closed.maxcounts1(:,1))
+no = sum(a_closed.maxcounts1(:, 3) < a_closed.maxcounts1(:,1))
+iavcei_I2_pie(yes, no);
 
-pf.Color = [1 1 1]
-pf.Children.Title.FontSize = 28
+subplot(1,2,2) % Open
+yes = sum(a_open.maxcounts1(:, 3) >= a_open.maxcounts1(:,1))
+no = sum(a_open.maxcounts1(:, 3) < a_open.maxcounts1(:,1))
+iavcei_I2_pie(yes, no);
 
-pf.Position
+pf.Color = [1 1 1];
+pf.Children(1).Title.FontSize = 28;
+pf.Children(2).Title.FontSize = 28;
+pf.Position = [837 1024 723 314];
+export_fig(pf, '~/Desktop/test_pre.png', '-transparent')
 
-ans =
 
-         837        1024         723         314
+%%% Greater than Intra-Eruptive (Closed & Open)
+pf = figure
+
+subplot(1,2,1) % Closed
+yes = sum(a_closed.maxcounts1(:, 3) >= a_closed.maxcounts1(:,2))
+no = sum(a_closed.maxcounts1(:, 3) < a_closed.maxcounts1(:,2))
+iavcei_I2_pie(yes, no);
+
+subplot(1,2,2) % Open
+yes = sum(a_open.maxcounts1(:, 3) >= a_open.maxcounts1(:,2))
+no = sum(a_open.maxcounts1(:, 3) < a_open.maxcounts1(:,2))
+iavcei_I2_pie(yes, no);
+
+pf.Color = 'none';
+pf.Children(1).Title.FontSize = 28;
+pf.Children(2).Title.FontSize = 28;
+pf.Position = [837 1024 723 314];
+export_fig(pf, '~/Desktop/test_intra.png', '-transparent')
 
 
 
