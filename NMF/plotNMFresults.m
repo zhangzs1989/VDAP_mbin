@@ -175,32 +175,32 @@ for sta=1:nsta
     % tstart = datenum(2017,4,1);
     % tstop = datenum(2017,4,30);
     %
-    if ~exist(fullfile(baseDir,'RSAM_OBJ.mat'),'file')
-        [ RSAM_OBJ ] = quickRSAM( ds, CT, startDate, endDate, 'rms', 1,f);
-        save(fullfile(baseDir,'RSAM_OBJ.mat'),'RSAM_OBJ')
-    else
-        load(fullfile(baseDir,'RSAM_OBJ.mat'))
-    end
-    %
-    h=plot(RSAM_OBJ, 'Xunit', 'date');
-    rsamx = h.XData;
+%     if ~exist(fullfile(baseDir,'RSAM_OBJ.mat'),'file')
+%         [ RSAM_OBJ ] = quickRSAM( ds, CT, startDate, endDate, 'rms', 1,f);
+%         save(fullfile(baseDir,'RSAM_OBJ.mat'),'RSAM_OBJ')
+%     else
+%         load(fullfile(baseDir,'RSAM_OBJ.mat'))
+%     end
+%     %
+%     h=plot(RSAM_OBJ, 'Xunit', 'date');
+%     rsamx = h.XData;
     scrsz = get(groot,'ScreenSize');
     figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/1]);hold on
     
-    ax(4)=subplot(4,1,4);
-    rsam = get(RSAM_OBJ,'data');
-    plot(rsamx,rsam)
-    xlim([startDate endDate])
-    %     ymax = max(get(RSAM_OBJ,'data'))/200;
-    %     ymax = 7000;
-    %     ylim([0 ymax])
-    %
-    datetickJP('x','dd-mmm','keeplimits','keepticks')
-    set(gca,'xminortick','on')
-    ylabel('RSAM','FontSize',12,'FontWeight','Bold')
-    xlabel('Date Time','FontSize',12,'FontWeight','Bold')
-    hold on, grid on, box on
-    title((lab{sta}),'interpreter','none','FontSize',12,'FontWeight','Bold')
+%     ax(4)=subplot(4,1,4);
+%     rsam = get(RSAM_OBJ,'data');
+%     plot(rsamx,rsam)
+%     xlim([startDate endDate])
+%     %     ymax = max(get(RSAM_OBJ,'data'))/200;
+%     %     ymax = 7000;
+%     %     ylim([0 ymax])
+%     %
+%     datetickJP('x','dd-mmm','keeplimits','keepticks')
+%     set(gca,'xminortick','on')
+%     ylabel('RSAM','FontSize',12,'FontWeight','Bold')
+%     xlabel('Date Time','FontSize',12,'FontWeight','Bold')
+%     hold on, grid on, box on
+%     title((lab{sta}),'interpreter','none','FontSize',12,'FontWeight','Bold')
     %     for i=1:length(etimes)
     %         plot([datenum(int2str(etimes(i)),'yyyymmddHHMM'),datenum(int2str(etimes(i)),'yyyymmddHHMM')],[ymax,0],'r-')
     %     end

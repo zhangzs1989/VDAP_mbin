@@ -2,14 +2,14 @@ clear
 %% MAIN code to run the Network Matched Filter
 
 tic
-inputFile = '/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/NMF_input.txt';
+inputFile = '/Users/jpesicek/VDAP_mbin/NMF/NMF_input.txt';
 [inputs,params] = getInputFiles(inputFile);
 [~,~,~] = mkdir(fullfile(inputs.outDir));
 QCdir=[inputs.outDir,filesep,'templates'];
 [~,~,~] = mkdir(QCdir);
 NMFeventFile=[QCdir,filesep,params.strRunName,'_NMFtemplateFile.txt'];
 NEICeventFile=[QCdir,filesep,params.strRunName,'_OTs_NEICformat.txt'];
-NMFoutFile =[inputs.outDir,filesep,params.strRunName,'_NMFoutFile.txt'];
+NMFoutFile =[inputs.outDir,filesep,'NMF',params.strRunName,'_NMFoutFile.txt'];
 
 diaryFileName = fullfile(inputs.outDir,['/loc_',datestr(now,30),'_diary.txt']);
 diary(diaryFileName);
@@ -93,7 +93,7 @@ end
 %% Now do NMF
 runNMF(inputs,params,NMFeventFile,NMFoutFile)
 %% Now combine all matches for all templates into one catalog removing repeats
-combineCatalogs(params,inputs)
+combineMatches(params,inputs)
 %%
 plotNMFresults(inputs,params)
 %%

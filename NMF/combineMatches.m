@@ -1,4 +1,4 @@
-function combineCatalogs(params,inputs,template_numbers)
+function combineMatches(params,inputs)
 
 %%%This program combines individual results files into one catalog.
 %%%Individual matches cannot be within within_seconds, or they are treated
@@ -8,6 +8,21 @@ function combineCatalogs(params,inputs,template_numbers)
 
 warning('ON','all')
 
+if ~isfield(params,'templates2run')
+    template_numbers = [];    
+elseif strcmpi(params.templates2run,'none')
+    template_numbers = [];
+elseif strcmpi(params.templates2run,'all')
+    [qmllist,result] = readtext(inputs.quakeMLfileList,',','#');
+    template_numbers = cell2mat(qmllist(:,1));
+else
+    template_numbers = params.templates2run;
+end
+
+if isempty(template_numbers)
+    return
+end
+%%
 %First template, to initialize results matrix
 first_template=template_numbers(1);
 template_to_test=first_template;
@@ -33,6 +48,7 @@ minChan = params.minChan;
 %Lines below to line 100 initialize the results matrix.
 FID_results_1 = fopen(filename_1);
 if FID_results_1 == -1
+    disp(filename_1)
     error(['Unable to open variable file '])
 end
 cross_corr_var_1 = textscan(FID_results_1, '%s', 'delimiter', '\n');
