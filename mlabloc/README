@@ -1,0 +1,4 @@
+this is a work in progress, but is fairly stable
+it takes in a quakeml file from swarm and locates the event using the picks
+
+dependencies: SEP software installed in /opt/

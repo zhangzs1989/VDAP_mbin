@@ -91,7 +91,7 @@ for l = 1:length(qmllist)
 
 end
 %% Now do NMF
-runNMF(inputs,params,NMFeventFile,NMFoutFile,template_numbers)
+runNMF(inputs,params,NMFeventFile,NMFoutFile)
 %% Now combine all matches for all templates into one catalog removing repeats
 combineCatalogs(params,inputs)
 %%
