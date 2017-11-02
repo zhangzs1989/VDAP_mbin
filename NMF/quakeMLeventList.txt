@@ -1,0 +1,3 @@
+#EVENTID,QUAKEML_FILE
+1,/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/Swarm2.8.1-SNAPSHOT_QuakeML_jpesicek_1509403573358.xml
+2,/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/Swarm2.8.1_QuakeML_jpesicek_1509568222956.xml
