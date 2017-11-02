@@ -31,8 +31,8 @@ if exist(InputFileName,'file')
     end
     
 else
+    disp(InputFileName)
     error('input file does not exist')
-    
 end
 
 end
