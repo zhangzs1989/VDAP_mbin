@@ -1,12 +1,16 @@
 % this text file is read into matlab and the variables are created
-% NOTE: it does not handle spaces in "=" assignments yet
-input.summit=[115.508,-8.343,2995];
-input.stations='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/stations/LatLonAgung9.config';
-input.velFile='/Users/jpesicek/Dropbox/sw/swarm-2.8.1-SNAPSHOT/DefaultVelocityModel.txt'; %okmok
-input.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/quakeMLpicks/quakeMLeventList.txt';
-input.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/mlabloc/eventLocations';
+inputs.summit = [115.508,-8.343,2995];
+inputs.str = 'Agung';
+inputs.stations= '/Users/jpesicek/Dropbox/VDAP/Responses/Agung/stations/LatLonAgung9.config';
+inputs.velFile='/Users/jpesicek/Dropbox/sw/swarm-2.8.1-SNAPSHOT/DefaultVelocityModel.txt'; %okmok
+inputs.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/quakeMLpicks/quakeMLeventList.txt';
+inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/fromWMnov7';
 %
 params.sint=3000; % grid search interval in meters
 params.maxDepth=20; % km
 params.minDepth=-1.5;
-params.maxRadius=30;
+params.maxRadius=45;
+params.coasts = true;
+params.wingPlot = true;
+params.topo = true;
+params.visible = 'on';

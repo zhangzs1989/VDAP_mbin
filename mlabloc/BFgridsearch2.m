@@ -79,8 +79,8 @@ F=figure('visible','on');
 hold on, box on, grid on
 slice(x,y,-z,m,xslice,yslice,-zslice);
 plot3(xn1,yn1,-zn1,'ko','markersize',20,'MarkerFaceColor','m','MarkerEdgeColor','w')
-% colormap(flipud(jet))
-colormap((jet))
+colormap(flipud(jet))
+% colormap((jet))
 c=colorbar;
 c.Label.String = 'Misfit (seconds)';
 view(3)

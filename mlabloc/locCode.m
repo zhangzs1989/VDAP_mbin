@@ -53,7 +53,7 @@ for l = 1:length(qmllist)
     
     %% plot
     plot3(sta_zxy(I,2)*1000,sta_zxy(I,3)*1000,-sta_zxy(I,1)*1000,'kv','MarkerFaceColor','w','MarkerEdgeColor','k','MarkerSize',8); hold on;grid on;
-    text(sta_zxy(I,2)*1000+tOff,sta_zxy(I,3)*1000+tOff,-sta_zxy(I,1)*1000+tOff,sname(I),'BackgroundColor','w')
+    text(sta_zxy(I,2)*1000+tOff,sta_zxy(I,3)*1000+tOff,-sta_zxy(I,1)*1000+tOff,sname(I),'BackgroundColor','none')
     plot3(v_zxy(:,2)*1000,v_zxy(:,3)*1000,-v_zxy(:,1)*1000,'w^','MarkerFaceColor','k','MarkerSize',20); hold on;grid on;
     view(2)
     title([datestr(OTn,'yyyymmdd HH:MM:SS.FFF'),', Misfit: ',num2str(omisfit(1),'%3.2f'),' (s)'])
@@ -70,6 +70,33 @@ for l = 1:length(qmllist)
     outname = [inputs.outDir,'/',figname,'.txt'];
     s6_cellwrite(outname,{output})
     
+    %% catalog
+    catalog(l).Latitude = nlat;
+    catalog(l).Longitude = nlon;
+    catalog(l).Depth = xyzn(3)/1000;
+    catalog(l).Misfit = omisfit;
+    catalog(l).DateTime = datestr(OTn);
+    catalog(l).Magnitude = [];
 end
+%% plot
+if params.wingPlot
+
+    [ outer_ann, inner_ann ] = getAnnulusm( inputs.summit(2), inputs.summit(1), params.maxRadius);
+    [vinfo] = getVolcanoInfoFromNameOrNum(inputs.str);
+    mapdata = prep4WingPlot(vinfo,params,inputs,outer_ann,inner_ann);
+    mapdata.sta_lat = lonlatdep(:,2);
+    mapdata.sta_lon = lonlatdep(:,1);
+    mapdata.sta_elev = lonlatdep(:,3);
+    t1a = min(datenum(extractfield(catalog,'DateTime')));
+    t2a = max(datenum(extractfield(catalog,'DateTime')));
+    params.DepthRange = [params.minDepth params.maxDepth];
+%     [ catalog2, ~, ~ ] = filterAnnulusm( catalog, inputs.summit(2), inputs.summit(1), params.maxRadius);
+    fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
+    print(fh_wingplot,'-dpng',[inputs.outDir,'/catalog.png'])
+    out2 = struct2table(catalog);
+    writetable(out2,fullfile(inputs.outDir,'catalog.csv'))
+%     close(fh_wingplot)
+end
+%%
 toc
 diary OFF
