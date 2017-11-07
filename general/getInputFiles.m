@@ -1,4 +1,4 @@
-function [input,params] = getInputFiles(InputFileName)
+function [inputs,params] = getInputFiles(InputFileName)
 
 %{
 this function reads a text file where parameters are defined using matlab
@@ -7,10 +7,8 @@ inputs structure variables for use in other functions
 
 J.PESICEK, 2017
 %}
-
-%% BE aware that currently this may not allow spaces in param defs in txt file (TODO)
-
-input = [];
+%%
+inputs = [];
 params = [];
 
 if exist(InputFileName,'file')
