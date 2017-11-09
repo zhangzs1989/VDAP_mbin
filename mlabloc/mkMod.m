@@ -3,9 +3,9 @@ function [sta_zxy, lonlatdep, sname, v_zxy, mstruct] =  mkMod(inputFile)
 
 [inputs,params] = getInputFiles(inputFile);
 
-xgrid=params.sint;
-ygrid=params.sint;
-zgrid=params.sint;
+xgrid=params.sint*1000;
+ygrid=params.sint*1000;
+zgrid=params.sint*1000;
 % vopt = 'gradient'; % homo or gradient
 % inputs.velFile='/opt/swarm-2.8.0/OkmokVelocityModel.txt';
 % inputs.summit = [115.508,-8.343,2995];

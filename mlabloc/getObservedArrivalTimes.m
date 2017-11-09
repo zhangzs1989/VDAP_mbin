@@ -25,7 +25,11 @@ function [ObsArrivalTimes,I] = getObservedArrivalTimes(quakeMLfile,stationNames)
     atObsP = extractfield(picksP,'dn')';
     Psta = extractfield(picksP,'sta')';
     [~,~,IBp] = intersect(Psta,stationNames);
-    picksP0(IBp) = atObsP;
+    try
+        picksP0(IBp) = atObsP;
+    catch
+        error('FATAL: missing station in station file?')
+    end
 
     disp([int2str(length(pi)),' P picks read in'])
     disp(stationNames(IBp)')    
@@ -35,7 +39,11 @@ function [ObsArrivalTimes,I] = getObservedArrivalTimes(quakeMLfile,stationNames)
         atObsS = extractfield(picksS,'dn')';
         Ssta = extractfield(picksS,'sta')';
         [~,~,IBs] = intersect(Ssta,stationNames);
-        picksS0(IBs) = atObsS;
+        try
+            picksS0(IBs) = atObsS;
+        catch
+            error('FATAL: missing station in station file?')
+        end
         disp(stationNames(IBs)')
     else
         IBs = [];

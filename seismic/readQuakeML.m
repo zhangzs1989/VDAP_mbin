@@ -27,15 +27,13 @@ for i=1:numpicks
     pick(i).dn    = datenum(pick(i).time,'yyyy-mm-ddTHH:MM:SS.FFFZ');
     pick(i).chan = picks.pick{1,i}.waveformID.Attributes.channelCode;
     pick(i).net = picks.pick{1,i}.waveformID.Attributes.networkCode;
-    pick(i).loc = picks.pick{1,i}.waveformID.Attributes.locationCode;
+    try
+        pick(i).loc = picks.pick{1,i}.waveformID.Attributes.locationCode;
+    catch
+        warning('No location code provided, using default')
+        pick(i).loc = '--';
+    end
 
 end
-
-% if numel(pick) ~= npha
-%     ip = (strcmp(extractfield(pick,'phase'),'P'));
-%     is = (strcmp(extractfield(pick,'phase'),'S'));
-%     
-%     
-% end
 
 picks = pick;
