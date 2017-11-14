@@ -1,4 +1,5 @@
 this is a work in progress, but is fairly stable
-it takes in a quakeml file from swarm and locates the event using the picks
+it takes in a list of quakeml files from swarm and locates the events using the picks and an exhaustive grid search, 
+then outputs a catalog and various other QC files.
 
-dependencies: SEP software installed in /opt/
+dependencies: SEP software installed in /opt/, parallel processing toolbox, mapping toolbox, maybe others...
