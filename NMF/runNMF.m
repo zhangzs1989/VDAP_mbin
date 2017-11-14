@@ -140,17 +140,7 @@ function runNMF(inputs,params,NMFeventFile,NMFoutFile)
 % Rob Skoumal, skoumarj@miamioh.edu, 9/17/13
 % =========================================================================
 % clear %JP
-
-if ~isfield(params,'templates2run')
-    template_numbers = [];    
-elseif strcmpi(params.templates2run,'none')
-    template_numbers = [];
-elseif strcmpi(params.templates2run,'all')
-    [qmllist,result] = readtext(inputs.quakeMLfileList,',','#');
-    template_numbers = cell2mat(qmllist(:,1));
-else
-    template_numbers = params.templates2run;
-end
+template_numbers = getTemplateNums(params,inputs);
 
 if isempty(template_numbers)
     return
@@ -320,7 +310,7 @@ end
 %% Reading Template Times File
 
 % Creates the file ID for the times text file.
-FID_times = fopen(template_times_name);
+FID_times = fopen(template_times_name,'r');
 
 % Makes sure the time text file can be opened.
 if FID_times == -1
@@ -391,7 +381,7 @@ for i=1:length(line_numbers)
         end
     end
     
-    FID_output=fopen(times_name_output2,'w');
+    FID_output=fopen(fullfile(outDir,times_name_output2),'w');
     %fprintf(FID_output,'MADCOEFF %d ; START %c ; END %c ; BANDPASS %d-%d ; DOWNSAMPLE %d ; STATIONS: ', mad_coeff, ...
     %    temp_start_date, temp_end_date, bandpass_filter(1), bandpass_filter(2),new_sample_rate);
     %fprintf(FID_output,'%s %s %s, ',station{1:3,line_numbers{i}(1:end-1)});

@@ -152,7 +152,7 @@ for sta=1:nsta
     % NOTE: if this below doesn't work it's b/c your template didn't find
     % itself! check your times
     for i=sort(unique(template_matched))
-        temp_ind = find(match_time_keep==templtime);
+        temp_ind = find(match_time_keep==templtime(i));
         [temp_ccc_max,temp_ccc_max_ind]=max(ccc(temp_ind));
         match_time_best(i)=match_time(temp_ind(temp_ccc_max_ind));
         Ml_best_ind(i)=Ml(temp_ind(temp_ccc_max_ind));

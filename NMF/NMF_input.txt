@@ -1,29 +1,28 @@
 % inputs for NMF
 % this text file is read into matlab and the variables are created
-% NOTE: it does not handle spaces in "=" assignments all the time (TODO)
 %
-input.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/quakeMLeventList.txt';
-input.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/out';
-input.stations='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/stations/LatLonAgung9.config';
-input.ds=datasource('winston','74.95.35.218',16024);
+inputs.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/quakeMLeventList.txt';
+inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/LFs';
+inputs.stations='/Users/jpesicek/Dropbox/sw/swarm-2.8.2/LatLonAgung.config';
+inputs.ds=datasource('winston','130.118.152.130',16022);
 %%
 params.strRunName='Agung';
-params.startDate=datenum(2017,10,20); % start search here
-params.stopDate=datenum(2017,10,30); % stop search here
+params.startDate=datenum(2017,08,01); % start search here
+params.stopDate=datenum(2017,11,11); % stop search here
 params.flo=1;
 params.fhi=10;
-params.templateLen=20; % seconds
-params.offsetsTF = false; %Use pick delay times to define template else choose earliest P pick
+params.templateLen=25; % seconds
+params.offsetsTF = false; %Use pick delay times to define template, else choose earliest P pick
 params.newSampleRate = 40;
-params.vis= 'on';
-params.templates2run = 'all'; % 'all','none', or [list of IDs] accetable options
+params.vis= 'off';
+params.templates2run = [2]; % 'all','none', or [list of IDs] accetable options
 params.MAD = 12;
 params.downloadChunkLen = 86400; % in seconds; 1 day = 86400
 params.mkfigs = true;
 params.debug = false;
 params.qcCCC = 1.25; % CCC threshold for making match figures
 params.stdcut = 0.35; % % std of channels data allowed else throw out
-params.templSearchWindow = [-60 60]; % only search this many days before and after any given template
+params.templSearchWindow = [-90 90]; % only search this many days before and after any given template
 params.OTdiff = 3; % remove matches within this many seconds of eachother
 params.min_threshold = 1.2;
 params.minChan = 1; %cull results based on min channel count of match

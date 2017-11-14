@@ -42,7 +42,7 @@ for l = 1:length(qmllist)
     t2=templtime+datenum(0,0,0,0,0,params.templateLen);
     fprintf(fid3,'%s %2.1f\n',datestr(t1,'yyyy-mm-ddTHH:MM:SSZ'),mags);
     disp([datestr(t1,'yyyymmddHHMMSS.FFF'),' '])
-
+    
     ct = 0;
     for m = 1:numel(picks)
         scnl = scnlobject(picks(m).sta,picks(m).chan,picks(m).net,picks(m).loc);
@@ -71,11 +71,11 @@ for l = 1:length(qmllist)
             datas3(count,1:params.templateLen*sr) = bandpass(wd,params.flo,params.fhi,1/sr,3);
             
             plot(1:length(datas3(count,:)),datas3(count,:)./max(datas3(count,:))+count*2,'b')
-            text(length(datas3(count,:))-20,count*2,wstr,'color','k','BackgroundColor','w','interpreter','none','fontsize',9)
-%             text(0,count*2,num2str(maxcorrs(count,each_match),'%.2f'),'BackgroundColor','w'); % currently showing max for day, not match. Should update
+            text(length(datas3(count,:))-20,count*2,wstr,'color','k','BackgroundColor','w','interpreter','none','fontsize',9,'EdgeColor','k')
+            %             text(0,count*2,num2str(maxcorrs(count,each_match),'%.2f'),'BackgroundColor','w'); % currently showing max for day, not match. Should update
             count = count+1;
         end
-        text(length(datas3(count-1,:))-150,1,['bandpass = ',num2str(params.flo),' to ',num2str(params.fhi)]) %std of day maxes, not match.  Should update
+        text(length(datas3(count-1,:))-150,1,['bandpass = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
         title(['{\color{blue}Template ',int2str(l),'@',datestr(t1,'mm/dd/yyyy HH:MM:SS'),'}']) %,',} {\color{red}Match ',int2str(good_matches_ct),'@',datestr(to_output(each_match),'mm/dd/yyyy HH:MM:SS'),'}, CCC: ',num2str(output_data(each_match,1),'%3.1f')])
         xlabel('sample since template start')
         set(gca,'YTickLabel',[])
@@ -88,14 +88,19 @@ for l = 1:length(qmllist)
     catch
         warning('Not able to make figure')
     end
-
+    
 end
-%% Now do NMF
-runNMF(inputs,params,NMFeventFile,NMFoutFile)
-%% Now combine all matches for all templates into one catalog removing repeats
-combineMatches(params,inputs)
-%%
-plotNMFresults(inputs,params)
-%%
+
+template_numbers = getTemplateNums(params,inputs);
+if ~isempty(template_numbers)
+    
+    %% Now do NMF
+    runNMF(inputs,params,NMFeventFile,NMFoutFile)
+    %% Now combine all matches for all templates into one catalog removing repeats
+    combineMatches(params,inputs)
+    %%
+    plotNMFresults(inputs,params)
+    %%
+end
 toc
 diary OFF

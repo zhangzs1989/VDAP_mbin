@@ -4,7 +4,7 @@ function combineMatches(params,inputs)
 %%%Individual matches cannot be within within_seconds, or they are treated
 %%%as the same match, and only the best (by correlation value)one is kept.
 %%% sourced from S. Holtkamp
-%%% some modifications by J. Pesicek
+%%% some modifications by J. Pesicek  NOTE: THIS NEEDS WORK!!
 
 warning('ON','all')
 
@@ -30,8 +30,8 @@ within_seconds=params.OTdiff;
 region=params.strRunName; % NOTE
 outdir=[inputs.outDir,filesep,'NMF'];
 outfile=fullfile(outdir,[region,'_NMFcatalog.txt']);
-filename_1=[outdir,'/',region,'_NMFoutFile_templ1.txt']; % NOTE
-filename_2=[outdir,'/',region,'_NMFoutFile_templ1.txt']; % NOTE
+filename_1=[outdir,'/',region,'_NMFoutFile_templ',int2str(first_template),'.txt']; % NOTE
+filename_2=[outdir,'/',region,'_NMFoutFile_templ',int2str(first_template),'.txt']; % NOTE
 template_range = template_numbers; % NOTE
 
 %%Two ways to cull results below: daily MAD, or constant min_threshold
@@ -165,7 +165,7 @@ fclose(fid);
 % {
 %%%%%%%%%%Every Other Template. You can skip bad templates here. 
 %%%NOTE: JP not updated!!
-for template_to_test=template_range;%NOTE!!!!!
+for template_to_test=[template_range(2:end)'];%NOTE!!!!!
     try
         file_to_write=outfile;
         
@@ -180,15 +180,19 @@ for template_to_test=template_range;%NOTE!!!!!
         ccc_1=[];
         count=0;
         for each_line_1=1:1:length(cross_corr_var_1{1})
-            line_1=textscan(char(cross_corr_var_1{1}(each_line_1)),'%f %f %f');
+            line_1=textscan(char(cross_corr_var_1{1}(each_line_1)),'%f %f %f %d');
+%             line_1=textscan(char(cross_corr_var_1{1}(each_line_1)),'%s %s %f %f %d %f', 'delimiter', ' ');
 
 
             count=count+1;
             match_time_1(count)=line_1{1};
-            ccc_1(count)=line_1{2};
+%             match_time_1(count)=datenum([char(line_1{1}) ' ' char(line_1{2})]);
+
+            ccc_1(count)=line_1{2};%JP
+            stc_1(count)=double(line_1{4});%JP
             first_template(count)=line_1{3};
         end
-        FID_results_2 = fopen([outdir,'/EQresults_' region '_templ' num2str(template_to_test) '.txt']);
+        FID_results_2 = fopen([outdir,filesep,region,'_NMFoutFile_templ' num2str(template_to_test) '.txt'],'r');
         if FID_results_2 == -1
             error(['Unable to open variable file '])
         end
@@ -197,18 +201,38 @@ for template_to_test=template_range;%NOTE!!!!!
         match_time_2=[];
         ccc_2=[];
         count=0;
+        cullMAD=0;%JP
+        cullCCC=0;%JP
+        cullChan=0;%JP
         for each_line_2=1:1:length(cross_corr_var_2{1})
             line_2=textscan(char(cross_corr_var_2{1}(each_line_2)),'%s %s %f %f %d %f', 'delimiter', ' ');
-            if(line_2{3}<line_2{4}*threshold)
+%             if(line_2{3}<line_2{4}*threshold)
+%                 continue
+%             end
+%             
+%             if((line_2{3}<min_threshold))
+%                 continue
+%             end
+%             
+            if((line_2{3}<line_2{4}*threshold))
+                cullMAD = cullMAD + 1;
+                continue
+            end
+            if((line_2{3}<min_threshold))
+                cullCCC = cullCCC + 1;
                 continue
             end
             
-            if((line_2{3}<min_threshold))
+            if((line_2{5}<minChan))%JP
+                cullChan = cullChan + 1;
                 continue
             end
+            
             count=count+1;
             match_time_2(count)=datenum([char(line_2{1}) ' ' char(line_2{2})]);
             ccc_2(count)=line_2{3};
+            stc_2(count)=double(line_2{5});%JP
+
         end
         
         
@@ -217,7 +241,8 @@ for template_to_test=template_range;%NOTE!!!!!
         %combine the catalogs
         for i=1:1:length(match_time_2)
             if(~sum(find(abs((match_time_2(i)-match_time_1)*86400)<within_seconds)))
-                new_matches(i,:)=[match_time_2(i), ccc_2(i), template_to_test];
+%                 new_matches(i,:)=[match_time_2(i), ccc_2(i), template_to_test];
+                new_matches(i,:)=[match_time_2(i), ccc_2(i), template_to_test, stc_2(i)];
             else
                 first_file_id=find(abs((match_time_2(i)-match_time_1)*86400)<within_seconds);
                 if(length(first_file_id)>1)
@@ -229,24 +254,28 @@ for template_to_test=template_range;%NOTE!!!!!
                 switch_on_this=ccc_1(first_file_id)>ccc_2(i);
                 switch switch_on_this
                     case 1
-                        new_matches(i,:)=[match_time_1(first_file_id), ccc_1(first_file_id), first_template(first_file_id)];
-                    case 0
+%                         new_matches(i,:)=[match_time_1(first_file_id), ccc_1(first_file_id), first_template(first_file_id)];
+                        new_matches(i,:)=[match_time_1(first_file_id), ccc_1(first_file_id), first_template, stc_1(first_file_id)];
+                   case 0
                         
-                        new_matches(i,:)=[match_time_2(i), ccc_2(i), template_to_test];
+%                         new_matches(i,:)=[match_time_2(i), ccc_2(i), template_to_test];
+                        new_matches(i,:)=[match_time_2(i), ccc_2(i), template_to_test, stc_2(i)];
                 end
             end
         end
         possible_ids=1:1:length(match_time_1);
         orig_ids=find(~ismember(possible_ids,ids));
         %new_matches
-        tmp=sortrows([new_matches;[match_time_1(orig_ids)', ccc_1(orig_ids)', first_template(orig_ids)']]);
+        tmp=sortrows([new_matches;[match_time_1(orig_ids)', ccc_1(orig_ids)', first_template(orig_ids)', stc_1(orig_ids)']]);
+%         tmp=sortrows([new_matches;[match_time_1(orig_ids)', ccc_1(orig_ids)', first_template*ones(length(orig_ids),1), stc_1(orig_ids)']]);
         [vals unique_ids]=unique(tmp(:,1));
         new_matches=tmp(unique_ids,:);
         fid = fopen(file_to_write, 'w');
         fclose(fid);
         
         fid = fopen(file_to_write, 'a');
-        fprintf(fid, '%6.11f %2.2f %3i\n', new_matches'); %
+%         fprintf(fid, '%6.11f %2.2f %3i\n', new_matches'); %
+        fprintf(fid, '%6.11f %2.2f %3i %d\n', new_matches'); %
         fclose(fid);
     catch exception
 %         rethrow(exception)
