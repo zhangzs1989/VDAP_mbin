@@ -109,9 +109,12 @@ for l = 1:length(qmllist)
     catalog(l).ID = quakeMLfile;
     catalog(l).npicks = npicks;
     catalog(l).nsta = nsta;
-    %TODO:
-%     catalog(l).minDist = 
-%     catalog(l).gap =
+    
+    ARCLEN = distance(lonlatdep(:,2),lonlatdep(:,1),nlat,nlon);
+    il = ARCLEN==min(ARCLEN);
+    catalog(l).minDist = deg2km(ARCLEN(il));
+%     catalog(l).gap = computeMaxStationGap(nlat,nlon,lonlatdep(:,2),lonlatdep(:,1));
+%     
 %     catalog(l).xerr
 %     catalog(l).yerr
 %     catalog(l).zerr
@@ -121,7 +124,24 @@ for l = 1:length(qmllist)
         
 end
 %% TODO: function for reading back in output results and computing catalog stats here...
-D = dir2(inputs.outDir,'*.txt');
+D = dir2(inputs.outDir,'Swarm*.txt');
+for l=1:numel(D)
+    [data,result]=readtext(fullfile(inputs.outDir,D(l).name),' ');
+    catalog2(l).Latitude = data{2};
+    catalog2(l).Longitude = data{3};
+    catalog2(l).Depth = data{4};
+    catalog2(l).Misfit = data{5};
+    catalog2(l).DateTime = datenum(data{1},'yyyymmddTHHMMSS.FFF');
+    catalog2(l).Magnitude = [];    
+    catalog2(l).ID = D(l).name;
+    
+    ARCLEN = distance(lonlatdep(:,2),lonlatdep(:,1),catalog2(l).Latitude,catalog2(l).Longitude);
+    il = ARCLEN==min(ARCLEN);
+    catalog2(l).minDist = deg2km(ARCLEN(il));
+%     catalog2(l).gap = computeMaxStationGap(catalog2(l).Latitude,catalog2(l).Longitude,lonlatdep(:,2),lonlatdep(:,1));
+    
+end
+catalog=catalog2;
 %% plot
 if params.wingPlot
     
