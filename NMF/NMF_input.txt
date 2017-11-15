@@ -1,12 +1,12 @@
 % inputs for NMF
 % this text file is read into matlab and the variables are created
-%
+%%
 inputs.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/quakeMLeventList.txt';
 inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/LFs';
 inputs.stations='/Users/jpesicek/Dropbox/sw/swarm-2.8.2/LatLonAgung.config';
 inputs.ds=datasource('winston','130.118.152.130',16022);
 %%
-params.strRunName='Agung';
+params.strRunName='Agung'; % string descriptor, use GVP volcano name
 params.startDate=datenum(2017,08,01); % start search here
 params.stopDate=datenum(2017,11,11); % stop search here
 params.flo=1;
@@ -16,13 +16,13 @@ params.offsetsTF = false; %Use pick delay times to define template, else choose 
 params.newSampleRate = 40;
 params.vis= 'off';
 params.templates2run = [2]; % 'all','none', or [list of IDs] accetable options
-params.MAD = 12;
-params.downloadChunkLen = 86400; % in seconds; 1 day = 86400
+params.MAD = 12; %MedianAbsoluteDeviation - I don't really change this much
+params.downloadChunkLen = 86400; % in seconds; 1 day = 86400, I've never changed this.
 params.mkfigs = true;
 params.debug = false;
 params.qcCCC = 1.25; % CCC threshold for making match figures
 params.stdcut = 0.35; % % std of channels data allowed else throw out
 params.templSearchWindow = [-90 90]; % only search this many days before and after any given template
 params.OTdiff = 3; % remove matches within this many seconds of eachother
-params.min_threshold = 1.2;
+params.min_threshold = 1.2; %cull lower quality events
 params.minChan = 1; %cull results based on min channel count of match
