@@ -1,4 +1,4 @@
-function [NMFeventFile, NMFoutFile, template_numbers]=getTemplates(inputs,params)
+function [NMFeventFile,template_numbers]=getTemplates(inputs,params)
 
 QCdir=[inputs.outDir,filesep,'templates'];
 [~,~,~] = mkdir(QCdir);
@@ -8,9 +8,8 @@ QCdir=[inputs.outDir,filesep,'templates'];
 
 NMFeventFile=[QCdir,filesep,params.strRunName,'_NMFtemplateFile.txt'];
 NEICeventFile=[QCdir,filesep,params.strRunName,'_OTs_NEICformat.txt'];
-NMFoutFile =[inputs.outDir,filesep,'NMF',params.strRunName,'_NMFoutFile.txt'];
 
-f=filterobject('B',[params.flo params.fhi],3);
+% f=filterobject('B',[params.flo params.fhi],3);
 preTime = 0; %start template this many secs before template time
 sr = params.newSampleRate;
 fid2=fopen(NMFeventFile,'w');
@@ -66,11 +65,10 @@ for l = 1:length(qmllist)
             
             plot(1:length(datas3(count,:)),datas3(count,:)./max(datas3(count,:))+count*2,'b')
             text(length(datas3(count,:))-20,count*2,wstr,'color','k','BackgroundColor','w','interpreter','none','fontsize',9,'EdgeColor','k')
-            %             text(0,count*2,num2str(maxcorrs(count,each_match),'%.2f'),'BackgroundColor','w'); % currently showing max for day, not match. Should update
             count = count+1;
         end
-        text(length(datas3(count-1,:))-150,1,['bandpass = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
-        title(['{\color{blue}Template ',int2str(l),'@',datestr(t1,'mm/dd/yyyy HH:MM:SS'),'}']) %,',} {\color{red}Match ',int2str(good_matches_ct),'@',datestr(to_output(each_match),'mm/dd/yyyy HH:MM:SS'),'}, CCC: ',num2str(output_data(each_match,1),'%3.1f')])
+        text(length(datas3(count-1,:))-150,1,['BP = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
+        title(['{\color{blue}Template ',int2str(l),'@',datestr(t1,'mm/dd/yyyy HH:MM:SS'),'}'])
         xlabel('sample since template start')
         set(gca,'YTickLabel',[])
         set(gca,'YTick',[])

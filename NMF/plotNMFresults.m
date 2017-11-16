@@ -65,20 +65,18 @@ for sta=1:nsta
     count=0;
     for each_line=1:1:length(Combined_Results_lines{1})
         try
-            line=textscan(char(Combined_Results_lines{1}(each_line)),'%f %f %d %d');
-            mtime(each_line) = line{1};
-            stc(each_line) = line{4};
+            line=textscan(char(Combined_Results_lines{1}(each_line)),'%s %s %f %f %d %d %f');
             % NOTE: If you only want to plot higher threshold matches
-            if(line{2}<plotThres)
+            if(line{3}<plotThres)
                 continue
             end
             count=count+1;
             
-            match_time(count)=line{1};
-            ccc(count)=line{2};
-            template_matched(count)=line{3};
-            stc(count)=line{4};
-            ncc(count)=double(line{2})/double(line{4});
+            match_time(count)=datenum([char(line{1}) ' ' char(line{2})]);
+            ccc(count)=line{3};
+            template_matched(count)=line{5};
+            stc(count)=line{6};
+            ncc(count)=double(line{3})/double(line{6});
             %Adjust timing in line below to grab waveforms over earthquake only
             % NOTE change these data gabbing routines to lines 377++ in
             % cross_corr_AK.m
@@ -99,11 +97,13 @@ for sta=1:nsta
     
     Mc=-1;
     %% JP add
+    tc = 0;
     for i=sort(unique(template_matched)) % templates
+        tc = tc+1;
         % get template mag
-        templcoli = strfind(char(templates(i)),' ');
-        templdata = char(templates(i));
-        templdata=textscan(char(templates(i)),'%s %s %s %s %s','delimiter',' ','MultipleDelimsAsOne',1);
+%         templcoli = strfind(char(templates(i)),' ');
+        templdata = char(templates(tc));
+        templdata=textscan(char(templates(tc)),'%s %s %s %s %s','delimiter',' ','MultipleDelimsAsOne',1);
         
         templmag(i) = str2double(templdata{2});
         templtime(i) = datenum(templdata{1},'yyyy-mm-ddTHH:MM:SSZ');
@@ -153,6 +153,16 @@ for sta=1:nsta
     % itself! check your times
     for i=sort(unique(template_matched))
         temp_ind = find(match_time_keep==templtime(i));
+        if isempty(temp_ind)
+            warning('cannot find self correlation')
+            minLag = min(abs(match_time_keep - templtime(i)));
+            temp_ind = find(abs(match_time_keep - templtime(i))==minLag);
+            et = etime(datevec(templtime(i)),datevec(match_time_keep(temp_ind)));
+            disp(['lag time (seconds) between template and closest match: ',num2str(et)])
+            if et > 1
+                error('FATAL: No self correlation found')
+            end
+        end
         [temp_ccc_max,temp_ccc_max_ind]=max(ccc(temp_ind));
         match_time_best(i)=match_time(temp_ind(temp_ccc_max_ind));
         Ml_best_ind(i)=Ml(temp_ind(temp_ccc_max_ind));
@@ -292,12 +302,12 @@ for i=1:length(match_time_keep)
 end
 cobj = Catalog('otime',otime,'ontime',ontime,'offtime',offtime);
 
-%% plot helicorders (this is slow, downsample?)
+%% plot helicorders (this is slow, downsample?). only using first station
 for day=startDate:endDate
     
     I = otime>day & otime<=day+1;
     if sum(I)>0
-        w=load_waveformObject_VDAP(ds,scnl,day,day+1,40);
+        w=load_waveformObject_VDAP(ds,scnl(1),day,day+1,40);
 %         w = waveform(ds,scnl,day,day+1);
         w = fillgaps(w, 'interp');
         w = detrend(w);

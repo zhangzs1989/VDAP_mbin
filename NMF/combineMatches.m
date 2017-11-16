@@ -4,7 +4,9 @@ function combineMatches(params,inputs)
 %%%Individual matches cannot be within within_seconds, or they are treated
 %%%as the same match, and only the best (by correlation value)one is kept.
 %%% sourced from S. Holtkamp
-%%% some modifications by J. Pesicek  NOTE: THIS NEEDS WORK!!
+%%% some modifications by J. Pesicek  NOTE: THIS NEEDS WORK!! I find it
+%%% overly complicated and obtuse. Needs a rewrite
+%%%TODO:propagate new match outputs through this code
 
 warning('ON','all')
 
@@ -131,7 +133,7 @@ disp(['removed by MAD  threshold: ',int2str(cullMAD)])
 disp(['removed by CCC  threshold: ',int2str(cullCCC)])
 disp(['removed by Chan threshold: ',int2str(cullChan)])
 disp(['remaining: ',int2str(length(cross_corr_var_2{1})-cullMAD-cullCCC-cullChan)])
-
+%JP: not sure why above is necessary??
 new_matches=[];
 ids=[];
 %combine the catalogs

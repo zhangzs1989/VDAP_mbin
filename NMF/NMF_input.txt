@@ -2,20 +2,20 @@
 % this text file is read into matlab and the variables are created
 %%
 inputs.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/NMF2/quakeMLeventList.txt';
-inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/LFs';
+inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/LFs/test';
 inputs.stations='/Users/jpesicek/Dropbox/sw/swarm-2.8.2/LatLonAgung.config';
 inputs.ds=datasource('winston','130.118.152.130',16022);
 %%
 params.strRunName='Agung'; % string descriptor, use GVP volcano name
-params.startDate=datenum(2017,08,01); % start search here
-params.stopDate=datenum(2017,11,11); % stop search here
+params.startDate=datenum(2017,10,20); % start search here
+params.stopDate=datenum(2017,11,10); % stop search here
 params.flo=1;
 params.fhi=10;
 params.templateLen=25; % seconds
 params.offsetsTF = false; %Use pick delay times to define template, else choose earliest P pick
 params.newSampleRate = 40;
 params.vis= 'off';
-params.templates2run = [2]; % 'all','none', or [list of IDs] accetable options
+params.templates2run = 'all'; % 'all','none', or [list of IDs] accetable options
 params.MAD = 12; %MedianAbsoluteDeviation - I don't really change this much
 params.downloadChunkLen = 86400; % in seconds; 1 day = 86400, I've never changed this.
 params.mkfigs = true;
