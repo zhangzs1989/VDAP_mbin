@@ -1,10 +1,9 @@
-function [NMFeventFile,template_numbers]=getTemplates(inputs,params)
+function [NMFeventFile, template_numbers] = getTemplates(inputs,params)
 
 QCdir=[inputs.outDir,filesep,'templates'];
 [~,~,~] = mkdir(QCdir);
 
-[qmllist,result] = readtext(inputs.quakeMLfileList,',','#');
-
+[template_numbers,qmllist] = getTemplateInfo(params,inputs);
 
 NMFeventFile=[QCdir,filesep,params.strRunName,'_NMFtemplateFile.txt'];
 NEICeventFile=[QCdir,filesep,params.strRunName,'_OTs_NEICformat.txt'];
@@ -16,17 +15,20 @@ fid2=fopen(NMFeventFile,'w');
 fid3=fopen(NEICeventFile,'w');
 mags = 2;
 
-template_numbers = getTemplateNums(params,inputs);
-
 %%
 for l = 1:length(qmllist)
     
-    quakeMLfile = char(qmllist(l,2));
-    quakeID = cell2mat(qmllist(l,1));
+    if size(qmllist,2)>1
+        quakeMLfile = char(qmllist(l,2));
+        quakeID = cell2mat(qmllist(l,1));
+    else
+        quakeMLfile = char(qmllist(l));
+        quakeID = l;
+    end
     disp(['EVENT# ',int2str(quakeID),', ',quakeMLfile])
     
     picks = readQuakeML(quakeMLfile);
-    if ~params.offsetsTF
+    if ~params.useLags
         templtime = min(extractfield(picks,'dn')); % template start time
     else
         error('TO DO: implement template delays')

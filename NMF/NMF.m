@@ -7,36 +7,16 @@ function NMF(inputs,params,NMFeventFile)
 % Contact Rob Skoumal (skoumarj@miamioh.edu) if you encounter any problems.
 %
 % MODIFIED BY STEPHEN HOLTKAMP STARTING:OCT-15-2013
-%
+% MODIFIED BY J. PESICEK STARTING: 2016
+
 % =========================================================================
-% This program reads from two text files: a "variable" file and a "data"
-% file. You can change default values read into this function by editing
-% the variable text file [times_name] (default: cross_corr_times.txt).
-% You can change the template times by editing the data text file
-% [var_name] (default: cross_corr_variables.txt).
 %
 % This code is intended to be used in a UNIX environment without the use of
 % the MATLAB GUI.
 %
 % =========================================================================
-% Input:
-%   var_name : name of text file listing the different inputs read into
-%              this function. Format described below. If not filename
-%              is provided, it will default to cross_corr_variables.txt.
 % =========================================================================
 % Formatting of var_name file:
-%
-% #Filename of Template Times *
-%   Name of .txt file that contains template start times. In this text file,
-%   follow the format: [template #] [year (YYYY)] [day (1-366)] [second]
-%   [network] [station] [location] [component], with one template per line.
-%
-% #Filename of Output File
-%   Name of .txt file that will be created to house matches found from the
-%   cross correlation procedure. The filename will be appended with
-%   '_temp#', where # is the number of the template selected. If this line
-%   is left blank, then the name of the inputted template time file will be
-%   used (along with the appended '_temp#' notation).
 %
 % #Template Number(s)
 %   The template number(s) from the template times file that are to be
@@ -81,40 +61,6 @@ function NMF(inputs,params,NMFeventFile)
 %    [temp #] [year] [day] [sec] [network] [station] [location] [component]
 %    ...
 % =========================================================================
-% Sample var_name file:
-% #Filename of template start times
-% cross_corr_times.txt
-%
-% #Filename of output file
-% output_file.txt
-%
-% #Template Number(s)
-% 1 2
-%
-% #Corr Start
-% 2008 100 0
-%
-% #Corr End
-% 2008 101 23
-%
-% #Template Length, sec
-% 6
-%
-% #Bandpass Filter, Hz
-% 2 10
-%
-% #MAD Coefficient
-% 7
-%
-% #Downsample Rate
-% 40
-% =========================================================================
-% Sample template time file:
-%   1 2008 100 60 PB B039 -- EH1
-%   1 2008 100 60 PB B039 -- EH2
-%   2 2008 100 605 PB B039 -- EH1
-%   2 2008 100 606 PB B039 -- EH2
-% =========================================================================
 % Needed files:
 %  -bandpass.m
 %  -datevec2doy.m
@@ -139,8 +85,7 @@ function NMF(inputs,params,NMFeventFile)
 % =========================================================================
 % Rob Skoumal, skoumarj@miamioh.edu, 9/17/13
 % =========================================================================
-% clear %JP
-template_numbers = getTemplateNums(params,inputs);
+[template_numbers,~ ] = getTemplateInfo(params,inputs); %JP
 
 if isempty(template_numbers)
     return
@@ -148,11 +93,9 @@ end
 
 % Length of download chunk from IRIS, in seconds. Hour = 3600 ; Day = 86400
 download_chunk_length = params.downloadChunkLen;
-% ds = datasource('winston','130.118.152.130',16022);
 ds = inputs.ds;
 
 mkfigs = params.mkfigs;
-% f=filterobject('L',[5],3);
 vis = params.vis;
 debug = params.debug;
 qcCCC = params.qcCCC; % only make figs with CCC > than
@@ -161,25 +104,8 @@ stdcut = params.stdcut; %JP: new fitler for bad data. large std means likely bad
 templSearchWindow = params.templSearchWindow; %JP: only search this many days before and after any given template
 
 %% Assigning default values
-% default_var_name='cross_corr_variables_Kasatochi_Eruption_1.txt';
-% default_var_name='agung_NMFvars.txt';
-
 default_mad_coeff=7;
 default_sample_rate=40;
-% database=1;
-
-%if nargin == 0
-% var_name=default_var_name;
-%end
-
-% if ~isequal(var_name(end-3:end),'.txt')
-%     var_name=[var_name '.txt'];
-% end
-
-% Lets the program see the functions folder.
-% addpath('functions')
-% addpath(genpath('~/mbin/HoltkampFunctions'));
-
 %%
 if isempty(gcp('nocreate'))
     try
@@ -268,11 +194,6 @@ if ~isempty(template_numbers) && ~all(template_numbers>=1)
     error('Template numbers must be an integer greater or equal to 1.')
 end
 
-% Error catches for start/end correlation time
-%{
-
-%}
-
 % The starting and ending times day are assigned.
 start_date=temp_start_date;%datenum([sscanf(cross_corr_var{11},'%c') ':00:00']);
 end_date=temp_end_date; %datenum([sscanf(cross_corr_var{14},'%c') ':00:00']);
@@ -307,7 +228,6 @@ if isempty(mad_coeff)
     display(['No MAD coefficient provided. Using: ' num2str(default_mad_coeff)])
     mad_coeff=default_mad_coeff;
 end
-
 
 %% Reading Template Times File
 
@@ -353,12 +273,6 @@ end
 % Finds the number of hours that will be correlated over
 num_hours=length(start_date:datenum(0,0,0,1,0,0):end_date);
 
-% Lets the function see the files in the normxcorr folder.
-% addpath('functions/normxcorr');
-% % Lets the function see the files in the median folder.
-% addpath('functions/median');
-
-
 % fprintf(', from %s to %s\n', datestr(temp_start_date), datestr(temp_end_date))
 
 % Estimates the run time of the correlations, assuming 1 hour takes XX sec
@@ -393,15 +307,8 @@ for i=1:length(line_numbers)
     templates=zeros(length(line_numbers{i}),new_sample_rate*template_length);
     template_time=zeros(length(line_numbers{i}),1);
     
-    %     parfor j=[line_numbers{i}']
+    %NOTE: PARFOR     parfor j=[line_numbers{i}']
     parfor j=[line_numbers{i}']
-        
-        %        line_num=line_numbers{i}(j);
-        %         template_year=(cross_corr_times(line_num,2));
-        %         template_day=(cross_corr_times(line_num,3));
-        %         template_sec=(cross_corr_times(line_num,4));
-        
-        %         template_time(j,1)=datenum(template_year,0,template_day,0,0,template_sec);
         
         template_time(j,1) = datenum([char(temp_read_in{2}(j)) ' ' char(temp_read_in{3}(j))]);
         scnl=scnlobject(station{2,j},station{3,j},station{1,j},station{4,j});
@@ -442,10 +349,6 @@ for i=1:length(line_numbers)
     % Converts the lag into number of samples
     lag{i,1}=(s_temp+m_temp*60+h_temp*360)*new_sample_rate;
     
-    
-    %clear template_time min_i
-    
-    
     data_length=download_chunk_length*new_sample_rate;
     day_of_time=1/new_sample_rate:1/new_sample_rate:download_chunk_length;
     template_times=1/new_sample_rate:1/new_sample_rate:template_length;
@@ -456,23 +359,16 @@ for i=1:length(line_numbers)
     end
     
     %% JP: only search templSearchWindow days before and after a specific
-    %template
     tSW1 = floor(template_time(line_numbers{i}(1))+templSearchWindow(1));
     tSW2 = ceil(template_time(line_numbers{i}(1))+templSearchWindow(2));
-    if start_date<tSW1
-        start_date1=tSW1;
-    else
-        start_date1=start_date;
-    end
-    if end_date>tSW2
-        end_date1=tSW2;
-    else
-        end_date1=end_date;
-    end
+    start_date1=start_date;
+    end_date1=end_date;
+    if start_date<tSW1;start_date1=tSW1;end
+    if end_date  >tSW2;  end_date1=tSW2;end
     disp(['   scan from ',datestr(start_date1),' to ',datestr(end_date1)])
     %%
     for time=start_date1:datenum(0,0,0,0,0,download_chunk_length):end_date1
-        %     for time = datenum('2014-06-26 22:11:36.630','yyyy-mm-dd HH:MM:SS.FFF')
+        
         display(datestr(time))
         
         % Pre-allocates the space needed for the correlation values.
@@ -481,8 +377,7 @@ for i=1:length(line_numbers)
         corrs=zeros(numel(lineNums),download_chunk_length*new_sample_rate);
         
         try
-            %tic
-            %             parfor j=[line_numbers{i}']
+            %NOTE: PARFOR
             parfor j=1:numel(lineNums)
                 
                 scnl=scnlobject(station{2,lineNums(j)},station{3,lineNums(j)},station{1,lineNums(j)},station{4,lineNums(j)});
@@ -494,7 +389,6 @@ for i=1:length(line_numbers)
                         data = fix_data_length(data,new_sample_rate*download_chunk_length); %JP add to fix parfor assignment error
                         data=get(data,'DATA');
                         
-                        %disp(num2str(length(data)))
                         %download_data(time,download_chunk_length,new_sample_rate,station{1,line_numbers{i}(j)},station{2,line_numbers{i}(j)},station{4,line_numbers{i}(j)},station{3,line_numbers{i}(j)});
                         data(isnan(data))=0;
                         %                     data(find(data>1000000))=1000000;
@@ -509,7 +403,6 @@ for i=1:length(line_numbers)
                         
                     else
                         display(['No data found: ',get(scnl,'station'),' ',get(scnl,'channel')])
-                        %                         continue
                     end
                     
                 catch exception
@@ -517,18 +410,16 @@ for i=1:length(line_numbers)
                     error(['No data found: ',get(scnl,'station'),' ',get(scnl,'channel')])
                     %data_missing(ER,1:3)={station{1,line_numbers{i}(j)} , station{2,line_numbers{i}(j)} ,station{3,line_numbers{i}(j)}};
                     %data_missing{ER,4}=time;
-                    %                     continue  %%BUG FIND! parfor
-                    %                     doesn't like continue statements,
-                    %                     remove them
+                    %    continue  %%JP: BUG FIND! parfor doesn't like continue
+                    %    statements, remove them
                 end
                 
-                %try
                 % Correlates template with data
                 if ~isempty(data)
                     try
-                        %                     corr_1=normxcorr2_mex(templates(j,:), data'); %JP:
-                        %                     sometimes this has fewer false positives than
-                        %                     _general
+                        % corr_1=normxcorr2_mex(templates(j,:), data'); %JP:
+                        % sometimes this has fewer false positives than
+                        % _general
                         
                         corr_1 = normxcorr2_general(templates(lineNums(j),:), data',numel(templates(lineNums(j),:)));%JP: this is a matlab community download
                         
@@ -568,8 +459,7 @@ for i=1:length(line_numbers)
                     % Adds the correlation values to the corr_sum, taking station
                     % lag into consideration.
                     corrs(j,:)=[corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j))) zeros(data_length-length([corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j)))]),1)];
- 
-                    %length([corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j))])
+                    
                     try
                         add_on=[corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j))) zeros(data_length-length([corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j)))]),1)];
                         corrsmax(j) = max(corr_1);
@@ -578,8 +468,9 @@ for i=1:length(line_numbers)
                             corr_sum=corr_sum+add_on;
                         else
                             disp(['Removed ',get(scnl,'station'),' ',get(scnl,'channel')])
-                            % this removes whole days of data, but there is
-                            % prob a better way to deal with the bad data w/i the day only
+                            % JP: this removes whole days of data, but there is
+                            % prob a better way to deal with the bad data
+                            % w/i the day only, TODO
                         end
                     catch exception
                         %disp(['corr_sum DID NOT WORK' station{2,j} station{3,j} station{1,j}])
@@ -587,21 +478,9 @@ for i=1:length(line_numbers)
                         disp(['add on is :' num2str(length([corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j)) zeros(data_length-length([corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j))]),1)]))])
                         disp(['corr_1 is :' num2str(length(corr_1))])
                     end
-                    %                      disp(['add on is :' num2str(length([corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j)) zeros(data_length-length([corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j))]),1)]))])
-                    %                     disp(['corr_1 is :' num2str(length(corr_1))])
-                    %                     disp(num2str(length(corr_sum)))
-                    %disp(num2str(max(corr_sum))
-                    %catch exception
-                    %try
-                    %corr_sum=corr_sum+[corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j)) 0];
-                    %disp(num2str(max(corr_sum))
-                    %catch exception
-                    %end
-                    %end
                 end
                 
             end
-            %toc
         catch exception
             disp('ALL DID NOT WORK')
         end
@@ -622,14 +501,14 @@ for i=1:length(line_numbers)
         for s=1:numel(good_matches)
             maxcorrs(:,s) = max(corrs(:,good_matches(s):good_matches(s)+template_length*new_sample_rate),[],2);
         end
-%         maxcorrs(maxcorrs==0)=nan;
+        %         maxcorrs(maxcorrs==0)=nan;
         maxcorrs(maxcorrs<0.0001)=nan;
         stdmc = std(maxcorrs,'omitnan');
         istds = stdmc < stdcut;
         if sum(istds) > 0
             disp(['  ',int2str(length(istds)),'  Matches Found'])
         end
-        if sum(~istds) > 0
+        if sum(~istds) > 0 %JP
             disp(['  ',int2str(sum(~istds)),' Matches removed by std threshold (',num2str(stdcut),')'])
             disp(['  ',num2str(stdmc)])
         end
@@ -637,13 +516,13 @@ for i=1:length(line_numbers)
         good_matches = good_matches(istds);
         good_match_values = good_match_values(istds);
         maxcorrs = maxcorrs(:,istds);
-
+        
         % JP: add factor for station count used
         stc = sum(corrsmax > 0 & corrsmax <= 1);
- 
+        
         % JP: plot nstations per sample?
-%         iscps = corrs~=0;
-%         stationCtPerSample = sum(iscps);
+        %         iscps = corrs~=0;
+        %         stationCtPerSample = sum(iscps);
         
         if mkfigs %&& ~isempty(good_matches) %JP
             % JP: here is where to make daily detection figure
@@ -651,12 +530,10 @@ for i=1:length(line_numbers)
             plot(corr_sum); hold on
             plot(size(corr_sum),[min_peak_height min_peak_height])
             plot(good_matches,good_match_values,'ro')
-%             plot(1:length(corr_sum),stationCtPerSample,'g-')
+            %             plot(1:length(corr_sum),stationCtPerSample,'g-')
             title(datestr(time))
             xlabel('sample #')
             ylabel('correlation value')
-            %             xlim([1.72755e6  1.72765e6])
-            %             axis([size(corr_sum) -3 max(corr_sum)])
             xlim(size(corr_sum)+[-1 1])
             ylim([-3.1 7.1])
             zoom('xon')
@@ -689,7 +566,8 @@ for i=1:length(line_numbers)
                 fprintf(FID_output,'%s',datestr(to_output(each_match),'dd-mmm-yyyy HH:MM:SS '));
                 fprintf(FID_output,'%.4f %.3f %d %.2f\n',output_data(each_match,:)');
                 
-                if mkfigs && good_matches_value(each_match) >= qcCCC
+                %TODO: move figure to subroutine and make them after removing duplicates
+                if mkfigs && good_matches_value(each_match) >= qcCCC 
                     ln = line_numbers{1,i}(1);
                     template_time2 = datenum([char(temp_read_in{2}(ln)) ' ' char(temp_read_in{3}(ln))]);
                     
@@ -724,7 +602,7 @@ for i=1:length(line_numbers)
                     try %JP
                         figure('visible',vis), hold on
                         count = 1;
-                        [max_value,max_ind]=max(corr_sum);
+%                         [max_value,max_ind]=max(corr_sum);
                         
                         for jj = lineNums
                             wd = get(w(count),'DATA');
@@ -742,24 +620,16 @@ for i=1:length(line_numbers)
                             end
                             plot(1:length(datas4(count,:)),datas4(count,:)./max(datas4(count,:))+count*2,'b')
                             plot(1:length(datas3(count,:)),datas3(count,:)./max(datas3(count,:))+count*2,'r')
-                            text(length(datas4(count,:))-20,count*2,wstr,'color','k','BackgroundColor','w','interpreter','none','fontsize',9)
-                            text(0,count*2,num2str(maxcorrs(count,each_match),'%.2f'),'BackgroundColor','w'); % currently showing max for day, not match. Should update
-                            %                             if debug
-                            %                                 plot(1:length(wd),wd./max(wd)+count*2+2*length(lns),'r')
-                            %                                 text(length(wd)-20,count*2+2*length(lns),wstr,'color','k','BackgroundColor','w','interpreter','none')
-                            %                             end
+                            text(length(datas4(count,:))-20,count*2,wstr,'color','k','BackgroundColor','w','EdgeColor','k','interpreter','none','fontsize',9);
+                            text(0,count*2,num2str(maxcorrs(count,each_match),'%.2f'),'BackgroundColor','w','EdgeColor','k'); % currently showing max for day, not match. Should update
                             count = count+1;
                         end
                         text(length(datas4(count-1,:))-120,1,['std = ',num2str(std(maxcorrs(:,each_match),'omitnan'),'%3.2f')]) %std of day maxes, not match.  Should update
-                        %                         title(['Template ',int2str(template_numbers(i)),' @ ',datestr(template_time2),', Match ',int2str(good_matches_ct),' @ ',datestr(to_output(each_match)),', CCC: ',num2str(output_data(each_match,1),'%3.1f')],'interpreter','none')
                         title(['{\color{blue}Template ',int2str(template_numbers(i)),'@',datestr(template_time2,'mm/dd/yyyy HH:MM:SS'),',} {\color{red}Match ',int2str(good_matches_ct),'@',datestr(to_output(each_match),'mm/dd/yyyy HH:MM:SS'),'}, CCC: ',num2str(output_data(each_match,1),'%3.1f')])
-                        %         xlim([-t_pre t_post])
                         xlabel('sample since OT')
                         set(gca,'YTickLabel',[])
                         set(gca,'YTick',[])
                         print([QCdir2,filesep,datestr(to_output(each_match),30),'_T',int2str(template_numbers(i)),'_M',int2str(good_matches_ct),'_CC',num2str(output_data(each_match,1),'%3.1f'),'.png'],'-dpng')
-%                         print([QCdir2,filesep,'Templ',int2str(template_numbers(i)),'_match',int2str(good_matches_ct),'_CCC_',num2str(output_data(each_match,1),'%3.1f'),'.png'],'-dpng')
-                        %                     close
                     catch
                         warning('Not able to make figure')
                     end

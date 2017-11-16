@@ -1,25 +1,19 @@
-function combineMatches2(params,inputs)
+function combineMatches2(inputs,params)
 
-%{
-
+%{ 
+THIS function reads in the match files for the templates and combines them
+into one master catalog. It removes duplicates within given tolerance and
+sorts output. Replaces clunky original code from SH
+J. PESICEK
 %}
 warning('ON','all')
 
-if ~isfield(params,'templates2run')
-    template_numbers = [];    
-elseif strcmpi(params.templates2run,'none')
-    template_numbers = [];
-elseif strcmpi(params.templates2run,'all')
-    [qmllist,result] = readtext(inputs.quakeMLfileList,',','#');
-    template_numbers = cell2mat(qmllist(:,1));
-else
-    template_numbers = params.templates2run;
-end
+[template_numbers,~] = getTemplateInfo(params,inputs);
 
 if isempty(template_numbers)
     return
 end
-
+%%
 region=params.strRunName; % NOTE
 outdir=[inputs.outDir,filesep,'NMF'];
 outfile=fullfile(outdir,[region,'_NMFcatalog.txt']);
@@ -52,56 +46,48 @@ for i=1:length(template_numbers)
 
             line=textscan(char(cross_corr_var_1{1}(j)),'%s %s %f %f %d %f', 'delimiter', ' ');
             match_time(count)=datenum([char(line{1}) ' ' char(line{2})]);
-            ccc(count)=line{3};%JP
-            stc(count)=double(line{5});%JP
-            stdmc(count) = double(line{6});
-            ccm(count) = double(line{4});
-            templn(count) = template_numbers(i);
+            catalog(count).ccc=line{3};%JP
+            catalog(count).stc=double(line{5});%JP
+            catalog(count).stdmc = double(line{6});
+            catalog(count).ccm = double(line{4});
+            catalog(count).templn = template_numbers(i);
             catalog(count).DateTime = datestr(match_time(count),'yyyy/mm/dd HH:MM:SS.FFF');
-            catalog(count).Magnitude = ccc(count); % use CCC for later preferred event in dup removal
+            catalog(count).Magnitude = line{3}; % use CCC for later preferred event in dup removal
 
     end
   
 end
 %% cull by thresholds
+ccc = extractfield(catalog,'ccc');
+ccm = extractfield(catalog,'ccm');
+stc = extractfield(catalog,'stc');
+
 I1 = ccc>=ccm*threshold;
 I2 = ccc>=min_threshold;
 I3 = stc>=minChan;
 
 I = I1 & I2 & I3;
+
+disp(['total NMF matches: ',int2str(count)])
+disp(['removed by MAD  threshold: ',int2str(sum(~I1))])
+disp(['removed by CCC  threshold: ',int2str(sum(~I2))])
+disp(['removed by Chan threshold: ',int2str(sum(~I3))])
+disp(['remaining: ',int2str(sum(I))])
+
 match_time = match_time(I);
-ccc = ccc(I);
-stc = stc(I);
-stdmc = stdmc(I);
-ccm = ccm(I);
 catalog = catalog(I);
-templn = templn(I);
 
 [~,I] = sort(match_time);
 match_time = match_time(I);
-ccc = ccc(I);
-stc = stc(I);
-stdmc = stdmc(I);
-ccm = ccm(I);
 catalog = catalog(I);
-templn = templn(I);
 
 %% now remove OT matches w/i threshold
-
-I = findDuplicateEvents(catalog,params.OTdiff/86400);
-I = ~I;
-match_time = match_time(I);
-ccc = ccc(I);
-stc = stc(I);
-stdmc = stdmc(I);
-ccm = ccm(I);
-catalog = catalog(I);
-templn = templn(I);
+catalog = rmDuplicateEvents(catalog,params.OTdiff);
 
 %% print out
 fid = fopen(outfile, 'w');
 for i=1:numel(catalog)
-    fprintf(fid,'%s %2.2f %4.3f %3i %2i %4.3f\n',datestr(match_time(i)),ccc(i),ccm(i),templn(i),stc(i),stdmc(i)); %
+    fprintf(fid,'%s %2.2f %4.3f %3i %2i %4.3f\n',catalog(i).DateTime,catalog(i).ccc,catalog(i).ccm,catalog(i).templn,catalog(i).stc,catalog(i).stdmc); %
 end
 fclose(fid);
 
