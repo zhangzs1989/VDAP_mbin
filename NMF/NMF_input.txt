@@ -2,29 +2,29 @@
 % this text file is read into matlab and the variables are created, use matlab syntax
 %
 % quakeMLfile list can be simple list of file paths or csv with lines: "ID,filepath"
-inputs.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/LFs/bigNew/quakemllist.txt';
+inputs.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/deepEvents/quakemllist.txt';
 %%
-inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/LFs/ALL';
+inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/deepEvents';
 inputs.stations='/Users/jpesicek/Dropbox/sw/swarm-2.8.2/LatLonAgung.config'; %swarm format
 inputs.ds=datasource('winston','130.118.152.130',16022);
 %%
 params.strRunName='Agung'; % string descriptor, use GVP volcano name
-params.startDate=datenum(2017,10,15); % start search here
+params.startDate=datenum(2017,9,1); % start search here
 params.stopDate=datenum(2017,11,16); % stop search here
 params.flo=1;
 params.fhi=10;
-params.templateLen=25; % seconds
+params.templateLen=20; % seconds
 params.useLags = false; %Use pick lags to define template, else choose earliest pick
 params.newSampleRate = 40;
 params.vis= 'off';
-params.templates2run = 'all'; % 'all','none', or [list of IDs] accetable options
+params.templates2run = [1:5]; % 'all','none', or [list of IDs] accetable options
 params.MAD = 12; %MedianAbsoluteDeviation threshold - I don't really change this much
 params.downloadChunkLen = 86400; % in seconds; 1 day = 86400, I've never changed this.
 params.mkfigs = true;
 params.debug = false;
 params.qcCCC = 1.2; % CCC threshold for making match figures
 params.stdcut = 0.35; % QC: std of channels data allowed, else throw out,helps with funky/bad data
-params.templSearchWindow = [-60 60]; % only search this many days before and after any given template
+params.templSearchWindow = [-90 90]; % only search this many days before and after any given template
 params.OTdiff = 3; % remove matches within this many seconds of eachother
 params.min_threshold = 1.2; %cull lower quality events
 params.minChan = 1; %cull results based on min channel count of match

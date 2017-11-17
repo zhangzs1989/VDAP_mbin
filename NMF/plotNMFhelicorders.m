@@ -16,8 +16,6 @@ if FID_results == -1
     error(['Unable to open variable file '])
 end
 
-templateFile=fullfile(baseDir,'templates/',[params.strRunName,'_OTs_NEICformat.txt']); %JP
-templates = readtext(templateFile);
 templateFile2=fullfile(baseDir,'templates/',[params.strRunName,'_NMFtemplateFile.txt']); %JP
 templates2 = readtext(templateFile2,' ','','','textual');
 

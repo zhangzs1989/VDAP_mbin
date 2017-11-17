@@ -13,7 +13,11 @@ elseif strcmpi(params.templates2run,'all')
         template_numbers = 1:size(quakeMLfileList,1);
     end
 else
-    template_numbers = params.templates2run;
+    if isnumeric(params.templates2run)
+        template_numbers = params.templates2run;
+    else
+        error('templates2run parameter not understood')
+    end
 end
 
 

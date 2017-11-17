@@ -283,7 +283,8 @@ run_time=tic;
 % ER=1;
 for i=1:length(line_numbers)
     
-    display(['   Template ' num2str(template_numbers(i)) '...'])
+    disp(['   Template ' num2str(template_numbers(i)) '...'])
+    disp(datestr(datenum([char(temp_read_in{2}(1)) ' ' char(temp_read_in{3}(1))])))
     good_matches_ct = 0;
     
     % Assigns the output match time file name. Makes sure the name ends in '.txt'.
@@ -538,7 +539,7 @@ for i=1:length(line_numbers)
             ylim([-3.1 7.1])
             zoom('xon')
             print([QCdir1,filesep,datestr(time,'yyyymmdd'),'_templ_',num2str(template_numbers(i))],'-dpng')
-            
+            %TODO: capture detection stream for plot later
         end
         
         if ~isempty(good_matches) %&& std(corrsmax) < 0.25  %JP: corrsmax, another attempt to remove bad data matches
@@ -625,10 +626,13 @@ for i=1:length(line_numbers)
                             count = count+1;
                         end
                         text(length(datas4(count-1,:))-120,1,['std = ',num2str(std(maxcorrs(:,each_match),'omitnan'),'%3.2f')]) %std of day maxes, not match.  Should update
+                        text(length(datas4(count-1,:))-150,1,['BP = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
+
                         title(['{\color{blue}Template ',int2str(template_numbers(i)),'@',datestr(template_time2,'mm/dd/yyyy HH:MM:SS'),',} {\color{red}Match ',int2str(good_matches_ct),'@',datestr(to_output(each_match),'mm/dd/yyyy HH:MM:SS'),'}, CCC: ',num2str(output_data(each_match,1),'%3.1f')])
-                        xlabel('sample since OT')
+                        xlabel('samples since template start')
                         set(gca,'YTickLabel',[])
                         set(gca,'YTick',[])
+                        grid on, box on
                         print([QCdir2,filesep,datestr(to_output(each_match),30),'_T',int2str(template_numbers(i)),'_M',int2str(good_matches_ct),'_CC',num2str(output_data(each_match,1),'%3.1f'),'.png'],'-dpng')
                     catch
                         warning('Not able to make figure')

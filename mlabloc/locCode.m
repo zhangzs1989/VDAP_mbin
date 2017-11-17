@@ -131,7 +131,7 @@ for l=1:numel(D)
     catalog2(l).Longitude = data{3};
     catalog2(l).Depth = data{4};
     catalog2(l).Misfit = data{5};
-    catalog2(l).DateTime = datenum(data{1},'yyyymmddTHHMMSS.FFF');
+    catalog2(l).DateTime = datestr(datenum(data{1},'yyyymmddTHHMMSS.FFF'));
     catalog2(l).Magnitude = [];    
     catalog2(l).ID = D(l).name;
     

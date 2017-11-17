@@ -1,5 +1,6 @@
 function [NMFeventFile, template_numbers] = getTemplates(inputs,params)
 
+%TODO: make spectrograms of tmeplates
 QCdir=[inputs.outDir,filesep,'templates'];
 [~,~,~] = mkdir(QCdir);
 
@@ -71,7 +72,7 @@ for l = 1:length(qmllist)
         end
         text(length(datas3(count-1,:))-150,1,['BP = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
         title(['{\color{blue}Template ',int2str(l),'@',datestr(t1,'mm/dd/yyyy HH:MM:SS'),'}'])
-        xlabel('sample since template start')
+        xlabel('samples since template start')
         set(gca,'YTickLabel',[])
         set(gca,'YTick',[])
         box on, grid on

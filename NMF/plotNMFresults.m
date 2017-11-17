@@ -1,5 +1,7 @@
 function plotNMFresults(inputs,params)
 
+%TODO: color different templates and matched differently
+
 t_pre = 0;
 t_post= 10;
 startDate = params.startDate;
@@ -160,6 +162,7 @@ for sta=1:nsta
     scrsz = get(groot,'ScreenSize');
     figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/1]);hold on
     
+    %TODO: pull rsam from wws and plot here
 %     ax(4)=subplot(4,1,4);
 %     rsam = get(RSAM_OBJ,'data');
 %     plot(rsamx,rsam)
@@ -178,32 +181,41 @@ for sta=1:nsta
     %         plot([datenum(int2str(etimes(i)),'yyyymmddHHMM'),datenum(int2str(etimes(i)),'yyyymmddHHMM')],[ymax,0],'r-')
     %     end
     %
-        
+    dfac = 1;
+
     ax(2)=subplot(4,1,1);
+    yyaxis left
     plot(sort(match_time_keep),cumsum(ones(length(match_time_keep),1)),'lineWidth',2)
-    % startDate = datenum('01-01-2005');
-    % endDate = datenum('01-01-2014');
+    ylabel('Cumulative Event Count','FontSize',12,'FontWeight','Bold')
+    c = ax(2).YColor;
+    ax(2).YColor = 'k';
+    ax(2).YLabel.Color = c;
+    
     xlim([startDate endDate])
     datetickJP('x','dd-mmm','keeplimits','keepticks')
     set(gca,'xminortick','on')
-    ylabel('Cumulative Event Count','FontSize',12,'FontWeight','Bold')
     xlabel('Date Time','FontSize',12,'FontWeight','Bold')
     hold on, grid on, box on
     title((lab{sta}),'interpreter','none','FontSize',12,'FontWeight','Bold')
+    yyaxis right
+    h=histogram(match_time_keep,floor(min(match_time_keep)):dfac:ceil(max(match_time_keep)));
+    h.FaceColor = 'none';
+    ylabel('Event Count','FontWeight','bold','FontSize',12)
+    ax(2).YColor = 'k';
     
     ax(1)=subplot(4,1,3);
     plot(match_time_keep,Ml_keep,'*')
     hold on, grid on, box on
-    plot(match_time_best(find(match_time_best>0)),Ml_best_ind(find(match_time_best>0)),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
-    plot(match_time_keep,cumMag(Ml_keep),'b')
+    plot(match_time_best(match_time_best>0),Ml_best_ind(match_time_best>0),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
+    plot(match_time_keep,cumMag(Ml_keep),'lineWidth',2)
     
     xlim([startDate endDate])
-    ylim([floor(min(Ml)) ceil(max(Ml))])
+%     ylim([floor(min(Ml)) ceil(max(Ml))])
     datetickJP('x','dd-mmm','keeplimits','keepticks')
     set(gca,'xminortick','on')
     ylabel('Relative Magnitude','FontSize',12,'FontWeight','Bold')
     xlabel('Date Time','FontSize',12,'FontWeight','Bold')
-    legend('Matches','Template Event','Cum Mag','Location','Northwest')
+    legend('Matches','Templates','Cum Mag','Location','Northwest')
 
     ax(3)=subplot(4,1,2);
     yyaxis right
