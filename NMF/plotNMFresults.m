@@ -160,7 +160,7 @@ for sta=1:nsta
 %     h=plot(RSAM_OBJ, 'Xunit', 'date');
 %     rsamx = h.XData;
     scrsz = get(groot,'ScreenSize');
-    figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/1]);hold on
+    figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/1],'visible',params.vis);hold on
     
     %TODO: pull rsam from wws and plot here
 %     ax(4)=subplot(4,1,4);

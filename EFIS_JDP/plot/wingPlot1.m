@@ -45,7 +45,7 @@ if size(catalog,2) > 0 && ~isempty(catalog)
     DateTime = datenum(extractfield(catalog, 'DateTime'));
     Magnitude = extractfield(catalog, 'Magnitude');
     Mmax = max(Magnitude);
-    if sum(isnan(Magnitude))~=0 || isempty(Magnitude)% in case there are no Mags (i.e. ISS)
+    if sum(isnan(Magnitude))==length(Magnitude) || isempty(Magnitude)% in case there are no Mags (i.e. ISS)
         Magnitude(1:length(Lat))=5;
         Mmax = NaN;
     end
