@@ -16,8 +16,8 @@ params.fhi=10;
 params.templateLen=20; % seconds
 params.useLags = false; %Use pick lags to define template, else choose earliest pick
 params.newSampleRate = 40;
-params.vis= 'off';
-params.templates2run = [1:5]; % 'all','none', or [list of IDs] accetable options
+params.vis= 'on';
+params.templates2run = 'all'; % 'all','none', or [list of IDs] accetable options
 params.MAD = 12; %MedianAbsoluteDeviation threshold - I don't really change this much
 params.downloadChunkLen = 86400; % in seconds; 1 day = 86400, I've never changed this.
 params.mkfigs = true;

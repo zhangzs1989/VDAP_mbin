@@ -19,15 +19,14 @@ if ~isempty(template_numbers)
     details(params)
     
     NMF(inputs,params,NMFeventFile)
-    
-    %% Now combine all matches for all templates into one catalog removing repeats
-    combineMatches2(inputs,params)
-    
-    %% plot
-    plotNMFresults(inputs,params)
-    
-    plotNMFhelicorders(inputs,params,'TMKS_EHZ_VG')
-    toc
 end
+%% Now combine all matches for all templates into one catalog removing repeats
+combineMatches2(inputs,params)
+
+%% plot
+plotNMFresults(inputs,params)
+
+plotNMFhelicorders(inputs,params,'TMKS_EHZ_VG')
+toc
 
 diary OFF

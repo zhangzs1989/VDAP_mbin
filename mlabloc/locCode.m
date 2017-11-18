@@ -25,6 +25,7 @@ params.topo = true; % try to get topo
 params.visible = 'off'; % for figures
 --
 %}
+%%
 warning('on','all')
 tic
 % inputFile = '/Users/jpesicek/Dropbox/VDAP/Responses/Agung/mlabloc/locCodeInputs.txt';
@@ -52,7 +53,6 @@ if inc ~= VpH.d(2)
 end
 iix=xmin:inc:xmax; iiy=ymin:inc:ymax; iiz=zmin:inc:zmax;
 OTinc = inc/1000/4; % %OT search increment in seconds, based on 4km/s
-tOff = 750;
 %%
 disp(['km search increment: ',num2str(inc/1000)])
 disp(['OT (sec) search increment: ',num2str(OTinc)])
@@ -70,7 +70,9 @@ for l = 1:length(qmllist)
     
     %% find optimal location using brute force
     disp('entering Brute Force Grid Search...')
-    [xyzn,OTn,omisfit,~,F] = BFgridsearch2(iix,iiy,iiz,VpH,VsH,atObs,OTinc);
+    [xyzn,OTn,omisfit,data,ib] = BFgridsearch2(iix,iiy,iiz,VpH,VsH,atObs,OTinc);
+    
+    [F1,F2] = BFgridSearchFigs(iix,iiy,iiz,xyzn,OTn,omisfit,data,ib,sta_zxy(I,:),v_zxy,sname(I),params.visible);
     
     [nlat, nlon] = minvtran(mstruct,xyzn(1),xyzn(2)); % central lat long coordinates
     
@@ -79,21 +81,16 @@ for l = 1:length(qmllist)
     disp(['New min misfit (seconds) after subsample grid search: ' num2str(omisfit(1))]);
     disp(['Origin time: ',datestr(OTn,'yyyymmdd HH:MM:SS.FFF')])
     disp(['First pick: ',datestr(min(atObs),'yyyymmdd HH:MM:SS.FFF')])
-    
-    %% plot
-    plot3(sta_zxy(I,2)*1000,sta_zxy(I,3)*1000,-sta_zxy(I,1)*1000,'kv','MarkerFaceColor','w','MarkerEdgeColor','k','MarkerSize',8); hold on;grid on;
-    text(sta_zxy(I,2)*1000+tOff,sta_zxy(I,3)*1000+tOff,-sta_zxy(I,1)*1000+tOff,sname(I),'BackgroundColor','none')
-    plot3(v_zxy(:,2)*1000,v_zxy(:,3)*1000,-v_zxy(:,1)*1000,'w^','MarkerFaceColor','k','MarkerSize',20); hold on;grid on;
-    view(2)
-    title([datestr(OTn,'yyyymmdd HH:MM:SS.FFF'),', Misfit: ',num2str(omisfit(1),'%3.2f'),' (s)'])
-    
+
     %% save
     sp1 = strfind(quakeMLfile,'.');
     sp2 = strfind(quakeMLfile,'/');
     figname = quakeMLfile(sp2(end)+1:sp1(end)-1);
     
-    savefig(F,[inputs.outDir,'/',figname,'.fig'])
-    print(F,[inputs.outDir,'/',figname,'.png'],'-dpng')
+    savefig(F1,[inputs.outDir,'/',figname,'_1.fig'])
+    print(F1,[inputs.outDir,'/',figname,'_1.png'],'-dpng')
+    savefig(F2,[inputs.outDir,'/',figname,'_2.fig'])
+    print(F2,[inputs.outDir,'/',figname,'_2.png'],'-dpng')
     
     output=sprintf('%s %f %f %f %f %f %d %d',datestr(OTn,'yyyymmddTHHMMSS.FFF'),nlat,nlon,xyzn(3)/1000,omisfit,mag,npicks,nsta);
     outname = [inputs.outDir,'/',figname,'.txt'];
@@ -116,7 +113,6 @@ for l = 1:length(qmllist)
 
     %TODO: 
 %     catalog(l).gap = computeMaxStationGap(nlat,nlon,lonlatdep(:,2),lonlatdep(:,1));
-%     
 %     catalog(l).xerr
 %     catalog(l).yerr
 %     catalog(l).zerr

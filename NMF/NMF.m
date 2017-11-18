@@ -164,7 +164,7 @@ temp_end_date=params.stopDate;%[sscanf(cross_corr_var{14},'%c') ':00:00'];
 template_length=params.templateLen; %str2double(cross_corr_var{17});
 bandpass_filter=[params.flo,params.fhi];%sscanf(cross_corr_var{20},'%f %f');
 mad_coeff=params.MAD; %str2double(cross_corr_var{23});
-new_sample_rate=params.newSampleRate;%str2double(cross_corr_var{26});
+newSampleRate=params.newSampleRate;%str2double(cross_corr_var{26});
 baseDir = inputs.outDir;%sscanf(cross_corr_var{29},'%s'); %JP add
 outDir = fullfile(baseDir,'NMF');
 NMFoutFile =[outDir,filesep,params.strRunName,'_NMFoutFile.txt'];
@@ -218,9 +218,9 @@ if length(bandpass_filter)~=2
 end
 
 % Assigns a default downsample rate if empty.
-if isempty(new_sample_rate)
+if isempty(newSampleRate)
     display(['No sample rate provided. Using: ' num2str(default_sample_rate)])
-    new_sample_rate=default_sample_rate;
+    newSampleRate=default_sample_rate;
 end
 
 % Assigns a default MAD Coeff if empty.
@@ -305,7 +305,7 @@ for i=1:length(line_numbers)
     %fprintf(FID_output,'%s %s %s',station{1:3,line_numbers{i}(end:end)});
     
     % Makes the templates
-    templates=zeros(length(line_numbers{i}),new_sample_rate*template_length);
+    templates=zeros(length(line_numbers{i}),newSampleRate*template_length);
     template_time=zeros(length(line_numbers{i}),1);
     
     %NOTE: PARFOR     parfor j=[line_numbers{i}']
@@ -314,19 +314,17 @@ for i=1:length(line_numbers)
         template_time(j,1) = datenum([char(temp_read_in{2}(j)) ' ' char(temp_read_in{3}(j))]);
         scnl=scnlobject(station{2,j},station{3,j},station{1,j},station{4,j});
         try
-            template = load_waveformObject_VDAP(ds,scnl,template_time(j,1),template_time(j,1)+template_length/86400,new_sample_rate);
+            template = load_waveformObject_VDAP(ds,scnl,template_time(j,1),template_time(j,1)+template_length/86400,newSampleRate);
             template = demean(template);
-            template = fix_data_length(template,new_sample_rate*template_length); %JP add to fix parfor assignment error
+            template = fix_data_length(template,newSampleRate*template_length); %JP add to fix parfor assignment error
             template=get(template,'DATA');
         catch exception
             %error('No data found for the template')
             disp(['Template ' station{2,j} ' ' station{3,j} ' ' station{1,j} ' on ' datestr(template_time(j,1)) ' did not load'])
             template = [];
         end
-        template=bandpass(template,bandpass_filter(1),bandpass_filter(2),1/new_sample_rate,3);
-        %template=template(new_sample_rate*2:end-new_sample_rate*2-1);
+        template=bandpass(template,bandpass_filter(1),bandpass_filter(2),1/newSampleRate,3);
         %template=align(template,template_time(j,1),new_sample_rate);
-        %         size(template);
         try
             templates(j,:)=template;
         catch exception %% JP: remove below sample fix b/c it caused parfor errors, see fix above
@@ -348,15 +346,15 @@ for i=1:length(line_numbers)
     [~,~,~,h_temp,m_temp,s_temp]=datevec(template_time-template_time(min_i));
     
     % Converts the lag into number of samples
-    lag{i,1}=(s_temp+m_temp*60+h_temp*360)*new_sample_rate;
+    lag{i,1}=(s_temp+m_temp*60+h_temp*360)*newSampleRate;
     
-    data_length=download_chunk_length*new_sample_rate;
-    day_of_time=1/new_sample_rate:1/new_sample_rate:download_chunk_length;
-    template_times=1/new_sample_rate:1/new_sample_rate:template_length;
+    data_length=download_chunk_length*newSampleRate;
+    day_of_time=1/newSampleRate:1/newSampleRate:download_chunk_length;
+    template_times=1/newSampleRate:1/newSampleRate:template_length;
     lineNums = line_numbers{i}';
     
     if debug
-        datas=zeros(numel(lineNums),new_sample_rate*download_chunk_length);
+        datas=zeros(numel(lineNums),newSampleRate*download_chunk_length);
     end
     
     %% JP: only search templSearchWindow days before and after a specific
@@ -373,9 +371,9 @@ for i=1:length(line_numbers)
         display(datestr(time))
         
         % Pre-allocates the space needed for the correlation values.
-        corr_sum=zeros(1,download_chunk_length*new_sample_rate);
+        corr_sum=zeros(1,download_chunk_length*newSampleRate);
         corrsmax=zeros(1,numel(lineNums));
-        corrs=zeros(numel(lineNums),download_chunk_length*new_sample_rate);
+        corrs=zeros(numel(lineNums),download_chunk_length*newSampleRate);
         
         try
             %NOTE: PARFOR
@@ -383,20 +381,15 @@ for i=1:length(line_numbers)
                 
                 scnl=scnlobject(station{2,lineNums(j)},station{3,lineNums(j)},station{1,lineNums(j)},station{4,lineNums(j)});
                 try
-                    data = load_waveformObject_VDAP(ds,scnl,time,time+datenum(0,0,0,0,0,download_chunk_length),new_sample_rate);
+                    data = load_waveformObject_VDAP(ds,scnl,time,time+datenum(0,0,0,0,0,download_chunk_length),newSampleRate);
                     
                     if ~isempty(data)
-                        data = demean(data);
-                        data = fix_data_length(data,new_sample_rate*download_chunk_length); %JP add to fix parfor assignment error
-                        data=get(data,'DATA');
                         
-                        %download_data(time,download_chunk_length,new_sample_rate,station{1,line_numbers{i}(j)},station{2,line_numbers{i}(j)},station{4,line_numbers{i}(j)},station{3,line_numbers{i}(j)});
+                        data = demean(data);
+                        data = fix_data_length(data,newSampleRate*download_chunk_length); %JP add to fix parfor assignment error
+                        data=get(data,'DATA');
                         data(isnan(data))=0;
-                        %                     data(find(data>1000000))=1000000;
-                        %                     data(find(data<-1000000))=-1000000;
-                        %
-                        data=bandpass(data,bandpass_filter(1),bandpass_filter(2),1/new_sample_rate,3);
-                        %data=align(data,time,new_sample_rate);
+                        data=bandpass(data,bandpass_filter(1),bandpass_filter(2),1/newSampleRate,3);
                         
                         if debug
                             datas(j,:)=data;
@@ -455,14 +448,14 @@ for i=1:length(line_numbers)
                         
                     catch exception
                         disp('normxcorr2 DID NOT WORK')
-                        corr_1=zeros(1,download_chunk_length*new_sample_rate);
+                        corr_1=zeros(1,download_chunk_length*newSampleRate);
                     end
                     % Adds the correlation values to the corr_sum, taking station
                     % lag into consideration.
-                    corrs(j,:)=[corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j))) zeros(data_length-length([corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j)))]),1)];
+                    corrs(j,:)=[corr_1(newSampleRate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j))) zeros(data_length-length([corr_1(newSampleRate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j)))]),1)];
                     
                     try
-                        add_on=[corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j))) zeros(data_length-length([corr_1(new_sample_rate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j)))]),1)];
+                        add_on=[corr_1(newSampleRate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j))) zeros(data_length-length([corr_1(newSampleRate*template_length+lag{i}(lineNums(j)):end) zeros(1,lag{i}(lineNums(j)))]),1)];
                         corrsmax(j) = max(corr_1);
                         
                         if length(add_on)==data_length && corrsmax(j) <= cccmax %JP: corrsmax attempt to remove bad data channels
@@ -476,7 +469,7 @@ for i=1:length(line_numbers)
                     catch exception
                         %disp(['corr_sum DID NOT WORK' station{2,j} station{3,j} station{1,j}])
                         %disp(['Data length is: ' num2str(length(data))])
-                        disp(['add on is :' num2str(length([corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j)) zeros(data_length-length([corr_1(new_sample_rate*template_length+lag{i}(j):end) zeros(1,lag{i}(j))]),1)]))])
+                        disp(['add on is :' num2str(length([corr_1(newSampleRate*template_length+lag{i}(j):end) zeros(1,lag{i}(j)) zeros(data_length-length([corr_1(newSampleRate*template_length+lag{i}(j):end) zeros(1,lag{i}(j))]),1)]))])
                         disp(['corr_1 is :' num2str(length(corr_1))])
                     end
                 end
@@ -495,12 +488,12 @@ for i=1:length(line_numbers)
         min_ccc=std(corr_sum(corr_sum~=0)/1.4826,0); % changed from Steven's code
         min_peak_height=max(min_ccc*mad_coeff,1);
         % Finds all matches above the threshold
-        [good_match_values,good_matches]=findpeaks(corr_sum,'MINPEAKHEIGHT',min_peak_height,'MINPEAKDISTANCE',5*new_sample_rate,'MinPeakWidth',2); %5 or .5???
+        [good_match_values,good_matches]=findpeaks(corr_sum,'MINPEAKHEIGHT',min_peak_height,'MINPEAKDISTANCE',5*newSampleRate,'MinPeakWidth',2); %5 or .5???
         
         % JP: find matches with std of channel corrs < .25
         maxcorrs = zeros(numel(lineNums),numel(good_matches));
         for s=1:numel(good_matches)
-            maxcorrs(:,s) = max(corrs(:,good_matches(s):good_matches(s)+template_length*new_sample_rate),[],2);
+            maxcorrs(:,s) = max(corrs(:,good_matches(s):good_matches(s)+template_length*newSampleRate),[],2);
         end
         %         maxcorrs(maxcorrs==0)=nan;
         maxcorrs(maxcorrs<0.0001)=nan;
@@ -520,10 +513,6 @@ for i=1:length(line_numbers)
         
         % JP: add factor for station count used
         stc = sum(corrsmax > 0 & corrsmax <= 1);
-        
-        % JP: plot nstations per sample?
-        %         iscps = corrs~=0;
-        %         stationCtPerSample = sum(iscps);
         
         if mkfigs %&& ~isempty(good_matches) %JP
             % JP: here is where to make daily detection figure
@@ -545,7 +534,7 @@ for i=1:length(line_numbers)
         if ~isempty(good_matches) %&& std(corrsmax) < 0.25  %JP: corrsmax, another attempt to remove bad data matches
             good_matches_value=corr_sum(good_matches)';
             
-            good_matches=good_matches/new_sample_rate;
+            good_matches=good_matches/newSampleRate;
             good_matches=time+datenum(0,0,0,0,0,good_matches);
             to_output=good_matches;
             [temp_time(:,1),temp_time(:,2),temp_time(:,3),temp_time(:,4),temp_time(:,5),temp_time(:,6)]=datevec(good_matches);
@@ -563,7 +552,7 @@ for i=1:length(line_numbers)
                 good_matches_ct = good_matches_ct + 1;
                 
                 disp([sprintf('%s',datestr(to_output(each_match),'dd-mmm-yyyy HH:MM:SS ')) sprintf('%.4f %.3f %d %.2f',output_data(each_match,:)')])
-                
+                % write output
                 fprintf(FID_output,'%s',datestr(to_output(each_match),'dd-mmm-yyyy HH:MM:SS '));
                 fprintf(FID_output,'%.4f %.3f %d %.2f\n',output_data(each_match,:)');
                 
@@ -575,14 +564,14 @@ for i=1:length(line_numbers)
                     %make QC fig here
                     clear w wt
                     
-                    datas3 = zeros(numel(lineNums),template_length*new_sample_rate);  %[];
-                    datas4 = zeros(numel(lineNums),template_length*new_sample_rate); %[];
+                    datas3 = zeros(numel(lineNums),template_length*newSampleRate);  %[];
+                    datas4 = zeros(numel(lineNums),template_length*newSampleRate); %[];
                     ct = 0;
                     for jj =  lineNums
                         scnl=scnlobject(station{2,(jj)},station{3,(jj)},station{1,(jj)},station{4,(jj)});
                         ct = ct + 1;
                         try
-                            w(ct) = load_waveformObject_VDAP(ds,scnl,to_output(each_match),to_output(each_match)+datenum(0,0,0,0,0,template_length),new_sample_rate);
+                            w(ct) = load_waveformObject_VDAP(ds,scnl,to_output(each_match),to_output(each_match)+datenum(0,0,0,0,0,template_length),newSampleRate);
                             w(ct) = demean(w(ct));
                             sampleRate=get(w(ct),'freq');
                             w(ct) = fix_data_length(w(ct),template_length*sampleRate); %JP add to fix parfor assignment error
@@ -591,7 +580,7 @@ for i=1:length(line_numbers)
                             disp(['cannot load ',get(scnl,'station'),' ',get(scnl,'channel')])
                         end
                         try
-                            wt(ct)= load_waveformObject_VDAP(ds,scnl,template_time2,template_time2+datenum(0,0,0,0,0,template_length),new_sample_rate);
+                            wt(ct)= load_waveformObject_VDAP(ds,scnl,template_time2,template_time2+datenum(0,0,0,0,0,template_length),newSampleRate);
                             wt(ct) = demean(wt(ct));
                             wt(ct) = fix_data_length(wt(ct),template_length*sampleRate); %JP add to fix parfor assignment error
                             %                             wt(ct) = filtfilt(f,wt(ct));
@@ -603,17 +592,16 @@ for i=1:length(line_numbers)
                     try %JP
                         figure('visible',vis), hold on
                         count = 1;
-%                         [max_value,max_ind]=max(corr_sum);
                         
                         for jj = lineNums
                             wd = get(w(count),'DATA');
                             wstr = [get(w(count),'station'),', ',get(w(count),'channel')];
-                            datas3(count,1:template_length*new_sample_rate) = bandpass(wd,bandpass_filter(1),bandpass_filter(2),1/new_sample_rate,3);
+                            datas3(count,1:template_length*newSampleRate) = bandpass(wd,bandpass_filter(1),bandpass_filter(2),1/newSampleRate,3);
                             %                             datas3(count,1:template_length*new_sample_rate) = wd;
                             
                             wdt= get(wt(count),'DATA');
                             wstr2 = [get(wt(count),'station'),', ',get(wt(count),'channel')];
-                            datas4(count,1:template_length*new_sample_rate) = bandpass(wdt,bandpass_filter(1),bandpass_filter(2),1/new_sample_rate,3);
+                            datas4(count,1:template_length*newSampleRate) = bandpass(wdt,bandpass_filter(1),bandpass_filter(2),1/newSampleRate,3);
                             %                             datas4(count,1:template_length*new_sample_rate) = wdt;
                             
                             if sum(~strcmp(wstr,wstr2)) ~= 0
@@ -641,6 +629,7 @@ for i=1:length(line_numbers)
             end
             clear output_data good_matches
         end
+        %%
         if debug %JP: added QC fig from SH original separate script
             figure
             count=1;
@@ -650,7 +639,7 @@ for i=1:length(line_numbers)
                 plot(day_of_time(1:dot),datas(count,1:dot)./max(datas(count,1:dot))+count*2,'b')
                 hold on
                 [max_value,max_ind]=max(corr_sum(1:dot));
-                plot(template_times+max_ind/new_sample_rate+(lag{i}(count)-1)./new_sample_rate,templates(count,:)./max(templates(count,:))+count*2,'r')
+                plot(template_times+max_ind/newSampleRate+(lag{i}(count)-1)./newSampleRate,templates(count,:)./max(templates(count,:))+count*2,'r')
                 text(0,count*2+.3,num2str(corrs(count,max_ind),'%.2f'))
                 count=count+1;
             end

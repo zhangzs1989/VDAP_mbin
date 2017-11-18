@@ -10,7 +10,7 @@ outDir = baseDir;
 
 f=filterobject('b',[params.flo,params.fhi],3);
 resultsFile=fullfile(baseDir,'NMF',filesep,[params.strRunName,'_NMFcatalog.txt']);
-
+%%
 FID_results = fopen(resultsFile);
 if FID_results == -1
     error(['Unable to open variable file '])
@@ -44,10 +44,6 @@ for each_line=1:1:length(Combined_Results_lines{1})
         count=count+1;
         
         match_time(count)=datenum([char(line{1}) ' ' char(line{2})]);
-        %         ccc(count)=line{3};
-        %         template_matched(count)=line{5};
-        %         stc(count)=line{6};
-        %         ncc(count)=double(line{3})/double(line{6});
     end
 end
 
@@ -55,7 +51,7 @@ end
 for i=1:length(match_time)
     otime(i) = match_time(i);
     ontime(i)=otime(i);
-    offtime(i)=otime(i)+datenum(0,0,0,0,0,25);
+    offtime(i)=otime(i)+datenum(0,0,0,0,0,params.templateLen);
 end
 cobj = Catalog('otime',otime,'ontime',ontime,'offtime',offtime);
 
@@ -65,8 +61,8 @@ for day=startDate:endDate
     
     I = otime>day & otime<=day+1;
     if sum(I)>0
+        
         w=load_waveformObject_VDAP(ds,scnl(si),day,day+1,40);
-        %         w = waveform(ds,scnl,day,day+1);
         w = fillgaps(w, 'interp');
         w = detrend(w);
         w = filtfilt(f, w);
@@ -75,6 +71,7 @@ for day=startDate:endDate
         h3 = drumplot(w, 'mpl', 30, 'catalog', cobj);
         plot(h3)
         print(gcf,fullfile(outDir,'NMF',[datestr(day,'yyyymmdd'),'drum']),'-dpng')
+        close(gcf)
     end
     
 end

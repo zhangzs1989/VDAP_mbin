@@ -14,7 +14,7 @@ preTime = 0; %start template this many secs before template time
 sr = params.newSampleRate;
 fid2=fopen(NMFeventFile,'w');
 fid3=fopen(NEICeventFile,'w');
-mags = 2;
+defaultMag = 2;
 
 %%
 for l = 1:length(qmllist)
@@ -28,7 +28,10 @@ for l = 1:length(qmllist)
     end
     disp(['EVENT# ',int2str(quakeID),', ',quakeMLfile])
     
-    picks = readQuakeML(quakeMLfile);
+    [picks,event] = readQuakeML(quakeMLfile);
+    if ~isfield(event,'Magnitude')
+        event.Magnitude = defaultMag;
+    end
     if ~params.useLags
         templtime = min(extractfield(picks,'dn')); % template start time
     else
@@ -36,7 +39,7 @@ for l = 1:length(qmllist)
     end
     t1=templtime-datenum(0,0,0,0,0,preTime);
     t2=templtime+datenum(0,0,0,0,0,params.templateLen);
-    fprintf(fid3,'%s %2.1f\n',datestr(t1,'yyyy-mm-ddTHH:MM:SSZ'),mags);
+    fprintf(fid3,'%s %2.1f\n',datestr(t1,'yyyy-mm-ddTHH:MM:SSZ'),event.Magnitude);
     disp([datestr(t1,'yyyymmddHHMMSS.FFF'),' '])
     
     ct = 0;
@@ -48,7 +51,7 @@ for l = 1:length(qmllist)
             w(ct) = demean(w(ct));
             sampleRate=get(w(ct),'freq');
             w(ct) = fix_data_length(w(ct),params.templateLen*sampleRate); %JP add to fix parfor assignment error
-            fprintf(fid2,'%d %s %s %s %s %s %2.1f\n',quakeID,datestr(t1,'dd-mmm-yyyy HH:MM:SS'),picks(m).net,picks(m).sta,picks(m).chan,picks(m).loc,mags);
+            fprintf(fid2,'%d %s %s %s %s %s %2.1f\n',quakeID,datestr(t1,'dd-mmm-yyyy HH:MM:SS'),picks(m).net,picks(m).sta,picks(m).chan,picks(m).loc,defaultMag);
         catch
             disp('problem loading waveform, padding with zeroes');
             disp(['cannot load ',get(scnl,'station'),' ',get(scnl,'channel')])

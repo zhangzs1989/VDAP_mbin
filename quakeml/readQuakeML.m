@@ -41,7 +41,7 @@ end
 picks = pick;
 
 if nargout == 2
-    varargout{1} = [];
+    event = [];
     
     try
         origin = quake.origin;
@@ -54,7 +54,7 @@ if nargout == 2
         event.MagType = quake.magnitude.type.Text;
         % TODO: there are more fields to add...
     catch
-        disp('No event data found')
+        disp('missing event data')
     end
     varargout{1} = event;
     

@@ -1,4 +1,4 @@
-function [xyzn1,OT1,omisfit1,fv,F] = BFgridsearch2(iix,iiy,iiz,VpH,VsH,picks,OTinc)
+function [xyzn1,OT1,omisfit1,data,ib] = BFgridsearch2(iix,iiy,iiz,VpH,VsH,picks,OTinc)
 
 nsta = VpH.n(1);
 npha = nsta*2;
@@ -65,39 +65,6 @@ end
 xyzn1 = xyzn(ib,:);
 omisfit1 = omisfit(ib);
 OT1=OTs(ib);
-
-%%
-[x,y,z] = meshgrid(iix,iiy,iiz);
-m = reshape(data(:,ib),simSpace);
-m2 = m./omisfit1;
-xn1 = xyzn1(1); yn1 = xyzn1(2); zn1 = xyzn1(3);
-xslice = xn1;
-yslice = yn1;
-zslice = zn1;
-
-F=figure('visible','on');
-hold on, box on, grid on
-slice(x,y,-z,m,xslice,yslice,-zslice);
-plot3(xn1,yn1,-zn1,'ko','markersize',20,'MarkerFaceColor','m','MarkerEdgeColor','w')
-colormap(flipud(jet))
-% colormap((jet))
-c=colorbar;
-c.Label.String = 'Misfit (seconds)';
-view(3)
-xlabel('X (m)')
-ylabel('Y (m)')
-zlabel('Z (m)')
-axis equal
-
-ci = 5; % percent away from minimum to contour
-% J = find(data./omisfit >= ci);
-% [I1,I2,I3]=ind2sub(simSpace,J);
-
-fv = isosurface(x,y,-z,m2,ci);
-p = patch(fv);
-p.FaceColor = 'none';
-p.EdgeColor = 'm';
-title({'Misfit (s)',[int2str(ci),'% of Max contoured']});
 
 end
 

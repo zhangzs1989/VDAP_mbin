@@ -84,7 +84,7 @@ zpts = zmin:Vpmod.d(1):zmax;
 [X,Y,Z] = meshgrid(xpts,ypts,zpts);
 %%
 % setup geometry figure
-figure
+figure('visible',params.visible)
 plot3(x,y,-lonlatdep(:,3),'kv',vx,vy,inputs.summit(3),'r^'); hold on;
 text(x+tOff,y+tOff,-lonlatdep(:,3)+tOff,sname)
 plot3(X(:),Y(:),-Z(:),'k+')
