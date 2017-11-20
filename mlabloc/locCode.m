@@ -110,9 +110,9 @@ for l = 1:length(qmllist)
     ARCLEN = distance(lonlatdep(:,2),lonlatdep(:,1),nlat,nlon);
     il = ARCLEN==min(ARCLEN);
     catalog(l).minDist = deg2km(ARCLEN(il));
+    catalog(l).gap = computeMaxStationGap(nlat,nlon,lonlatdep(:,2),lonlatdep(:,1));
 
-    %TODO: 
-%     catalog(l).gap = computeMaxStationGap(nlat,nlon,lonlatdep(:,2),lonlatdep(:,1));
+    %TODO:
 %     catalog(l).xerr
 %     catalog(l).yerr
 %     catalog(l).zerr
