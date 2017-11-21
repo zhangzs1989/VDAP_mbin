@@ -1,4 +1,4 @@
-function [VarName1,Longitude,Latitude,Elevation] = importSwarmStationConfig(filename, startRow, endRow)
+function [CT,Longitude,Latitude,Elevation] = importSwarmStationConfig(filename, startRow, endRow)
 %IMPORTFILE Import numeric data from a text file as column vectors.
 %   [VARNAME1,LONGITUDE,LATITUDE,ELEVATION] = IMPORTFILE(FILENAME) Reads
 %   data from text file FILENAME for the default selection.
@@ -56,6 +56,18 @@ fclose(fileID);
 
 %% Allocate imported array to column variable names
 VarName1 = dataArray{:, 1};
+
+for i=1:length(VarName1)
+    line = VarName1{i};
+    isp = strfind(line,' ');
+    
+    station = strtrim(line(1:isp(1)));
+    channel = strtrim(line(isp(1):isp(2)));
+    network = strtrim(line(isp(2):isp(3)));
+    location = strtrim(line(isp(3):isp(4)-2));
+    CT(i) = ChannelTag(network, station, location, channel);
+end
+
 Longitude = dataArray{:, 2};
 Latitude = dataArray{:, 3};
 Elevation = dataArray{:, 4};

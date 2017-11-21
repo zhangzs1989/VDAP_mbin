@@ -4,7 +4,7 @@ input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.
 input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
 input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %full res;
 input.catalogsDir = '/Users/jpesicek/Dropbox/Research/EFIS/global7'; % importISCcatalog.m
-input.outDir = '~/Dropbox/Research/EFIS/global7';
+input.outDir = '~/Dropbox/Research/EFIS/global8';
 
 %% general params
 params.srad = [0 50];
@@ -18,7 +18,7 @@ params.YearRange = [1964 2015];
 params.coasts = true;
 params.wingPlot = true;
 params.topo = true;
-params.visible = 'on';
+params.visible = 'off';
 
 load(input.gvp_volcanoes)
 load(input.gvp_eruptions)

@@ -23,8 +23,12 @@ if exist(InputFileName,'file')
             end
             
             eq = strfind(par,'=');
-            T=evalc([par(1:eq)  par(eq+1:end) ]);
-            
+            try
+                T=evalc([par(1:eq)  par(eq+1:end) ]);
+            catch
+                warning('bad input')
+                details(par)
+            end
         end
     end
     

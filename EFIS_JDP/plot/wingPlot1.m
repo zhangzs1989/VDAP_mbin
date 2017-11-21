@@ -218,6 +218,7 @@ B2.x = vx + r*sin(params.angleA); B2.y = vy - r*cos(params.angleA); % xy coords 
 plotm(A1.lat,A1.lon, 'sr'); % beginning of A xsection
 textm(A1.lat,A1.lon, 'A'); % A xsection label
 plotm([A1.lat A2.lat],[A1.lon A2.lon],'r'); % A-A' xsection
+%textm(A2.lat,A2.lon,num2str(vinfo.SHmax)) 
 
 % place B-B' on mapview
 plotm(B1.lat,B1.lon, 'sb'); % beginning of B xsection

@@ -2,11 +2,11 @@ function [lonlatdep,sname] = getSwarmStationCoords(FileName)
  
 % read config file from swarm 
 
-[channelInfo,Longitude,Latitude,Elevation] = importSwarmStationConfig(FileName);
+[channelTag,Longitude,Latitude,Elevation] = importSwarmStationConfig(FileName);
 
-for i=1:length(channelInfo)
-    stat = char(channelInfo(i));
-    stat = stat(1:4);
+for i=1:length(channelTag)
+    stat = char(channelTag(i).station);
+%     stat = stat(1:4);
     sname{i} = deblank(stat);
 
 end
