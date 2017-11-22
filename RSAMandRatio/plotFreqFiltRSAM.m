@@ -1,6 +1,6 @@
 clear
 %% plot frequency filtered RSAM data
-inputFile = '~/Dropbox/VDAP/Responses/Agung/RSAM/rsamInputs.txt';
+inputFile = '/Users/jpesicek/VDAP_mbin/RSAMandRatio/rsamInputs.txt';
 [inputs,params] = getInputFiles(inputFile);
 [channelTag,~,~,~] = importSwarmStationConfig(inputs.stations);
 CT = channelTag(1:4); %NOTE: here choose channels to do, or edit station file%%
@@ -78,7 +78,7 @@ for k=1:numel(fobj)
     end
     ylabel(['RSAM (',num2str(params.rsamWindow/60,'%2.1f'),' hrs)'],'FontWeight','bold')
     bp = (get(fobj(k),'cutoff'));
-    title(['Frequency Filtered RSAM: ',int2str(bp(1)),'-',int2str(bp(2)),' Hz'])
+    title(['Frequency Filtered RSAM: ',num2str(bp(1)),'-',num2str(bp(2)),' Hz'])
     legend(CT.string,'location','northwest')
     ax(k).YColor = 'k';
     

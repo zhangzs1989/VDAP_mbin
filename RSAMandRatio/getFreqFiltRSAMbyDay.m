@@ -1,6 +1,6 @@
 clear
 %% create frequency filtered RSAM data and save to disk for plotting later
-inputFile = '~/Dropbox/VDAP/Responses/Agung/RSAM/rsamInputs.txt';
+inputFile = '/Users/jpesicek/VDAP_mbin/RSAMandRatio/rsamInputs.txt';
 [inputs,params] = getInputFiles(inputFile);
 [channelTag,~,~,~] = importSwarmStationConfig(inputs.stations);
 CT = channelTag(1:4); %NOTE: here choose channels to do, or edit station file
