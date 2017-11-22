@@ -46,7 +46,7 @@ for day = params.startDate:params.endDate
             error('FATAL')
         end
         str = [datestr(day,'yyyymmdd'),'_',get(CT(i),'station'),'_',get(CT(i),'channel')];
-        save(fullfile(outDir,str),'RSAM_OBJ')
+        save(fullfile(inputs.outDir,str),'RSAM_OBJ')
         
     end
 end
