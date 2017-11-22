@@ -1,4 +1,4 @@
-function [ RSAM_OBJ ] = quickRSAM( ds, tag, tstart, tstop, method, sampling_period, filterobj )
+function [ RSAM_OBJ ] = quickRSAM_JDP( ds, tag, tstart, tstop, method, sampling_period, filterobj )
 %QUICKRSAM Quickly produces RSAM from a given set of data
 % This is a wrapper for WAVEFORM2RSAM that allows you to compute RSAM
 % directly from a datasource. The continuous data can also be filtered

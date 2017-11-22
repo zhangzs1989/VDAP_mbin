@@ -29,7 +29,7 @@ for day = params.startDate:params.endDate
             %% loop over filters, PARFOR tested
             parfor j=1:numel(fobj)
                 
-                disp(['BP: ',num2str(get(fobj(j),'cutoff'))])
+%                 disp(['BP: ',num2str(get(fobj(j),'cutoff'))])
                 [ RSAM_OBJ(j) ] = quickRSAM_JDP( inputs.ds, CT(i), day, day+1, 'mean', params.rsamWindow,fobj(j));
                 x = get(RSAM_OBJ(j),'timevector');
                 
