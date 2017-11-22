@@ -1,0 +1,9 @@
+inputs.ds = datasource('winston','130.118.152.130',16022);
+inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/RSAM/RSAMl60';
+inputs.stations='/Users/jpesicek/Dropbox/sw/swarm-2.8.2/LatLonAgung.config'; %swarm format
+%
+params.startDate=datenum('9-1-2017');
+params.endDate = datenum('11-22-2017');
+params.rsamWindow = 60; % minutes
+params.filters = [nan, nan; 1,12; 0.5,3; 6,25];
+params.plotRatio = true;
