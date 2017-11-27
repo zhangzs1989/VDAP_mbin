@@ -83,9 +83,13 @@ for k=1:numel(fobj)
     legend(CT.string,'location','northwest')
     ax(k).YColor = 'k';
     
+    vrsams = reshape(rsams,numel(rsams),1);
+    Y(k) = prctile(vrsams,99.5);
+    ylim([0 Y(k)])
 end
 linkaxes(ax,'x')
-axis tight
+% axis tight
 zoom('xon')
+% xlim([datenum(2017,11,01),now])
 
 print(gcf,fullfile(ddir,'RSAMs'),'-dpng')
