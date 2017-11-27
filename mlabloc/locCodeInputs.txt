@@ -1,12 +1,12 @@
 % this text file is read into matlab and the variables are created
 inputs.summit = [115.508,-8.343,2995];
 inputs.str = 'Agung';
-inputs.stations= '/Users/jpesicek/Dropbox/VDAP/Responses/Agung/stations/LatLonAgung9.config';
+inputs.stations= '/Users/jpesicek/Dropbox/VDAP/Responses/Agung/stations/LatLonAgung12.config';
 inputs.velFile='/Users/jpesicek/Dropbox/sw/swarm-2.8.2/DefaultVelocityModel.txt'; %okmok
 inputs.quakeMLfileList='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/quakeMLpicks/quakeMLeventList.txt';
-inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/nov24';
+inputs.outDir='/Users/jpesicek/Dropbox/VDAP/Responses/Agung/mlabloc/tmp';
 %
-params.sint=2; % grid search interval in km
+params.sint=3; % grid search interval in km
 params.maxDepth=20; % km
 params.minDepth=-1.5;
 params.maxRadius=40;

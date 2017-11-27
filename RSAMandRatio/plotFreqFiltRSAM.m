@@ -92,4 +92,7 @@ linkaxes(ax,'x')
 zoom('xon')
 % xlim([datenum(2017,11,01),now])
 
-print(gcf,fullfile(ddir,'RSAMs'),'-dpng')
+% print(gcf,fullfile(ddir,'RSAMs'),'-dpng')
+% saveas(gcf,fullfile(ddir,'RSAMs.png'))
+hgexport(gcf, fullfile(ddir,'RSAMs.png'),  ...
+     hgexport('factorystyle'), 'Format', 'png'); 

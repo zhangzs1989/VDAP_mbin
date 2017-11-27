@@ -24,7 +24,7 @@ for i=1:numpicks
     try
         pick(i).uncert= str2num(quake.pick{1,i}.time.uncertainty.Text);
     catch
-        warning('could not find pick uncertainty')
+        warning(['could not find pick uncertainty for ',pick(i).sta])
     end
     pick(i).dn    = datenum(pick(i).time,'yyyy-mm-ddTHH:MM:SS.FFFZ');
     pick(i).chan = quake.pick{1,i}.waveformID.Attributes.channelCode;

@@ -7,17 +7,16 @@ function [ObsArrivalTimes,I] = getObservedArrivalTimes(quakeMLfile,stationNames)
     picks = readQuakeML(quakeMLfile);
     
     st = extractfield(picks,'sta');
-    [Y,I]=sort(st);
+    [st,I]=sort(st);
     picks = picks(I);
-    
     %%
     pi = find(strcmp(extractfield(picks,'phase'),'P'));
     si = find(strcmp(extractfield(picks,'phase'),'S'));
     
     if isempty(pi)
-        error('no P picks')
+        warning('no P picks')
     elseif length(pi)>nsta
-        error('too many P picks')
+        warning('too many P picks')
     end
     
     picksP = picks(pi);
@@ -28,7 +27,8 @@ function [ObsArrivalTimes,I] = getObservedArrivalTimes(quakeMLfile,stationNames)
     try
         picksP0(IBp) = atObsP;
     catch
-        error('FATAL: missing station in station file?')
+        disp(unique(st))
+        warning('FATAL: missing station in station file?')
     end
 
     disp([int2str(length(pi)),' P picks read in'])

@@ -70,7 +70,7 @@ for l = 1:length(qmllist)
     
     %% find optimal location using brute force
     disp('entering Brute Force Grid Search...')
-    [xyzn,OTn,omisfit,data,ib] = BFgridsearch2(iix,iiy,iiz,VpH,VsH,atObs,OTinc);
+    [xyzn,OTn,omisfit,data,ib] = BFgridsearch(iix,iiy,iiz,VpH,VsH,atObs,OTinc);
     
     [F1,F2] = BFgridSearchFigs(iix,iiy,iiz,xyzn,OTn,omisfit,data,ib,sta_zxy(I,:),v_zxy,sname(I),params.visible);
     
