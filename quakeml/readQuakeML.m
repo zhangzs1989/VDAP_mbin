@@ -159,7 +159,7 @@ try
     end
     % TODO: there are more fields to add...
 catch
-    disp('missing event data')
+    warning('missing event data')
     event = [];
 end
 
