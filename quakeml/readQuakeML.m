@@ -127,7 +127,12 @@ for i=1:numpicks
         warning('No location code provided, using default')
         pick(i).loc = '--';
     end
-    
+    try
+        pick(i).polarity = quake.pick{1,i}.polarity.Text;
+    catch
+        pick(i).polarity = '?';        
+    end
+        
     pick(i).publicID = quake.pick{1,i}.Attributes.publicID;
 
 end
