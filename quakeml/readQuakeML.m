@@ -145,8 +145,13 @@ try
     event.Latitude = str2double(origin.latitude.value.Text);
     event.Longitude = str2double(origin.longitude.value.Text);
     event.Depth = str2double(origin.depth.value.Text)/1000;
-    event.Magnitude = str2double(quake.magnitude.mag.value.Text);
-    event.MagType = quake.magnitude.type.Text;
+    try
+        event.Magnitude = str2double(quake.magnitude.mag.value.Text);
+        event.MagType = quake.magnitude.type.Text;
+    catch
+        event.Magnitude = [];
+        event.MagType = [];
+    end
     % TODO: there are more fields to add...
 catch
     disp('missing event data')

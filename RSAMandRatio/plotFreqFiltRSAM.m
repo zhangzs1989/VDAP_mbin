@@ -1,8 +1,21 @@
-function plotFreqFiltRSAM(inputFile)
+function plotFreqFiltRSAM(varargin)
 
-%% plot frequency filtered RSAM data
+% plot frequency filtered RSAM data
+
 % inputFile = '/Users/jpesicek/Dropbox/VDAP/Responses/Agung/RSAM/rsamInputs.txt';
-[inputs,params] = getInputFiles(inputFile);
+if nargin == 1
+    if exist(varargin{1},'file')
+        [inputs,params] = getInputFiles(inputFile);
+    else
+        error('expected input file')
+    end
+elseif nargin == 2
+    inputs = varargin{1};
+    params = varargin{2};
+elseif nargin > 2
+    error('too many arguments')
+end
+%%
 [CT,~,~,~] = importSwarmStationConfig(inputs.stations);
 % CT = CT(1:4); %NOTE: here choose channels to do, or edit station file%%
 %%
@@ -17,7 +30,7 @@ pts = 24*60/params.rsamWindow;
 c = get(gca,'colororder');
 rc = [0 0.5 0];
 %%
-endDate = params.endDate;
+endDate = floor(params.endDate);
 startDate = params.startDate;
 ddir = inputs.outDir;
 

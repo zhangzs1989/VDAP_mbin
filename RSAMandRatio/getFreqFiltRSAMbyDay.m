@@ -1,9 +1,21 @@
-function getFreqFiltRSAMbyDay(inputFile)
+function getFreqFiltRSAMbyDay(varargin)
 
 %% create frequency filtered RSAM data and save to disk for plotting later
 
 % inputFile = '/Users/jpesicek/Dropbox/VDAP/Responses/Agung/RSAM/rsamInputs.txt';
-[inputs,params] = getInputFiles(inputFile);
+if nargin == 1
+    if exist(varargin{1},'file')
+        [inputs,params] = getInputFiles(inputFile);
+    else
+        error('expected input file')
+    end
+elseif nargin == 2
+    inputs = varargin{1};
+    params = varargin{2};
+elseif nargin > 2
+    error('too many arguments')
+end
+%%
 [CT,~,~,~] = importSwarmStationConfig(inputs.stations);
 % CT = channelTag(1:4); %NOTE: here choose channels to do, or edit station file
 %%
@@ -52,6 +64,3 @@ for day = params.startDate:params.endDate
         
     end
 end
-
-%% PLOT
-plotFreqFiltRSAM(inputFile)
