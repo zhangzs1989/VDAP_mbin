@@ -132,9 +132,11 @@ for i=1:numpicks
     catch
         pick(i).polarity = '?';        
     end
-        
+    try
+        pick(i).azimuth = str2double(quake.origin.arrival{1,i}.azimuth.Text);
+        pick(i).takeoffAngle = str2double(quake.origin.arrival{1,i}.takeoffAngle.Text);
+    end
     pick(i).publicID = quake.pick{1,i}.Attributes.publicID;
-
 end
 
 picks = pick;
@@ -158,6 +160,8 @@ try
         event.MagType = [];
     end
     % TODO: there are more fields to add...
+%     event.arrival = origin.arrival;
+    
 catch
     warning('missing event data')
     event = [];
