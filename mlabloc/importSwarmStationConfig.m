@@ -72,4 +72,11 @@ Longitude = dataArray{:, 2};
 Latitude = dataArray{:, 3};
 Elevation = dataArray{:, 4};
 
+% sort output
+[~,I]=sort(get(CT,'station'));
+CT = CT(I);
+Longitude = Longitude(I);
+Latitude = Latitude(I);
+Elevation = Elevation(I);
 
+end

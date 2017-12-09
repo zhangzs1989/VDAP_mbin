@@ -1,4 +1,4 @@
-function [ s, varargout ] = readQuakeML( quakemlFile,varargin )
+function [ s, picks, event ] = readQuakeML( quakemlFile )
 
 % reads a quakeML file and returns a more easily accesible "picks" structure
 % and/or an "event" structure if it exists in file;
@@ -8,88 +8,12 @@ if ~exist(quakemlFile,'file')==2 % single quakeml file input
     error('file DNE')
 end
 
-if nargin == 1
-    
-    if nargout ~=3
-        error('requires 3 outputs')
-    end
-    
-    s = xml2struct(quakemlFile); %downloaded from matlab exchange
-    quake = s.q_colon_quakeml.eventParameters.event;
-    
-    varargout{1} = returnpicks(quake);
-    varargout{2} = returnevent(quake);
-    
-elseif nargin == 2
-    
-    if nargout ~=2
-        error('requires 2 outputs')
-    end
-    
-    s = xml2struct(quakemlFile); %downloaded from matlab exchange
-    quake = s.q_colon_quakeml.eventParameters.event;
-    
-    switch varargin{1}
-        
-        case 'picks'
-            
-            varargout{1} = returnpicks(quake);
-            
-        case 'origin'
-            
-            varargout{1} = returnevent(quake);
-            
-        otherwise
-            
-            error('option not supported')
-            
-    end
-    
-elseif nargin == 3 % return picks and OT
-    
-    if nargout ~=3
-        error('requires 3 outputs')
-    end
-    
-    s = xml2struct(quakemlFile); %downloaded from matlab exchange
-    quake = s.q_colon_quakeml.eventParameters.event;
-    
-    switch varargin{1}
-        
-        case 'picks'
-            
-            varargout{1} = returnpicks(quake);
-            
-        case 'origin'
-            
-            varargout{1} = returnevent(quake);
-            
-        otherwise
-            
-            error('option not supported')
-            
-    end
-    
-    switch varargin{2}
-        
-        case 'picks'
-            
-            varargout{2} = returnpicks(quake);
-            
-        case 'origin'
-            
-            varargout{2} = returnevent(quake);
-            
-        otherwise
-            
-            error('option not supported')
-            
-    end
-    
-elseif nargin > 3
-    
-    error('option not supported')
-end
+s = xml2struct(quakemlFile); %downloaded from matlab exchange
+quake = s.q_colon_quakeml.eventParameters.event;
+
+picks =  returnpicks(quake);
+event =  returnevent(quake);
+picks = addArrivals2picks(event,picks);
 
 end
 %%
@@ -103,9 +27,9 @@ end
 for i=1:numpicks
     
     pick(i).sta   = quake.pick{1,i}.waveformID.Attributes.stationCode;
-    pick(i).time  = quake.pick{1,i}.time.value.Text;
     pick(i).chan = quake.pick{1,i}.waveformID.Attributes.channelCode;
     pick(i).net = quake.pick{1,i}.waveformID.Attributes.networkCode;
+    pick(i).time  = quake.pick{1,i}.time.value.Text;
     try
         pick(i).phase = quake.pick{1,i}.phaseHint.Text;
     catch
@@ -130,16 +54,19 @@ for i=1:numpicks
     try
         pick(i).polarity = quake.pick{1,i}.polarity.Text;
     catch
-        pick(i).polarity = '?';        
+        pick(i).polarity = '?';
     end
     try
-        pick(i).azimuth = str2double(quake.origin.arrival{1,i}.azimuth.Text);
-        pick(i).takeoffAngle = str2double(quake.origin.arrival{1,i}.takeoffAngle.Text);
+        pick(i).onset = quake.pick{1,i}.onset.Text;
+    catch
+        pick(i).onset = '?';
     end
     pick(i).publicID = quake.pick{1,i}.Attributes.publicID;
+    
 end
 
-picks = pick;
+[~,I]=sort(extractfield(pick,'sta'));
+picks = pick(I);
 
 end
 %%
@@ -160,11 +87,41 @@ try
         event.MagType = [];
     end
     % TODO: there are more fields to add...
-%     event.arrival = origin.arrival;
-    
+    %     event.arrival = origin.arrival;
+    try
+        for i=1:numel(quake.origin.arrival)
+            event.Arrival(i).azimuth = str2double(quake.origin.arrival{1,i}.azimuth.Text);
+            event.Arrival(i).takeoffAngle = str2double(quake.origin.arrival{1,i}.takeoffAngle.Text);
+            event.Arrival(i).distance = str2double(quake.origin.arrival{1,i}.distance.Text);
+            event.Arrival(i).pickID = quake.origin.arrival{1,i}.pickID.Text; %PICK ID
+            % TODO: more fields to add later...
+        end
+    catch
+        warning('Arrival trouble')
+    end
 catch
     warning('missing event data')
     event = [];
+end
+end
+
+%% merge arrivals to picks
+function picks = addArrivals2picks(event,picks)
+
+try
+    for i=1:numel(picks)
+        for j=1:numel(event.Arrival)
+            I = strcmp(picks(i).publicID,event.Arrival(j).pickID);
+            if I==1
+                picks(i).azimuth = event.Arrival(j).azimuth;
+                picks(i).takeoffAngle = event.Arrival(j).takeoffAngle;
+                picks(i).distance = event.Arrival(j).distance;
+                break
+            end
+        end
+    end
+catch
+    warning('adding arrival to picks failed')
 end
 
 end

@@ -117,7 +117,11 @@ end
 %%
 % stations
 if isfield(input,'stas') && ~isempty(input.stas)
-    [~,lat,lon,elev] = importStationFile(input.stas);
+    try
+        [~,lon,lat,elev] = importSwarmStationConfig(input.stas);
+    catch
+        [~,lat,lon,elev] = importStationFile(input.stas);
+    end
     id_a2 = inpolygon(lon, lat, longannO, latannO);
     mapdata.sta_lat = lat(id_a2);
     mapdata.sta_lon = lon(id_a2);
