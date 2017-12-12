@@ -66,8 +66,9 @@ for k=1:numel(fobj)
     end
     ax(k)=subplot(numel(fobj),1,k);
     xdata = datetime(datevec(xdata));
-    
+    %%
     if params.plotRatio
+        
         if numel(CT)>2
             warning('not tested for more than 2 stations')
         end
@@ -84,6 +85,27 @@ for k=1:numel(fobj)
         %     ylim([0 Y(k)])
         
         yyaxis left
+        
+    elseif params.plotCumRSAM && params.plotRatio == 0
+        
+        disp('plotting cumulative RSAM')
+        rsams2 = rsams;
+        I = isnan(rsams);
+        rsams2(I) = 0;
+        crsams = cumsum(rsams2);
+        
+        yyaxis right
+        for n=1:length(CT)
+            hold on
+            plot(xdata,crsams(:,n).^1,'Color',c(n,:),'LineStyle','-','LineWidth',2)
+%             plot(xdata,rsams(:,n).^2,'Color',c(n,:),'LineStyle','-','LineWidth',2)
+        end
+        ax(k).YColor = 'k';
+        ylabel('Cumulative RSAM','FontWeight','bold')    
+        yyaxis left        
+        
+    else
+        error('option not understood')
     end
     hold on
     for n=1:length(CT)
@@ -103,7 +125,7 @@ end
 linkaxes(ax,'x')
 % axis tight
 zoom('xon')
-% xlim([datenum(2017,11,01),now])
+xlim([params.startDate,now])
 
 % print(gcf,fullfile(ddir,'RSAMs'),'-dpng')
 % saveas(gcf,fullfile(ddir,'RSAMs.png'))

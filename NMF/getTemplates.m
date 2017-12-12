@@ -15,7 +15,10 @@ sr = params.newSampleRate;
 fid2=fopen(NMFeventFile,'w');
 fid3=fopen(NEICeventFile,'w');
 defaultMag = 2;
-
+% for spectral plot option, hard code for now (TODO)
+nfft=1024; %1024
+freqHi = 25;
+s = spectralobject(nfft,nfft*.86,freqHi,[0 120]); % for counts
 %%
 for l = 1:length(qmllist)
     
@@ -28,8 +31,8 @@ for l = 1:length(qmllist)
     end
     disp(['EVENT# ',int2str(quakeID),', ',quakeMLfile])
     
-    [picks,event] = readQuakeML(quakeMLfile);
-    if ~isfield(event,'Magnitude')
+    [~,picks,event] = readQuakeML(quakeMLfile);
+    if ~isfield(event,'Magnitude') || isempty(event.Magnitude)
         event.Magnitude = defaultMag;
     end
     if ~params.useLags
@@ -75,18 +78,41 @@ for l = 1:length(qmllist)
         end
         text(length(datas3(count-1,:))-150,1,['BP = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
         title(['{\color{blue}Template ',int2str(l),'@',datestr(t1,'mm/dd/yyyy HH:MM:SS'),'}'])
-        xlabel('samples since template start')
         set(gca,'YTickLabel',[])
         set(gca,'YTick',[])
+        
+        % change x axis from samples to seconds
+        XTo = get(gca,'XTick');
+        XTi = round(params.templateLen/length(XTo));
+        XTn = 0:XTi:params.templateLen;
+        XTnL= XTn*sr;
+        set(gca,'XTick',XTnL);
+        set(gca,'XTickLabel',XTn);
+        xlabel('Seconds')
+        
         box on, grid on
-        print([QCdir,filesep,datestr(templtime,30),'_',int2str(quakeID),'.png'],'-dpng')
+        print([QCdir,filesep,datestr(templtime,30),'_',int2str(quakeID),'w.png'],'-dpng')
         if strcmp(params.vis,'off')
             close(gcf)
         end
     catch
         warning('Not able to make figure')
     end
-    
+    % insert spectrogram figure here
+    try
+        figure('visible',params.vis), hold on
+        try
+            specgram2JP(s,w,'xunit','date','colorbar','none'); % 2JP is version with spectra plot added along y-axis, can use other version too
+        catch
+            s=set(s,'nfft',get(s,'nfft')/2);
+            specgram2JP(s,w,'xunit','date','colorbar','none'); % 2JP is version with spectra plot added along y-axis, can use other version too
+        end
+        print([QCdir,filesep,datestr(templtime,30),'_',int2str(quakeID),'s.png'],'-dpng')
+    catch
+        warning('Not able to make spec figure')       
+    end
+
+        
 end
 
 

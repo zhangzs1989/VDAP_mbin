@@ -75,7 +75,7 @@ end
 ID = ~ID2;
 
 %% testing, remove later
-[ percentDuplicates] = check4duplicateEvents(catalog(~ID)); %no OTtol, here, otherwise infinite loop
+% [ percentDuplicates] = check4duplicateEvents(catalog(~ID)); %no OTtol, here, otherwise infinite loop
 % if percentDuplicates > 0
 %     error('FATAL ERROR')
 % end

@@ -47,7 +47,12 @@ for day = params.startDate:params.endDate
                 [ RSAM_OBJ(j) ] = quickRSAM_JDP( inputs.ds, CT(i), day, day+1, 'mean', params.rsamWindow,fobj(j));
                 x = get(RSAM_OBJ(j),'timevector');
                 
-                if length(x) ~= pts
+                if isempty(x) % no data
+                    disp('missing data')
+                    rsamData = nan(length(xt),1);
+                    RSAM_OBJ(j) = set(RSAM_OBJ(j),'data',rsamData);
+                    RSAM_OBJ(j) = set(RSAM_OBJ(j),'start',xt(1));                   
+                elseif length(x) ~= pts % incomplete data, interpolate
                     r = get(RSAM_OBJ(j),'data');
                     disp('missing data')
                     rsamData = interp1(x,r,xt);

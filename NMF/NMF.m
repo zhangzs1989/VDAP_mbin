@@ -620,6 +620,16 @@ for i=1:length(line_numbers)
                         xlabel('samples since template start')
                         set(gca,'YTickLabel',[])
                         set(gca,'YTick',[])
+        
+                        % change x axis from samples to seconds
+                        XTo = get(gca,'XTick');
+                        XTi = round(template_length/length(XTo));
+                        XTn = 0:XTi:template_length;
+                        XTnL= XTn*newSampleRate;
+                        set(gca,'XTick',XTnL);
+                        set(gca,'XTickLabel',XTn);
+                        xlabel('Seconds')
+        
                         grid on, box on
                         print([QCdir2,filesep,datestr(to_output(each_match),30),'_T',int2str(template_numbers(i)),'_M',int2str(good_matches_ct),'_CC',num2str(output_data(each_match,1),'%3.1f'),'.png'],'-dpng')
                     catch

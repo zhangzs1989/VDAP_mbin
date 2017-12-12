@@ -3,9 +3,11 @@ function combineMatches2(inputs,params)
 %{ 
 THIS function reads in the match files for the templates and combines them
 into one master catalog. It removes duplicates within given tolerance and
-sorts output. Replaces clunky original code from SH
+sorts output. Replaces clunky original code from SH.
+
 J. PESICEK
 %}
+
 warning('ON','all')
 
 [template_numbers,~] = getTemplateInfo(params,inputs);

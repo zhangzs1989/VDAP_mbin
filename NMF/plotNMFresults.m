@@ -44,9 +44,6 @@ Combined_Results_lines = textscan(FID_results, '%s', 'delimiter', '\n');
 match_time=[];
 ccc=[];
 template_matched=[];
-% matches=[];
-% filtered_matches=[];
-% filtered_matches1=[]; %JP add
 amplitude=[];
 ncc=[];stc=[];
 count=0;
@@ -154,7 +151,7 @@ for i=sort(unique(template_matched))
     CC_best_ind(i)=ccc(temp_ind(temp_ccc_max_ind));
     ncc_best_ind(i)=ncc(temp_ind(temp_ccc_max_ind));
 end
-%
+%%
 scrsz = get(groot,'ScreenSize');
 figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/1],'visible',params.vis);hold on
 
@@ -204,7 +201,7 @@ ylabel('Normalized CCC','FontSize',12,'FontWeight','Bold')
 yyaxis left
 plot(match_time_keep,CC_keep,'*k')
 ax(3).YColor = 'k';
-plot(match_time_best(find(match_time_best>0)),CC_best_ind(find(match_time_best>0)),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
+plot(match_time_best(match_time_best>0),CC_best_ind(match_time_best>0),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
 xlim([startDate endDate])
 datetickJP('x','dd-mmm','keeplimits','keepticks')
 set(gca,'xminortick','on')
