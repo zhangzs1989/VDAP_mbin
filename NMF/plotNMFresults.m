@@ -81,7 +81,8 @@ end
 Mc=-1;
 %% JP add
 tc = 0;
-for i=sort(unique(template_matched)) % templates
+templnums = sort(unique(template_matched));
+for i=templnums % templates
     tc = tc+1;
     % get template mag
     %         templcoli = strfind(char(templates(i)),' ');
@@ -118,7 +119,7 @@ Ml_keep=Ml(Ml_keep_ind);
 CC_keep=ccc(Ml_keep_ind);
 ncc_keep=ncc(Ml_keep_ind);
 match_time_keep=match_time(Ml_keep_ind);
-%     match_time_keep = match_time;
+template_matched_keep=template_matched(Ml_keep_ind);
 
 %     %Find best match for each template. If master event is in here,
 %     for i=sort(unique(template_matched))
@@ -133,7 +134,7 @@ match_time_keep=match_time(Ml_keep_ind);
 %station count or something. now just match template time
 % NOTE: if this below doesn't work it's b/c your template didn't find
 % itself! check your times
-for i=sort(unique(template_matched))
+for i=templnums
     temp_ind = find(match_time_keep==templtime(i));
     if isempty(temp_ind)
         warning('cannot find self correlation')
@@ -164,7 +165,6 @@ c = ax(2).YColor;
 ax(2).YColor = 'k';
 ax(2).YLabel.Color = c;
 
-xlim([startDate endDate])
 datetickJP('x','dd-mmm','keeplimits','keepticks')
 set(gca,'xminortick','on')
 xlabel('Date Time','FontSize',12,'FontWeight','Bold')
@@ -177,38 +177,48 @@ ylabel('Event Count','FontWeight','bold','FontSize',12)
 ax(2).YColor = 'k';
 
 ax(1)=subplot(4,1,3);
-plot(match_time_keep,Ml_keep,'*')
-hold on, grid on, box on
-plot(match_time_best(match_time_best>0),Ml_best_ind(match_time_best>0),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
-plot(match_time_keep,cumMag(Ml_keep),'lineWidth',2)
-
-xlim([startDate endDate])
-%     ylim([floor(min(Ml)) ceil(max(Ml))])
+for i=templnums
+    I = template_matched_keep==i;
+    a(i)=plot(match_time_keep(I),Ml_keep(I),'*'); hold on
+    lh(i) =  {['template ',int2str(i),' matches']};
+    at=plot(match_time_best(i),Ml_best_ind(i),'o','MarkerSize',8,'MarkerEdgeColor','k');
+end
+grid on, box on
+a(numel(a)+1)=plot(match_time_keep,cumMag(Ml_keep),'lineWidth',2,'Color','k');
+lh(numel(a)) = {'Cumulative Mag'};
+lh(numel(lh)+1)= {'templates'};
+a2=[a,at];
 datetickJP('x','dd-mmm','keeplimits','keepticks')
 set(gca,'xminortick','on')
 ylabel('Relative Magnitude','FontSize',12,'FontWeight','Bold')
 xlabel('Date Time','FontSize',12,'FontWeight','Bold')
 % title((lab{sta}),'interpreter','none','FontSize',12,'FontWeight','Bold')
-legend('Matches','Templates','Cum Mag','Location','Northwest')
+legend(a2,lh,'Location','Northwest')
 
 ax(3)=subplot(4,1,2);
-yyaxis right
-plot(match_time_keep,ncc_keep,'.k');
-ax(3).YColor = 'k';
-hold on
-%     plot(match_time_best(find(match_time_best>0)),ncc_best_ind(find(match_time_best>0)),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
-ylabel('Normalized CCC','FontSize',12,'FontWeight','Bold')
-yyaxis left
-plot(match_time_keep,CC_keep,'*k')
-ax(3).YColor = 'k';
-plot(match_time_best(match_time_best>0),CC_best_ind(match_time_best>0),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
-xlim([startDate endDate])
+% yyaxis right
+% plot(match_time_keep,ncc_keep,'.k');
+% ax(3).YColor = 'k';
+% hold on
+% %     plot(match_time_best(find(match_time_best>0)),ncc_best_ind(find(match_time_best>0)),'ro','MarkerSize',8,'MarkerFaceColor','r','MarkerEdgeColor','k')
+% ylabel('Normalized CCC','FontSize',12,'FontWeight','Bold')
+% yyaxis left
+% ax(3).YColor = 'k';
+clear a lh
+for i=templnums
+    I = template_matched_keep==i;
+    a(i)=plot(match_time_keep(I),CC_keep(I),'*'); hold on
+    lh(i) =  {['template ',int2str(i),' matches']};
+    at =plot(match_time_best(i),CC_best_ind(i),'ro','MarkerSize',8,'MarkerEdgeColor','k');
+end
+lh(numel(lh)+1)= {'templates'};
 datetickJP('x','dd-mmm','keeplimits','keepticks')
 set(gca,'xminortick','on')
 xlabel('Date Time','FontSize',12,'FontWeight','Bold')
 ylabel('CCC','FontSize',12,'FontWeight','Bold')
 hold on, grid on, box on
-legend('Matches','Template Event','Location','Northwest')
+a2=[a,at];
+legend(a2,lh,'Location','Northwest')
 
 ax(4)=subplot(4,1,4);
 for sta=1:nsta
@@ -227,7 +237,11 @@ end
 legend(lab,'interpreter','none')
 linkaxes(ax,'x')
 zoom XON
+xlim([startDate endDate])
 
-print([outDir,filesep,'NMF.png'],'-dpng')
+% print([outDir,filesep,'NMF.png'],'-dpng')
+hgexport(gcf, fullfile(outDir,'NMF.png'),  ...
+    hgexport('factorystyle'), 'Format', 'png');
+
 fclose(FID_results);
 end

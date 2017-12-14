@@ -24,7 +24,7 @@ if status~=0
 end
 
 ii = strfind(result,':');
-GAP = str2num(result(ii+1:end));
+GAP = str2double(result(ii+1:end));
 
 % AZ = azimuth(eqlat,eqlon,staLat,staLon);
 
