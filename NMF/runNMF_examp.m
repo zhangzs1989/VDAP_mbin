@@ -1,7 +1,7 @@
 %% MAIN code to run the Network Matched Filter
 clear
 
-inputFile = '/Users/jpesicek/VDAP_mbin/NMF/NMF_input.txt';
+inputFile = '/Users/jpesicek/VDAP_mbin/NMF/NMF_input_examp.txt';
 [inputs,params] = getInputFiles(inputFile);
 [~,~,~] = mkdir(fullfile(inputs.outDir));
 diaryFileName = fullfile(inputs.outDir,['/NMF_',datestr(now,30),'_diary.txt']);

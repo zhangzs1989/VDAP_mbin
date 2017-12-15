@@ -62,14 +62,19 @@ for l = 1:length(qmllist)
         end
     end
     
-
-        datas3 = zeros(numel(picks),params.templateLen*sr);  %[];
+    
+%     datas3 = zeros(numel(picks),params.templateLen*sr);  %[];
     try %JP
         w1.w = w;
         w1.i = m;
         w1.t = t1;
+
         F = NMFwaveformfig(w1,[],params);
         print(F,[QCdir,filesep,datestr(templtime,30),'_',int2str(quakeID),'w.png'],'-dpng')
+
+        if strcmp(params.vis,'off')
+            close(F)
+        end
     catch
         warning('Not able to make figure')
     end
@@ -83,12 +88,14 @@ for l = 1:length(qmllist)
             specgram2JP(s,w,'xunit','date','colorbar','none'); % 2JP is version with spectra plot added along y-axis, can use other version too
         end
         print([QCdir,filesep,datestr(templtime,30),'_',int2str(quakeID),'s.png'],'-dpng')
+    
+        if strcmp(params.vis,'off')
+            close(F)
+        end
     catch
-        warning('Not able to make spec figure')       
+        warning('Not able to make spec figure')
     end
-
-        
+    
 end
-
 
 end

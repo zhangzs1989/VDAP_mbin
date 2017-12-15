@@ -589,8 +589,7 @@ for i=1:length(line_numbers)
                         end
                     end
                     
-                    try %JP
-
+                    try %JP: match wave figure
                         w1.w = w;
                         w1.i = template_numbers(i);
                         w1.t = template_time2;
@@ -603,7 +602,11 @@ for i=1:length(line_numbers)
                         
                         F = NMFwaveformfig(w1,w2,params);
                         print(F,[QCdir2,filesep,datestr(to_output(each_match),30),'_T',int2str(template_numbers(i)),'_M',int2str(good_matches_ct),'_CC',num2str(output_data(each_match,1),'%3.1f'),'.png'],'-dpng')
-                                            
+                        
+                        if strcmp(params.vis,'off')
+                            close(F)
+                        end
+                        
                     catch
                         warning('Not able to make figure')
                     end

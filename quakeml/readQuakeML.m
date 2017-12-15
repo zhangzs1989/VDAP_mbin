@@ -74,6 +74,9 @@ function event = returnevent(quake)
 
 try
     origin = quake.origin;
+    if numel(origin)>1
+        origin = origin{1};
+    end
     dt = origin.time.value.Text;
     event.DateTime = datestr(datenum(dt,'yyyy-mm-ddTHH:MM:SS.FFFZ'));
     event.Latitude = str2double(origin.latitude.value.Text);
