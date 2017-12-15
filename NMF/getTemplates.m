@@ -62,39 +62,14 @@ for l = 1:length(qmllist)
         end
     end
     
-    datas3 = zeros(numel(picks),params.templateLen*sr);  %[];
+
+        datas3 = zeros(numel(picks),params.templateLen*sr);  %[];
     try %JP
-        figure('visible',params.vis), hold on
-        count = 1;
-        
-        for jj = 1:numel(picks)
-            wd = get(w(count),'DATA');
-            wstr = [get(w(count),'station'),', ',get(w(count),'channel')];
-            datas3(count,1:params.templateLen*sr) = bandpass(wd,params.flo,params.fhi,1/sr,3);
-            
-            plot(1:length(datas3(count,:)),datas3(count,:)./max(datas3(count,:))+count*2,'b')
-            text(length(datas3(count,:))-20,count*2,wstr,'color','k','BackgroundColor','w','interpreter','none','fontsize',9,'EdgeColor','k')
-            count = count+1;
-        end
-        text(length(datas3(count-1,:))-150,1,['BP = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
-        title(['{\color{blue}Template ',int2str(l),'@',datestr(t1,'mm/dd/yyyy HH:MM:SS'),'}'])
-        set(gca,'YTickLabel',[])
-        set(gca,'YTick',[])
-        
-        % change x axis from samples to seconds
-        XTo = get(gca,'XTick');
-        XTi = round(params.templateLen/length(XTo));
-        XTn = 0:XTi:params.templateLen;
-        XTnL= XTn*sr;
-        set(gca,'XTick',XTnL);
-        set(gca,'XTickLabel',XTn);
-        xlabel('Seconds')
-        
-        box on, grid on
-        print([QCdir,filesep,datestr(templtime,30),'_',int2str(quakeID),'w.png'],'-dpng')
-        if strcmp(params.vis,'off')
-            close(gcf)
-        end
+        w1.w = w;
+        w1.i = m;
+        w1.t = t1;
+        F = NMFwaveformfig(w1,[],params);
+        print(F,[QCdir,filesep,datestr(templtime,30),'_',int2str(quakeID),'w.png'],'-dpng')
     catch
         warning('Not able to make figure')
     end

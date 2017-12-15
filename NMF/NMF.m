@@ -557,7 +557,7 @@ for i=1:length(line_numbers)
                 fprintf(FID_output,'%.4f %.3f %d %.2f\n',output_data(each_match,:)');
                 
                 %TODO: move figure to subroutine and make them after removing duplicates
-                if mkfigs && good_matches_value(each_match) >= qcCCC 
+                if mkfigs && good_matches_value(each_match) >= qcCCC
                     ln = line_numbers{1,i}(1);
                     template_time2 = datenum([char(temp_read_in{2}(ln)) ' ' char(temp_read_in{3}(ln))]);
                     
@@ -590,48 +590,20 @@ for i=1:length(line_numbers)
                     end
                     
                     try %JP
-                        figure('visible',vis), hold on
-                        count = 1;
-                        
-                        for jj = lineNums
-                            wd = get(w(count),'DATA');
-                            wstr = [get(w(count),'station'),', ',get(w(count),'channel')];
-                            datas3(count,1:template_length*newSampleRate) = bandpass(wd,bandpass_filter(1),bandpass_filter(2),1/newSampleRate,3);
-                            %                             datas3(count,1:template_length*new_sample_rate) = wd;
-                            
-                            wdt= get(wt(count),'DATA');
-                            wstr2 = [get(wt(count),'station'),', ',get(wt(count),'channel')];
-                            datas4(count,1:template_length*newSampleRate) = bandpass(wdt,bandpass_filter(1),bandpass_filter(2),1/newSampleRate,3);
-                            %                             datas4(count,1:template_length*new_sample_rate) = wdt;
-                            
-                            if sum(~strcmp(wstr,wstr2)) ~= 0
-                                disp('channel and/or station does not match')
-                            end
-                            plot(1:length(datas4(count,:)),datas4(count,:)./max(datas4(count,:))+count*2,'b')
-                            plot(1:length(datas3(count,:)),datas3(count,:)./max(datas3(count,:))+count*2,'r')
-                            text(length(datas4(count,:))-20,count*2,wstr,'color','k','BackgroundColor','w','EdgeColor','k','interpreter','none','fontsize',9);
-                            text(0,count*2,num2str(maxcorrs(count,each_match),'%.2f'),'BackgroundColor','w','EdgeColor','k'); % currently showing max for day, not match. Should update
-                            count = count+1;
-                        end
-                        text(length(datas4(count-1,:))-120,1,['std = ',num2str(std(maxcorrs(:,each_match),'omitnan'),'%3.2f')]) %std of day maxes, not match.  Should update
-                        text(length(datas4(count-1,:))-150,1,['BP = ',num2str(params.flo),'-',num2str(params.fhi),' Hz'],'BackgroundColor','w','EdgeColor','k') %std of day maxes, not match.  Should update
 
-                        title(['{\color{blue}Template ',int2str(template_numbers(i)),'@',datestr(template_time2,'mm/dd/yyyy HH:MM:SS'),',} {\color{red}Match ',int2str(good_matches_ct),'@',datestr(to_output(each_match),'mm/dd/yyyy HH:MM:SS'),'}, CCC: ',num2str(output_data(each_match,1),'%3.1f')])
-                        xlabel('samples since template start')
-                        set(gca,'YTickLabel',[])
-                        set(gca,'YTick',[])
-        
-                        % change x axis from samples to seconds
-                        XTo = get(gca,'XTick');
-                        XTi = round(template_length/length(XTo));
-                        XTn = 0:XTi:template_length;
-                        XTnL= XTn*newSampleRate;
-                        set(gca,'XTick',XTnL);
-                        set(gca,'XTickLabel',XTn);
-                        xlabel('Seconds')
-        
-                        grid on, box on
-                        print([QCdir2,filesep,datestr(to_output(each_match),30),'_T',int2str(template_numbers(i)),'_M',int2str(good_matches_ct),'_CC',num2str(output_data(each_match,1),'%3.1f'),'.png'],'-dpng')
+                        w1.w = w;
+                        w1.i = template_numbers(i);
+                        w1.t = template_time2;
+                        
+                        w2.w = wt;
+                        w2.i = good_matches_ct;
+                        w2.t = to_output(each_match);
+                        w2.mc = maxcorrs(:,each_match);
+                        w2.ccc = output_data(each_match,1);
+                        
+                        F = NMFwaveformfig(w1,w2,params);
+                        print(F,[QCdir2,filesep,datestr(to_output(each_match),30),'_T',int2str(template_numbers(i)),'_M',int2str(good_matches_ct),'_CC',num2str(output_data(each_match,1),'%3.1f'),'.png'],'-dpng')
+                                            
                     catch
                         warning('Not able to make figure')
                     end
