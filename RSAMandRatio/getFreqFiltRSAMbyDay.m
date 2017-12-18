@@ -20,7 +20,12 @@ end
 % CT = channelTag(1:4); %NOTE: here choose channels to do, or edit station file
 %%
 for i=1:size(params.filters,1)
-    fobj(i) = filterobject('b',params.filters(i,:),2);
+    if params.filters(i,1) > params.filters(i,2)
+        disp('F1>F2, applying JP notch filter')
+        fobj(i) = filterobject('N',params.filters(i,:),2);        
+    else
+        fobj(i) = filterobject('B',params.filters(i,:),2);
+    end
 end
 %%
 [~,~,~] = mkdir(fullfile(inputs.outDir));

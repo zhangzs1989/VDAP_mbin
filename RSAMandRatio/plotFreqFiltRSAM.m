@@ -86,7 +86,7 @@ for k=1:numel(fobj)
         
         yyaxis left
         
-    elseif params.plotCumRSAM && params.plotRatio == 0
+    elseif params.plotCumRSAM && ~params.plotRatio 
         
         disp('plotting cumulative RSAM')
         rsams2 = rsams;
@@ -104,8 +104,6 @@ for k=1:numel(fobj)
         ylabel('Cumulative RSAM','FontWeight','bold')    
         yyaxis left        
         
-    else
-        error('option not understood')
     end
     hold on
     for n=1:length(CT)
