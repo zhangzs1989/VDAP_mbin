@@ -28,3 +28,4 @@ catch
 end
 waveform_output=w2;
 end
+%% NOTE: I've seen this cause problems once, with align making data whacked out

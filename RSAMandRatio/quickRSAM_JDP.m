@@ -29,7 +29,6 @@ for s = 1:numel(tag)
     while(t < tstop)
         
         w = waveform(ds, tag(s), t, t+1);
-%         w = load_waveformObject_VDAP(ds,tag(s),t,t+1,[]);
         w = demean(w);
         w = fillgaps(w, 0, NaN);
        
