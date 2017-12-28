@@ -33,12 +33,12 @@ for i=1:numpicks
     try
         pick(i).phase = quake.pick{1,i}.phaseHint.Text;
     catch
-        warning(['could not find phase hint for ',pick(i).sta])
+        disp(['could not find phase hint for ',pick(i).sta])
     end
     try
         pick(i).uncert= str2double(quake.pick{1,i}.time.uncertainty.Text);
     catch
-        warning(['could not find pick uncertainty for ',pick(i).sta])
+        disp(['could not find pick uncertainty for ',pick(i).sta])
     end
     try
         pick(i).dn = datenum(pick(i).time,'yyyy-mm-ddTHH:MM:SS.FFFZ');
@@ -48,7 +48,7 @@ for i=1:numpicks
     try
         pick(i).loc = quake.pick{1,i}.waveformID.Attributes.locationCode;
     catch
-        warning('No location code provided, using default')
+        disp('No location code provided, using default')
         pick(i).loc = '--';
     end
     try
@@ -91,16 +91,20 @@ try
     end
     % TODO: there are more fields to add...
     %     event.arrival = origin.arrival;
-    try
-        for i=1:numel(quake.origin.arrival)
+    for i=1:numel(quake.origin.arrival)
+        try
             event.Arrival(i).azimuth = str2double(quake.origin.arrival{1,i}.azimuth.Text);
-            event.Arrival(i).takeoffAngle = str2double(quake.origin.arrival{1,i}.takeoffAngle.Text);
+            try
+                event.Arrival(i).takeoffAngle = str2double(quake.origin.arrival{1,i}.takeoffAngle.Text);
+            catch
+                event.Arrival(i).takeoffAngle = str2double(quake.origin.arrival{1,i}.takeoffAngle.value.Text);
+            end
             event.Arrival(i).distance = str2double(quake.origin.arrival{1,i}.distance.Text);
             event.Arrival(i).pickID = quake.origin.arrival{1,i}.pickID.Text; %PICK ID
-            % TODO: more fields to add later...
+        catch
+            warning('trouble')
         end
-    catch
-        warning('Arrival trouble')
+        % TODO: more fields to add later...
     end
 catch
     warning('missing event data')
