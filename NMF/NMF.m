@@ -85,6 +85,7 @@ function NMF(inputs,params,NMFeventFile)
 % =========================================================================
 % Rob Skoumal, skoumarj@miamioh.edu, 9/17/13
 % =========================================================================
+%%
 [template_numbers,~ ] = getTemplateInfo(params,inputs); %JP
 
 if isempty(template_numbers)
@@ -117,48 +118,8 @@ end
 % pctRunOnAll warning('off','signal:findpeaks:largeMinPeakHeight')
 pctRunOnAll warning('off','all')
 
-%% Reading Variables File
-
-% Creates the file IDs for the variable file.
-% FID_var = fopen(var_name);
-
-% Makes sure the variable text file can be opened.
-% if FID_var == -1
-%     error(['Unable to open variable file ' var_name])
-% end
-
-% Reads variable inputs from txt file
-% cross_corr_var = textscan(FID_var, '%s', 29, 'delimiter', '\n');
-% cross_corr_var=cross_corr_var{1};
-% fclose(FID_var);
-
-% Makes sure the variable txt file follows the strict formatting
-% arbitrarily picked by the author.
-% if length(cross_corr_var)<29
-%     error('Variable file is not the proper length.')
-% else
-%     details(cross_corr_var)
-% end
-% empty_check=cellfun(@isempty,cross_corr_var);
-% pound_check=strfind(cross_corr_var, '#');
-% pound_check=cellfun(@isempty,pound_check);
-% if any(~empty_check(3:3:27))
-%     error('There is an issue with the formatting (spacing) of the variable text file.')
-% elseif any(pound_check(1:3:28))
-%     error('There is an issue with the formatting (#s) of the variable text file.')
-% end
-% clear empty_check
-
-% Reads in the assigned variables from the txt file
+%% 
 template_times_name=NMFeventFile;
-
-%%%Template numbers can be set one of two ways
-%First way: Read template numbers from the variables file
-% template_numbers=sscanf(cross_corr_var{8},'%s');
-% template_numbers=str2num(template_numbers); %JP: allow 1:X format
-%Second way: set a range of template numbers here
-%  template_numbers=[2];
-
 temp_start_date=params.startDate;%[sscanf(cross_corr_var{11},'%c') ':00:00'];
 temp_end_date=params.stopDate;%[sscanf(cross_corr_var{14},'%c') ':00:00'];
 template_length=params.templateLen; %str2double(cross_corr_var{17});
@@ -169,16 +130,12 @@ baseDir = inputs.outDir;%sscanf(cross_corr_var{29},'%s'); %JP add
 outDir = fullfile(baseDir,'NMF');
 NMFoutFile =[outDir,filesep,params.strRunName,'_NMFoutFile.txt'];
 times_name_output=NMFoutFile;
-% template_times_name=fullfile(baseDir,template_times_name);
-% times_name_output=fullfile(outDir,times_name_output);
 
-QCdir1 = fullfile(outDir,'DailyFigs');
+QCdir1 = fullfile(outDir,'Daily');
 QCdir2 = fullfile(outDir,'MatchFigs');
 [~,~,~] = mkdir(QCdir1);
 [~,~,~] = mkdir(QCdir2);
 
-% diaryFileName = fullfile(outDir,['NMF_',datestr(now,30),'_diary.txt']);
-% diary(diaryFileName);
 %% Interprets Read Variables File
 
 if isempty(template_times_name)
@@ -241,12 +198,8 @@ end
 
 % Reads times in from txt file
 temp_read_in = textscan(FID_times, '%d %s %s %s %s %s %s %s %s'); %JP format
-% temp_read_in = textscan(FID_times, '%d %s %s %s %s %s'); %SH format
-
 cross_corr_times=double(cell2mat(temp_read_in(1)));
 station=[temp_read_in{4} temp_read_in{5} temp_read_in{6} temp_read_in{7}]';
-%datenum([char(temp_read_in{2}(1)) ' ' char(temp_read_in{3}(1))])
-%clear temp_read_in
 fclose(FID_times);
 
 % Checks to see if the read file is empty
@@ -280,7 +233,6 @@ display(['Estimated run time: ~' num2str(num_hours*sum(cellfun(@length,line_numb
 run_time=tic;
 
 %% Correlates templates
-% ER=1;
 for i=1:length(line_numbers)
     
     disp(['   Template ' num2str(template_numbers(i)) '...'])
@@ -299,16 +251,12 @@ for i=1:length(line_numbers)
     end
     
     FID_output=fopen(times_name_output2,'w');
-    %fprintf(FID_output,'MADCOEFF %d ; START %c ; END %c ; BANDPASS %d-%d ; DOWNSAMPLE %d ; STATIONS: ', mad_coeff, ...
-    %    temp_start_date, temp_end_date, bandpass_filter(1), bandpass_filter(2),new_sample_rate);
-    %fprintf(FID_output,'%s %s %s, ',station{1:3,line_numbers{i}(1:end-1)});
-    %fprintf(FID_output,'%s %s %s',station{1:3,line_numbers{i}(end:end)});
     
     % Makes the templates
     templates=zeros(length(line_numbers{i}),newSampleRate*template_length);
     template_time=zeros(length(line_numbers{i}),1);
     
-    %NOTE: PARFOR     parfor j=[line_numbers{i}']
+    %% NOTE: PARFOR APPROVED
     parfor j=[line_numbers{i}']
         
         template_time(j,1) = datenum([char(temp_read_in{2}(j)) ' ' char(temp_read_in{3}(j))]);
@@ -376,7 +324,7 @@ for i=1:length(line_numbers)
         corrs=zeros(numel(lineNums),download_chunk_length*newSampleRate);
         
         try
-            %NOTE: PARFOR
+            %% NOTE: PARFOR APPROVED
             parfor j=1:numel(lineNums)
                 
                 scnl=scnlobject(station{2,lineNums(j)},station{3,lineNums(j)},station{1,lineNums(j)},station{4,lineNums(j)});
@@ -490,7 +438,7 @@ for i=1:length(line_numbers)
         % Finds all matches above the threshold
         [good_match_values,good_matches]=findpeaks(corr_sum,'MINPEAKHEIGHT',min_peak_height,'MINPEAKDISTANCE',5*newSampleRate,'MinPeakWidth',2); %5 or .5???
         
-        % JP: find matches with std of channel corrs < .25
+        %% JP: find matches with std of channel corrs < .25
         maxcorrs = zeros(numel(lineNums),numel(good_matches));
         for s=1:numel(good_matches)
             maxcorrs(:,s) = max(corrs(:,good_matches(s):good_matches(s)+template_length*newSampleRate),[],2);
@@ -511,11 +459,11 @@ for i=1:length(line_numbers)
         good_match_values = good_match_values(istds);
         maxcorrs = maxcorrs(:,istds);
         
-        % JP: add factor for station count used
+        %% JP: add factor for station count used
         stc = sum(corrsmax > 0 & corrsmax <= 1);
         
         if mkfigs %&& ~isempty(good_matches) %JP
-            % JP: here is where to make daily detection figure
+            %% JP: here is where to make daily detection figure
             figure('visible',vis)
             plot(corr_sum); hold on
             plot(size(corr_sum),[min_peak_height min_peak_height])
@@ -528,9 +476,11 @@ for i=1:length(line_numbers)
             ylim([-3.1 7.1])
             zoom('xon')
             print([QCdir1,filesep,datestr(time,'yyyymmdd'),'_templ_',num2str(template_numbers(i))],'-dpng')
+            y = resample(corr_sum,1,newSampleRate);
+            save([QCdir1,filesep,datestr(time,'yyyymmdd'),'_templ_',num2str(template_numbers(i)),'.mat'],'y')
             %TODO: capture detection stream for plot later
         end
-        
+        %%
         if ~isempty(good_matches) %&& std(corrsmax) < 0.25  %JP: corrsmax, another attempt to remove bad data matches
             good_matches_value=corr_sum(good_matches)';
             
@@ -564,8 +514,8 @@ for i=1:length(line_numbers)
                     %make QC fig here
                     clear w wt
                     
-                    datas3 = zeros(numel(lineNums),template_length*newSampleRate);  %[];
-                    datas4 = zeros(numel(lineNums),template_length*newSampleRate); %[];
+%                     datas3 = zeros(numel(lineNums),template_length*newSampleRate);  %[];
+%                     datas4 = zeros(numel(lineNums),template_length*newSampleRate); %[];
                     ct = 0;
                     for jj =  lineNums
                         scnl=scnlobject(station{2,(jj)},station{3,(jj)},station{1,(jj)},station{4,(jj)});
@@ -588,7 +538,7 @@ for i=1:length(line_numbers)
                             disp(['cannot load ',get(scnl,'station'),' ',get(scnl,'channel')])
                         end
                     end
-                    
+                    %%
                     try %JP: match wave figure
                         w1.w = w;
                         w1.i = template_numbers(i);
