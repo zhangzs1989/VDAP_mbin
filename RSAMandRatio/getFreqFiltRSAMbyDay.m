@@ -33,7 +33,11 @@ end
 pts = 24*60/params.rsamWindow;
 disp(['RSAM window (s): ',int2str(params.rsamWindow)])
 
+if params.endDate < params.startDate
+    error('end date must be later than start date')
+end
 %% TODO: maybe better to parallelize this over day or channel instead of filters
+
 for day = params.startDate:params.endDate
     disp(datestr(day))
     

@@ -413,6 +413,7 @@ for i=1:length(line_numbers)
                             % JP: this removes whole days of data, but there is
                             % prob a better way to deal with the bad data
                             % w/i the day only, TODO
+                            warning('bad data, whole channel removed') 
                         end
                     catch exception
                         %disp(['corr_sum DID NOT WORK' station{2,j} station{3,j} station{1,j}])
