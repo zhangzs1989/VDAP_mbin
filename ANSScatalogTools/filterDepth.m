@@ -1,4 +1,4 @@
-function [ out_catalog ] = filterDepth( in_catalog, max_depth_threshold )
+function [ out_catalog ] = filterDepth( in_catalog, depth_range )
 %FILTERDEPTH Filters the ANSS catalog to all events shallower than (<=) a
 %specified depth
 % This function is meant to be used with the ANSS catalog. It is meant to
@@ -30,8 +30,16 @@ function [ out_catalog ] = filterDepth( in_catalog, max_depth_threshold )
     % subselection
 Depth = extractfield(in_catalog, 'Depth');
 % id = find(Depth <= max_depth_threshold);
-id = Depth <= max_depth_threshold; %JP: improves performance
-
+if numel(depth_range)==1
+    id = Depth <= depth_range; %JP: improves performance
+elseif numel(depth_range)==2
+    if depth_range(1) > depth_range(2)
+        error('bad input')
+    end
+    id = Depth <= depth_range(2) & Depth > depth_range(1); %JP: improves performance
+else
+    error('too many values')
+end
     % Subselection of events within time, distance, and depth window
 out_catalog = in_catalog(id);
 

@@ -7,7 +7,7 @@ input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.
 input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
 input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %full res;
 input.ISCcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/trimISCcatalog2volcs/iscCatalogAll5wFMsTrim2.mat'; % importISCcatalog.m
-input.outDir = '/Users/jpesicek/Dropbox/Research/EFIS/global'; % importISCcatalog.m
+input.outDir = '/Users/jpesicek/Dropbox/Research/EFIS/NZtest2'; % importISCcatalog.m
 input.catalogsDir = input.outDir;
 input.localCatDir = '~/Dropbox/Research/EFIS/localCatalogs';
 % input.polygonFilter = 'United States';
@@ -19,7 +19,7 @@ input.JMAcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/JMA/JMAcatalog.mat';
 params.coasts = true;
 params.wingPlot = true;
 params.topo = true;
-params.visible = 'on';
+params.visible = 'off';
 params.srad = [0 50];
 params.DepthRange = [-3 40]; % km
 params.MagRange = [0 10];
@@ -55,25 +55,25 @@ load(input.gvp_eruptions); % spits out eruptionCat
 %%
 ISC_McFile = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/ISC_Mc.csv';
 ISC_McInfo = getGlobalISC_McInfo(ISC_McFile);
-%% FIND specific volcano if desired
-vname = 'Kikai';
-vname = 'Sabancaya';
-vnames = extractfield(volcanoCat,'Volcano');
-vi = find(strcmp(vname,vnames));
-volcanoCat = volcanoCat(vi);
-% volcanoCat = filterCatalogByCountry(volcanoCat,'Japan');
+
+%% FIND specific volcano or set of volcanoes, if desired
+% vname = 'Monowai';
+% vnames = extractfield(volcanoCat,'Volcano');
+% vi = find(strcmp(vname,vnames));
+% volcanoCat = volcanoCat(vi);
+volcanoCat = filterCatalogByCountry(volcanoCat,'New Zealand');
+tic
 
 %% NOW get and save volcano catalogs
-% if isempty(gcp('nocreate'))
-%     try
-%         parpool(6); %each thread needs about 5GB memory,could prob do 8, but use 6 to be safe
-%     catch
-%         parpool(4);
-%     end
-% end
-% tic
-% parfor i=1:size(volcanoCat,1)
-for i=1:size(volcanoCat,1)
+if isempty(gcp('nocreate'))
+    try
+        parpool(6); %each thread needs about 5GB memory,could prob do 8, but use 6 to be safe
+    catch
+        parpool(4);
+    end
+end
+
+parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     einfo = getEruptionInfoFromNameOrNum(vinfo.Vnum,eruptionCat);
@@ -107,10 +107,11 @@ for i=1:size(volcanoCat,1)
     t2a=datenum(params.YearRange(2)+1,1,1);
     figname=fullfile(vpath,['ISC_',fixStringName(vinfo.name)]);
     [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, paramsISC.srad);
-    mapdata = prep4WingPlot(vinfo,paramsISC,input,outer_ann,inner_ann);
-    fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog_ISC1, mapdata, paramsISC,1);
-    print(fh_wingplot,'-dpng',[figname,'.png'])
-        
+    if params.wingPlot
+        mapdata = prep4WingPlot(vinfo,paramsISC,input,outer_ann,inner_ann);
+        fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog_ISC1, mapdata, paramsISC,1);
+        print(fh_wingplot,'-dpng',[figname,'.png'])
+    end
     %% get ISC catalog
     [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, params.srad);
     mapdata = prep4WingPlot(vinfo,params,input,outer_ann,inner_ann);
@@ -136,7 +137,10 @@ for i=1:size(volcanoCat,1)
         %         save(outCatName,'catalog');
         parsave_catalog(outCatName,catalog);
     end
-    
+    %% GNS
+    if strcmp(vinfo.country,'New Zealand')
+       catalog_local = getGNScat(input,params,vinfo,mapdata); 
+    end
     %% get local catalog
     % NOTE: not dealt with case where there is regional and local catalog
     % yet - assuming for now there will not be both
@@ -156,14 +160,15 @@ for i=1:size(volcanoCat,1)
         outMcInfoName=fullfile(McPath,['local_McInfo_',int2str(vinfo.Vnum),'.mat']);
         %         save(outMcInfoName,'-struct','localMc');
         parsave_struct(outMcInfoName,localMc);
-        %% make time vs Mc plot
-        mags = extractfield(catalog_local,'Magnitude');
-        dtimes = datenum(extractfield(catalog_local,'DateTime'));
-        H = mkMcFig(localMc,mags,dtimes,params.visible);
-        set(get(H(1).Children(2),'title'),'String',[vinfo.name,', ',vinfo.country,'  (',int2str(length(mags)),' events, window = ',int2str(params.McMinN),' events, smoothing = ',num2str(params.smoothDayFac/365),' yrs, radius = ',int2str(params.srad(2)),' km'])
-        print(H,'-dpng',fullfile(McPath,['local','_Mc_',fixStringName(vinfo.name)]))
-        savefig(H,fullfile(McPath,['local','_Mc_',fixStringName(vinfo.name)]))
-        
+        if ~isempty(localMc.Mc)
+            %% make time vs Mc plot
+            mags = extractfield(catalog_local,'Magnitude');
+            dtimes = datenum(extractfield(catalog_local,'DateTime'));
+            H = mkMcFig(localMc,mags,dtimes,params.visible);
+            set(get(H(1).Children(2),'title'),'String',[vinfo.name,', ',vinfo.country,'  (',int2str(length(mags)),' events, window = ',int2str(params.McMinN),' events, smoothing = ',num2str(params.smoothDayFac/365),' yrs, radius = ',int2str(params.srad(2)),' km'])
+            print(H,'-dpng',fullfile(McPath,['local','_Mc_',fixStringName(vinfo.name)]))
+            savefig(H,fullfile(McPath,['local','_Mc_',fixStringName(vinfo.name)]))
+        end
         %% compute MASTER catalog
         [catMASTER,H] = mergeTwoCatalogs(catalog_ISC2,catalog_local,'yes');
         if ~isempty(H); print(H,fullfile(vpath,'MASTER_MergeQC'),'-dpng'); end;
@@ -210,28 +215,31 @@ for i=1:size(volcanoCat,1)
         fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
         print(fh_wingplot,'-dpng',[figname,'.png'])
         
-        %loop over eruptions
-        %1
-        t1=t1a;
-        t2=datenum(einfo(1).StartDate);
-        figname=fullfile(vpath,['MASTER_',fixStringName(vinfo.name),'_',datestr(t2,'yyyymmdd')]);
-        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,1);
-        print(fh_wingplot,'-dpng',[figname,'.png'])
-        % middle
-        for e=2:numel(einfo)
-            t1=datenum(einfo(e-1).EndDate);
-            t2=datenum(einfo(e).StartDate);
+        if ~isempty(einfo)
+            %loop over eruptions
+            %1
+            t1=t1a;
+            t2=datenum(einfo(1).StartDate);
             figname=fullfile(vpath,['MASTER_',fixStringName(vinfo.name),'_',datestr(t2,'yyyymmdd')]);
             fh_wingplot = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,1);
             print(fh_wingplot,'-dpng',[figname,'.png'])
+            % middle
+            if numel(einfo)>1
+                for e=2:numel(einfo)
+                    t1=datenum(einfo(e-1).EndDate);
+                    t2=datenum(einfo(e).StartDate);
+                    figname=fullfile(vpath,['MASTER_',fixStringName(vinfo.name),'_',datestr(t2,'yyyymmdd')]);
+                    fh_wingplot = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,1);
+                    print(fh_wingplot,'-dpng',[figname,'.png'])
+                end
+                %last
+                t1 = datenum(einfo(e).EndDate);
+                t2 = t2a;
+                figname=fullfile(vpath,['MASTER_',fixStringName(vinfo.name),'_',datestr(t2,'yyyymmdd')]);
+                fh_wingplot = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,1);
+                print(fh_wingplot,'-dpng',[figname,'.png'])
+            end
         end
-        %last
-        t1 = datenum(einfo(e).EndDate);
-        t2 = t2a;
-        figname=fullfile(vpath,['MASTER_',fixStringName(vinfo.name),'_',datestr(t2,'yyyymmdd')]);
-        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,1);
-        print(fh_wingplot,'-dpng',[figname,'.png'])
-        
     end
     %
     if ~isempty(catalog)

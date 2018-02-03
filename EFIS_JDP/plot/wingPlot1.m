@@ -58,6 +58,7 @@ else
     DateTime =[];
     Magnitude = [];
     eq_plot_size = [];
+    Mmax = [];
 end
 
 max_depth = -(abs(params.DepthRange(2))); % ensure that the value is negative
