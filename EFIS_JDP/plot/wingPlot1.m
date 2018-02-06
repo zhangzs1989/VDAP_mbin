@@ -332,4 +332,16 @@ xs_B.YTickLabel = xs_A.XTickLabel;
 
 set([xs_A xs_B],'Color',[0.75 0.75 0.75]); % sets the background color for the xsection to gray so that colors are visible
 
+%% bottom right scale
+br_scale = subplot(3,3,9);hold on
+scatter(1,1,min(eq_plot_size),'k')
+scatter(1,2,max(eq_plot_size),'k')
+axis([0 4 0 4])
+br_scale.XTick = [];
+br_scale.YTick = [];
+br_scale.XColor = 'none';
+br_scale.YColor = 'none';
+text(1+.35,1,['Min Mag: ',num2str(min(Magnitude))])
+text(1+.35,2,['Max Mag: ',num2str(max(Magnitude))])
+
 end

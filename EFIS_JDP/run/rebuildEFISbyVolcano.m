@@ -7,20 +7,21 @@ input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.
 input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
 input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %full res;
 input.ISCcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/trimISCcatalog2volcs/iscCatalogAll5wFMsTrim2.mat'; % importISCcatalog.m
-input.outDir = '/Users/jpesicek/Dropbox/Research/EFIS/GEMtest'; % importISCcatalog.m
+input.outDir = '/Users/jpesicek/Dropbox/Research/EFIS/BMKGtest'; % importISCcatalog.m
 input.catalogsDir = input.outDir;
 input.localCatDir = '~/Dropbox/Research/EFIS/localCatalogs';
 % input.polygonFilter = 'United States';
 input.paramFile = '/Users/jpesicek/EFIS_mbin/examp/ISCbuild_inp.txt';
 input.JMAcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/JMA/JMAcatalog.mat';
 input.GEMcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/GEM/catalogGEM.mat';
+input.BMKGcatalog ='/Users/jpesicek/Dropbox/Research/EFIS/BMKG/catalogBMKG.mat';
 
 [~,paramsISC] = getInputFiles(input.paramFile);
 %% wingPlot params
 params.coasts = true;
 params.wingPlot = true;
 params.topo = true;
-params.visible = 'off';
+params.visible = 'on';
 params.srad = [0 50];
 params.DepthRange = [-3 40]; % km
 params.MagRange = [0 10];
@@ -43,11 +44,6 @@ disp(params)
 if ~exist('catalogISC','var') %&& isstruct(catalog)
     disp('loading catalogISC...')
     load(input.ISCcatalog); %created using importISCcatalog.m
-    disp('...catalog loaded')
-end
-if ~exist('catalogJMA','var') %&& isstruct(catalog)
-    disp('loading catalogJMA...')
-    load(input.JMAcatalog); %created using importISCcatalog.m
     disp('...catalog loaded')
 end
 if ~exist('catalogGEM','var') 
@@ -94,13 +90,14 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     [~,~,~] = mkdir(McPath);
     localMc = [];
     catalog_local = [];
-    
+
     %% compute ISC Mc by local full copy of ISC catalog out to larger radius (not updated regularly)
     [catalog_ISC1,~, ~ ]= filterAnnulusm(catalogISC,vinfo.lat,vinfo.lon,paramsISC.srad);
     vISC_Mc = getVolcanoMc(vinfo,catalog_ISC1,McPath,paramsISC.McMinN,'ISC',2,paramsISC.smoothDayFac);
     outMcInfoName=fullfile(McPath,['ISC_McInfo_',int2str(vinfo.Vnum),'.mat']);
     %     save(outMcInfoName,'-struct','vISC_Mc');
     parsave_struct(outMcInfoName,vISC_Mc);
+    
     %% make time vs Mc plot
     mags = extractfield(catalog_ISC1,'Magnitude');
     dtimes = datenum(extractfield(catalog_ISC1,'DateTime'));
@@ -118,6 +115,7 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
         fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog_ISC1, mapdata, paramsISC,1);
         print(fh_wingplot,'-dpng',[figname,'.png'])
     end
+    
     %% get ISC catalog
     [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, params.srad);
     mapdata = prep4WingPlot(vinfo,params,input,outer_ann,inner_ann);
@@ -128,7 +126,20 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     catalog = catalog_ISC2;
     %     save(outCatName,'catalog');
     parsave_catalog(outCatName,catalog);
-    
+
+    %% look for and plot GEM events < 1964
+    catalog_gem = filterAnnulusm( catalogGEM, vinfo.lat,vinfo.lon, params.srad); % (e)
+    if ~isempty(catalog_gem)
+        dts = datenum(extractfield(catalog_gem,'DateTime'));
+        t1=floor(datenum(min(dts)));
+        t2=ceil(datenum(max(dts)));
+        figname=fullfile(vpath,['GEM_',fixStringName(vinfo.name)]);
+        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog_gem, mapdata, params,1);
+        print(fh_wingplot,'-dpng',[figname,'.png'])
+        outCatName=fullfile(vpath,['GEM_',int2str(vinfo.Vnum),'.mat']);
+        parsave_catalog(outCatName,catalog_gem);
+    end
+        
     %% get ANSS
     if strcmp(vinfo.country,'United States')
         catalog_local = getANSScat(input,params,vinfo,mapdata);
@@ -136,23 +147,60 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     %% get JMA
     if strcmp(vinfo.country,'Japan')
+        
+        if ~exist('catalogJMA','var') %&& isstruct(catalog)
+            disp('loading catalogJMA...')
+            load(input.JMAcatalog); %created using importISCcatalog.m
+            disp('...catalog loaded')
+        end
+        
         catalog_local = filterAnnulusm(catalogJMA,vinfo.lat,vinfo.lon,params.srad); %
         catalog_local = filterDepth(catalog_local,params.DepthRange);
         outCatName=fullfile(vpath,['JMA_',int2str(vinfo.Vnum)]);
         catalog = catalog_local;
         %         save(outCatName,'catalog');
         parsave_catalog(outCatName,catalog);
+        
+        dts = datenum(extractfield(catalog_local,'DateTime'));
+        t1=floor(datenum(min(dts)));
+        t2=ceil(datenum(max(dts)));
+        figname=fullfile(vpath,['JMA_',fixStringName(vinfo.name)]);
+        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog_local, mapdata, params,1);
+        print(fh_wingplot,'-dpng',[figname,'.png'])
     end
     %% GNS
     if strcmp(vinfo.country,'New Zealand')
        catalog_local = getGNScat(input,params,vinfo,mapdata); 
     end
+    
+    %% BMKG
+    if strcmp(vinfo.country,'Indonesia')
+        if ~exist('catalogBMKG','var') %&& isstruct(catalog)
+            disp('loading catalogBMKG...')
+            load(input.BMKGcatalog); %created using importISCcatalog.m
+            disp('...catalog loaded')
+        end
+        
+        catalog_local = filterAnnulusm(catalogBMKG,vinfo.lat,vinfo.lon,params.srad); %
+        catalog_local = filterDepth(catalog_local,params.DepthRange);
+        outCatName=fullfile(vpath,['BMKG_',int2str(vinfo.Vnum)]);
+        catalog = catalog_local;
+        parsave_catalog(outCatName,catalog);
+        
+        dts = datenum(extractfield(catalog_local,'DateTime'));
+        t1=floor(datenum(min(dts)));
+        t2=ceil(datenum(max(dts)));
+        figname=fullfile(vpath,['BMKG_',fixStringName(vinfo.name)]);
+        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog_local, mapdata, params,1);
+        print(fh_wingplot,'-dpng',[figname,'.png'])        
+    end    
+    
     %% get local catalog
     % NOTE: not dealt with case where there is regional and local catalog
     % yet - assuming for now there will not be both
     LocalCatalogFile = fullfile(input.localCatDir,['local_',int2str(vinfo.Vnum),'.mat']);
     if exist(LocalCatalogFile,'file')
-        catalog_local = load(LocalCatalogFile);
+        catalog_local = load(LocalCatalogFile); %this will overwrite regional catalog
         catalog_local = catalog_local.catalog;
         outCatName=fullfile(vpath,['local_',int2str(vinfo.Vnum)]);
         parsave_catalog(outCatName,catalog_local);
@@ -259,18 +307,6 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
         %         close(F1)
     end
     
-    %% look for and plot GEM events < 1964
-    catalog_gem = filterAnnulusm( catalogGEM, vinfo.lat,vinfo.lon, params.srad); % (e)
-    if ~isempty(catalog_gem)
-        dts = datenum(extractfield(catalog_gem,'DateTime'));
-        t1=floor(datenum(min(dts)));
-        t2=ceil(datenum(max(dts)));
-        figname=fullfile(vpath,['GEM_',fixStringName(vinfo.name)]);
-        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog_gem, mapdata, params,1);
-        print(fh_wingplot,'-dpng',[figname,'.png'])
-        outCatName=fullfile(vpath,['GEM_',int2str(vinfo.Vnum),'.mat']);
-        parsave_catalog(outCatName,catalog_gem);
-    end
     close all
 end
 toc

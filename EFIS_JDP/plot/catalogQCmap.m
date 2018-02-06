@@ -21,6 +21,10 @@ input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %
 if size(catalog,2) > 0 && ~isempty(catalog)
     
     authors = extractfield(catalog,'AUTHOR');
+    if isempty(authors)
+        warning('No AUTHOR attribute')
+    end
+    
     ua = unique(authors);
     for i=1:numel(ua)
         cata(:,i) = strcmp(authors,ua(i));
