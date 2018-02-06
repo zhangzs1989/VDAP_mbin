@@ -1,18 +1,19 @@
 %% rebuild EFIS per volcano instead of piece-wise
 
-clearvars -except catalogISC catalogJMA
+clearvars -except catalogISC catalogJMA catalogGEM
 
 %%
 input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.mat'; % imported via importEruptionCatalog, originally from S. Ogburn
 input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
 input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %full res;
 input.ISCcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/trimISCcatalog2volcs/iscCatalogAll5wFMsTrim2.mat'; % importISCcatalog.m
-input.outDir = '/Users/jpesicek/Dropbox/Research/EFIS/NZtest2'; % importISCcatalog.m
+input.outDir = '/Users/jpesicek/Dropbox/Research/EFIS/GEMtest'; % importISCcatalog.m
 input.catalogsDir = input.outDir;
 input.localCatDir = '~/Dropbox/Research/EFIS/localCatalogs';
 % input.polygonFilter = 'United States';
 input.paramFile = '/Users/jpesicek/EFIS_mbin/examp/ISCbuild_inp.txt';
 input.JMAcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/JMA/JMAcatalog.mat';
+input.GEMcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/GEM/catalogGEM.mat';
 
 [~,paramsISC] = getInputFiles(input.paramFile);
 %% wingPlot params
@@ -49,6 +50,11 @@ if ~exist('catalogJMA','var') %&& isstruct(catalog)
     load(input.JMAcatalog); %created using importISCcatalog.m
     disp('...catalog loaded')
 end
+if ~exist('catalogGEM','var') 
+    disp('loading catalogGEM...')
+    load(input.GEMcatalog); 
+    disp('...catalog loaded')
+end
 
 load(input.gvp_volcanoes); % volcanoCat struct imported via importEruptionCatalog.m from OGBURN FILE
 load(input.gvp_eruptions); % spits out eruptionCat
@@ -57,11 +63,11 @@ ISC_McFile = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/ISC_Mc.csv';
 ISC_McInfo = getGlobalISC_McInfo(ISC_McFile);
 
 %% FIND specific volcano or set of volcanoes, if desired
-% vname = 'Monowai';
-% vnames = extractfield(volcanoCat,'Volcano');
-% vi = find(strcmp(vname,vnames));
-% volcanoCat = volcanoCat(vi);
-volcanoCat = filterCatalogByCountry(volcanoCat,'New Zealand');
+vname = 'Agung';
+vnames = extractfield(volcanoCat,'Volcano');
+vi = find(strcmp(vname,vnames));
+volcanoCat = volcanoCat(vi);
+% volcanoCat = filterCatalogByCountry(volcanoCat,'New Zealand');
 tic
 
 %% NOW get and save volcano catalogs
@@ -73,7 +79,7 @@ if isempty(gcp('nocreate'))
     end
 end
 
-parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
+for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     einfo = getEruptionInfoFromNameOrNum(vinfo.Vnum,eruptionCat);
@@ -251,6 +257,19 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
             warning('savefig error')
         end
         %         close(F1)
+    end
+    
+    %% look for and plot GEM events < 1964
+    catalog_gem = filterAnnulusm( catalogGEM, vinfo.lat,vinfo.lon, params.srad); % (e)
+    if ~isempty(catalog_gem)
+        dts = datenum(extractfield(catalog_gem,'DateTime'));
+        t1=floor(datenum(min(dts)));
+        t2=ceil(datenum(max(dts)));
+        figname=fullfile(vpath,['GEM_',fixStringName(vinfo.name)]);
+        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog_gem, mapdata, params,1);
+        print(fh_wingplot,'-dpng',[figname,'.png'])
+        outCatName=fullfile(vpath,['GEM_',int2str(vinfo.Vnum),'.mat']);
+        parsave_catalog(outCatName,catalog_gem);
     end
     close all
 end
