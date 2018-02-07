@@ -59,7 +59,8 @@ legend(lh)
 ylim([0 6])
 % text(ISC_Mc(1,1),0,['window size = ',int2str(minN),' events'],'verticalalignment','bottom')
 % xlim([ISC_Mc(1,1)-365 ISC_Mc(end,2)+365])
-xlim([ISC_Mc(1,1)-365 now])
+xlim([ISC_Mc(1,1)-0 now])
+% xlim([datenum(1964,1,1) now])
 
 zoom xon
 % print(H,'-dpng',fullfile(outDir,[catStr,'_Mc_',fixStringName(vinfo.name)]))

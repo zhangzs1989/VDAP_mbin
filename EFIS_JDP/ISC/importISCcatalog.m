@@ -12,9 +12,9 @@ clear
 % ddir = '/Users/jpesicek/Dropbox/vdap/EFIS/';
 % filename='2281630 _ISC_AK2';
 
-% ddir = '/Users/jpesicek/dropbox/Research/EFIS/ISC/getISCcatalog';
-ddir = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/getISCcat4';
-filename='iscCatalogAll5';
+ddir = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/getISCcatalog';
+% ddir = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/getISCcat4';
+filename='iscCatalogAll6';
 
 disp('reading in table...')
 table = readtext(fullfile(ddir,[filename,'.csv']));

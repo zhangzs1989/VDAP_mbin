@@ -48,7 +48,7 @@ if ~issorted(dtimes)
     catalog = catalog(I);
     dtimes = Y;
 end
-%% NOTE: Should convert all mags to same type !!
+%% NOTE: TODO: Should convert all mags to same type !!
 %% make overall figure
 [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,true);
 t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
@@ -130,7 +130,7 @@ mags = extractfield(catalog_i,'Magnitude');
 Mc(i,3) = Mc1;
 
 dtimes = datenum(extractfield(catalog_i,'DateTime'));
-t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
+t1 = min(dtimes); t2 = floor(now); %max(dtimes); % time span network catalog near volcano
 Mc(i,1) = (t1);
 Mc(i,2) = (t2);
 Mc(i,4) = (i1);

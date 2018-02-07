@@ -105,7 +105,7 @@ end
 if ~isempty(eruptionCat)
     ua2 = [ua2,'Eruption start','Eruption End'];
 end
-legend(ua2,'Location','Best')
+legend(ua2,'Location','west')
 box on, grid on
 %%
 yyaxis right
@@ -199,7 +199,7 @@ X=categorical(authors2);
 p1=pie(X);
 colormap(c2)
 title('Authors');
-legend(ua,'Location','Best')
+legend(ua,'Location','west')
 %%
 subplot(4,4,14)
 imn = ~isnan(mags);

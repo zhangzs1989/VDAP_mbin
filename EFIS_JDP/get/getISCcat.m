@@ -1,5 +1,6 @@
 function catalog = getISCcat(input,params,vinfo,mapdata)
 
+%% this function pulls an ISC catalog for a radius around a point
 warning('on','all')
 
 shscript='~/bin/wgetISC.sh';

@@ -3,6 +3,8 @@
 Requires:
 readtext, RenameField
 
+THIS IS DEPRECATED!
+
 %}
 
 clear
