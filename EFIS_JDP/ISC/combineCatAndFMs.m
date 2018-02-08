@@ -3,11 +3,11 @@
 
 clear
 
-ddir1 = '/Users/jpesicek/dropbox/Research/EFIS/ISC/getISCcat4';
+ddir1 = '/Users/jpesicek/dropbox/Research/EFIS/ISC/getISCcatalog';
 ddir2 = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/getISC_FMs';
-filename1='iscCatalogAll5';
+filename1='iscCatalogAll6';
 filename2='iscFM_All';
-filename = 'iscCatalogAll5wFMs';
+filename = 'iscCatalogAll6wFMs';
 
 load(fullfile(ddir1,filename1))
 load(fullfile(ddir2,filename2))

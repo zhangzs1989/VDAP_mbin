@@ -1,9 +1,9 @@
 clearvars -except catalog
 
-input.catalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/getISCcatalog/iscCatalogAll5wFMs.mat';
+input.catalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/getISCcatalog/iscCatalogAll6wFMs.mat';
 input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.mat';
 % input.polygonFilter = 'United States';
-outFile = 'iscCatalogAll5wFMsTrim2.mat';
+outFile = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/iscCatalogAll6wFMsTrim.mat';
 %%
 if ~exist('catalog','var')
     disp('loading catalog...')
@@ -13,7 +13,7 @@ end
 
 load(input.gvp_volcanoes)
 %%
-[BufLat, BufLon ] = getVolcBuffer(volcanoCat, 1000);
+[BufLat, BufLon ] = getVolcBuffer(volcanoCat, 500);
 figure, worldmap('world')
 load coast
 plotm(lat,long,'k')
@@ -38,7 +38,7 @@ IN2 = IN(1:rfac:end);
 %%
 plotm(elats2(IN2),elons2(IN2),'r.') %NOTE: this takes forever!!
 plotm(elats2(~IN2),elons2(~IN2),'b.')
-print('HoloceneVolcCat','-dpng')
+print('/Users/jpesicek/Dropbox/Research/EFIS/ISC/HoloceneVolcCat','-dpng')
 %%
 catalogISC = catalog(IN);
 %%

@@ -34,7 +34,7 @@ catalog = cell2struct(data(:,1:11),headers1,2);
 dates = (extractfield(catalog,'DATE'));
 times = (extractfield(catalog,'TIME'));
 
-for i=1:length(times)
+parfor i=1:length(times)
     catalog(i).DateTime = datestr(datenum([cell2mat(dates(i)),' ',cell2mat(times(i))]),'yyyy/mm/dd HH:MM:SS.FFF');
     if isempty(catalog(i).DEPTH)
         catalog(i).DEPTH = NaN;

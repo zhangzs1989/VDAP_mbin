@@ -66,13 +66,13 @@ mags = extractfield(catalog_i,'Magnitude');
 dtimes = datenum(extractfield(catalog_i,'DateTime'));
 [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,true);
 t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
-Mc(i,1) = (t1);
-Mc(i,2) = (t2);
-Mc(i,3) = Mc1;
-Mc(i,4) = (i);
+Mc{i,1} = datestr(t1,'yyyy/mm/dd HH:MM:SS.FFF');
+Mc{i,2} = datestr(t2,'yyyy/mm/dd HH:MM:SS.FFF');
+Mc{i,3} = Mc1;
+Mc{i,4} = i;
 % Mc(i,5) = (minN);
 % Mc(i,6) = t1+(t2-t1)/2;
-if any(~isnan(Mc))
+if any(~isnan(Mc1))
     set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
     set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
     print(F,'-dpng',fullfile(outDir,[catStr,'_FMD_',datestr(t1,'yyyymmdd')]))
@@ -85,7 +85,7 @@ if numel(catalog)>minN+evWinOverlap
     i2=0;
     while i2<=numel(catalog)-minN
         
-        i1 = Mc(i,4) + evWinOverlap;
+        i1 = Mc{i,4} + evWinOverlap;
         i = i + 1;
         i2 = i1 +   minN - 1;
         
@@ -99,13 +99,13 @@ if numel(catalog)>minN+evWinOverlap
         
         %make b-value plot
         [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,false);
-        Mc(i,3) = Mc1;
+        Mc{i,3} = Mc1;
         
         dtimes = datenum(extractfield(catalog_i,'DateTime'));
         t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
-        Mc(i,1) = (t1);
-        Mc(i,2) = (t2);
-        Mc(i,4) = (i1);
+        Mc{i,1} = datestr(t1,'yyyy/mm/dd HH:MM:SS.FFF');
+        Mc{i,2} = datestr(t2,'yyyy/mm/dd HH:MM:SS.FFF');
+        Mc{i,4} = (i1);
         %         Mc(i,5) = (i2);
         %         Mc(i,6) = t1+(t2-t1)/2;
         
@@ -121,23 +121,23 @@ if numel(catalog)>minN+evWinOverlap
     %         i=i+1;
 end
 %last window: add in extra events at end
-catalog_i = catalog(Mc(i,4):numel(catalog));
+catalog_i = catalog(Mc{i,4}:numel(catalog));
 mags = extractfield(catalog_i,'Magnitude');
 
 %make b-value plot
 [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,true);
 % for now just take mean Mc
-Mc(i,3) = Mc1;
+Mc{i,3} = Mc1;
 
 dtimes = datenum(extractfield(catalog_i,'DateTime'));
 t1 = min(dtimes); t2 = floor(now); %max(dtimes); % time span network catalog near volcano
-Mc(i,1) = (t1);
-Mc(i,2) = (t2);
-Mc(i,4) = (i1);
+Mc{i,1} = datestr(t1,'yyyy/mm/dd HH:MM:SS.FFF');
+Mc{i,2} = datestr(t2,'yyyy/mm/dd HH:MM:SS.FFF');
+Mc{i,4} = (i1);
 % Mc(i,5) = (numel(catalog));
 % Mc(i,6) = t1+(t2-t1)/2;
 
-if any(~isnan(Mc))
+if any(~isnan(cell2mat(Mc(:,3))))
     set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(catalog_i)),' events)'])
     set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
     print(F,'-dpng',fullfile(outDir,[catStr,'_FMD_',datestr(t1,'yyyymmdd')]))
@@ -148,27 +148,27 @@ end
 % interpolate to every day
 if size(Mc,1)>=2
     if BE == 1
-        tPts =  Mc(:,1);
-        McPts = Mc(:,3);
+        tPts =  datenum(Mc(:,1));
+        McPts = Mc{:,3};
         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
         McPts2 = interp1(tPts,McPts,tPts2);
     elseif BE == 2
-        tPts =  Mc(:,2);
-        McPts = Mc(:,3);
+        tPts =  datenum(Mc(:,2));
+        McPts = cell2mat(Mc(:,3));
         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
         McPts2 = interp1(tPts,McPts,tPts2);
     elseif BE == 3
-        tPts = [Mc(:,1) + (Mc(:,2)-Mc(:,1))/2];
-        McPts =[Mc(:,3)];
+        tPts = [datenum(Mc(:,1)) + (datenum(Mc(:,2))-datenum(Mc(:,1)))/2];
+        McPts =[Mc{:,3}];
         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
         McPts2 = interp1(tPts,McPts,tPts2);
     elseif BE == 4
         %         tPts = [Mc(1,1);Mc(:,1) + (Mc(:,2)-Mc(:,1))/2;Mc(end,2)];
         %         McPts =[Mc(1,3);Mc(:,3);Mc(end,3)];
-        tPts = [Mc(:,1) + (Mc(:,2)-Mc(:,1))/2;Mc(end,2)];
-        McPts =[Mc(:,3);Mc(end,3)];
-        tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
-        McPts2 = interp1(tPts,McPts,tPts2);
+%         tPts = [Mc(:,1) + (Mc(:,2)-Mc(:,1))/2;Mc(end,2)];
+%         McPts =[Mc(:,3);Mc(end,3)];
+%         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
+%         McPts2 = interp1(tPts,McPts,tPts2);
     else
         FullMc = [];
         for i=1:size(Mc,1)-1
@@ -200,8 +200,8 @@ if size(Mc,1)>=2
     % McDS = [x_smo S_smo];
     % McDS = [x_smo_full S_smo_full];
 else
-    tPts2(1) = Mc(1,1);
-    McPts2(1)= Mc(1,3);
+    tPts2(1) = datenum(Mc(1,1));
+    McPts2(1)= (Mc{1,3});
     %     tPts2(2) = Mc(1,1);
     %     McPts2(2)= Mc(1,3);
     McDS = [tPts2' McPts2'];
@@ -210,11 +210,11 @@ end
 cinfo.Mc = Mc(:,1:3);
 cinfo.McDaily = [tPts2 McPts2];
 cinfo.McDailySmooth = McDS;
-cinfo.McMax = max(Mc(:,3));
-cinfo.McMean = mean(Mc(:,3));
-cinfo.McMedian = median(Mc(:,3));
+cinfo.McMax = max(cell2mat(Mc(:,3)));
+cinfo.McMean = mean(cell2mat(Mc(:,3)));
+cinfo.McMedian = median(cell2mat(Mc(:,3)));
 cinfo.McMinEv = minN;
-cinfo.McMin = min(Mc(:,3));
+cinfo.McMin = min(cell2mat(Mc(:,3)));
 % disp(['Max Mc: ',num2str(cinfo.McMax)])
 
 try

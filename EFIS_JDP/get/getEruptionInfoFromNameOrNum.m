@@ -51,4 +51,10 @@ else
     end
 end
 
+if ~isempty(einfo)
+    sd = datenum(extractfield(einfo,'StartDate'));
+    [~,I] = sort(sd);
+    einfo = einfo(I);
+end
+
 end

@@ -42,10 +42,10 @@ parfor i=1:length(times)
 %         catalog(i).DEPTH = NaN;
 %     end
 end
-deps = extractfield(catalog,'DEPTH');
+deps = extractfield(FMcat,'DEPTH');
 
 I = deps<=dmax;
-catalog = catalog(I);
+FMcat = FMcat(I);
 
 %match fields to old EFIS catalog format
 FMcat = RenameField(FMcat,{'LAT','LON','DEPTH','MAG'},{'Latitude','Longitude','Depth','Magnitude'});

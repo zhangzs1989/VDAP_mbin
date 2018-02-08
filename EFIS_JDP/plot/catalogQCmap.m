@@ -1,18 +1,5 @@
 function H = catalogQCmap(catalog,vinfo,params,mapdata)
 
-% if nargin == 2
-%     visibility = 'off';
-%
-% elseif nargin == 3
-%
-%     visibility = varargin{1};
-%     visibility = validatestring(visibility,{'on','off'}, mfilename, 'visibility');
-% end
-
-% if isempty(catalog)
-%     H = [];
-%     return
-% end
 %%
 input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %full res;
 % params.coasts = true;
@@ -139,7 +126,7 @@ if size(catalog,2) > 0 && ~isempty(catalog)
     % colormap(c(1:numel(ua),:))
     for i=1:numel(ua)
         c2 = [c2; c(i,:)];
-        a(i) = plotm(Lat(cata(:,i)),Lon(cata(:,i)),'.','Color',c(i,:));
+        a(i) = plotm(Lat(cata(:,i)),Lon(cata(:,i)),'.','Color',c(i,:),'MarkerSize',12);
     end
     l=legend(a,ua,'Location','Best');
 end

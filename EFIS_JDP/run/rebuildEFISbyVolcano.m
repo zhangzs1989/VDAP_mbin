@@ -1,12 +1,11 @@
 %% rebuild EFIS per volcano instead of piece-wise
 
 clearvars -except catalogISC catalogJMA catalogGEM
-
 %%
 input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.mat'; % imported via importEruptionCatalog, originally from S. Ogburn
 input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
 input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %full res;
-input.ISCcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/trimISCcatalog2volcs/iscCatalogAll5wFMsTrim2.mat'; % importISCcatalog.m
+input.ISCcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/iscCatalogAllwFMsTrim.mat'; % importISCcatalog.m
 input.outDir = '/Users/jpesicek/Dropbox/Research/EFIS/BMKGtest'; % importISCcatalog.m
 input.catalogsDir = input.outDir;
 input.localCatDir = '~/Dropbox/Research/EFIS/localCatalogs';
@@ -100,7 +99,6 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     [catalog_ISC1,~, ~ ]= filterAnnulusm(catalogISC,vinfo.lat,vinfo.lon,paramsISC.srad);
     vISC_Mc = getVolcanoMc(vinfo,catalog_ISC1,McPath,paramsISC.McMinN,'ISC',2,paramsISC.smoothDayFac);
     outMcInfoName=fullfile(McPath,['ISC_McInfo_',int2str(vinfo.Vnum),'.mat']);
-    %     save(outMcInfoName,'-struct','vISC_Mc');
     parsave_struct(outMcInfoName,vISC_Mc);
     
     %% make time vs Mc plot
@@ -129,7 +127,6 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     catalog_ISC2 = filterDepth(catalog_ISC2,params.DepthRange);
     outCatName=fullfile(vpath,['ISC_',int2str(vinfo.Vnum)]);
     catalog = catalog_ISC2;
-    %     save(outCatName,'catalog');
     parsave_catalog(outCatName,catalog);
 
     %% look for and plot GEM events < 1964

@@ -1,9 +1,10 @@
-function [MasterMc,H] = mkMasterMc(vinfo,ISC_McInfo,vISCMc,localMc)
+function [MasterMc,H] = mkMasterMc(vinfo,ISC_McInfo,vISCMc,localMc,mags,dtimes,viz)
 
 scrsz = [ 1 1 1080 1920];
 timeline = ISC_McInfo.McDaily(1,1):ceil(now);
 iscMc = interp1(ISC_McInfo.McDaily(:,1),ISC_McInfo.McDaily(:,2),timeline);
 gmc = nan(1,length(timeline));
+dtimes = datetime(datevec(dtimes));
 
 if size(vISCMc.McDaily,1)<2
     vmc = gmc;
@@ -39,23 +40,33 @@ disp(['Max Mc: ',num2str(MasterMc.McMax)])
 %% make time vs Mc plot
 timelineDT = datetime(datevec(timeline));
 %     H = mkMcFig(MASTERMc,'on');
-H=figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/3],'visible','off'); hold on
-plot(datetime(datevec(ISC_McInfo.McDaily(:,1))),ISC_McInfo.McDaily(:,2),'Color',[.5 .5 .5],'LineWidth',3)
+H=figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/3],'visible',viz); hold on
+
 lh ={};
+if ~isempty(dtimes)
+    plot(dtimes,mags,'k.')
+    lh = [lh,'Mags'];
+end
+
+plot(datetime(datevec(ISC_McInfo.McDaily(:,1))),ISC_McInfo.McDaily(:,2),'Color',[.5 .5 .5],'LineWidth',3)
 lh = [lh,'ISC Mc'];
 title([vinfo.name,', ',vinfo.country])
 
 plot(timelineDT,vmc,'b-','LineWidth',3)
 lh = [lh,'volcano ISC Mc'];
 
-plot(timelineDT,lmc,'g-','LineWidth',3)
-lh = [lh,'Local Mc'];
+if ~isempty(localMc)
+    plot(timelineDT,lmc,'g-','LineWidth',3)
+    lh = [lh,'Local Mc'];
+end
 
 plot(timelineDT,mMc,'r-','LineWidth',2)
 lh = [lh,'MASTER Mc'];
 
 legend(lh)
 grid on, box on
+
+
 ylim([0 6])
 xlim([timeline(1) MasterMc.McDaily(end,1)])
 xlabel('Date')

@@ -9,7 +9,7 @@ if strcmp(vinfo.country,'United States')
     shscript='~/bin/catalog-search2.pl';
     volcOutName = fixStringName(vinfo.name);
     outDirName=fullfile(input.catalogsDir,fixStringName(vinfo.country),volcOutName);
-    outCatName=fullfile(outDirName,['ANSS_',int2str(vinfo.Vnum)]);
+    outCatName=fullfile(outDirName,['cat_ANSS_',int2str(vinfo.Vnum)]);
     odir = outDirName;
     ofile = fullfile(odir,['ANSS_',volcOutName,'.csv']);
     s = dir(ofile);
@@ -35,12 +35,7 @@ if strcmp(vinfo.country,'United States')
     end
     
     [catalog] = import1ANSSfile(ofile);
-    pD = check4duplicateEvents(catalog);
-    if pD > 0
-        ID = findDuplicateEvents(catalog,0);
-        catalog = catalog(~ID);
-    end
-    
+    catalog = rmDuplicateEvents(catalog,0);
     save(outCatName,'catalog');
     
     if params.wingPlot
@@ -64,7 +59,7 @@ if strcmp(vinfo.country,'United States')
         t1a=datenum(params.YearRange(1),1,1);
         t2a=datenum(params.YearRange(2)+1,1,1);
         catalog = filterTime( catalog, t1a, t2a);% wingplot ISC
-        figname=fullfile(outDirName,['ANSS_',volcOutName]);
+        figname=fullfile(outDirName,['map_ANSS_',volcOutName]);
         fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
         print(fh_wingplot,'-dpng',[figname,'.png'])
         close(fh_wingplot)
