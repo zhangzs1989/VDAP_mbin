@@ -1,6 +1,6 @@
 function H = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,ii)
 
-disp(mfilename('fullpath'))
+disp(mfilename)
 % WINGPLOT Plots data in map view along with cross section profiles.
 %{
 
@@ -35,6 +35,10 @@ end
 
 if t1==t2
     t2 = t1+1;
+elseif t1>t2
+    H = [];
+    warning('t1>t2, no figure made')
+    return
 end
 % Extract all necessary data from the catalog
 catalog = filterTime( catalog, t1, t2);% wingplot ISC
@@ -142,8 +146,8 @@ catch
     disp('No annulus available')
 end
 
-try plotm(latannI, longannI, 'k'); catch, disp('No inner annulus plotted'), end % plot the annulus as a black line
-try plotm(mapdata.sta_lat, mapdata.sta_lon,'^k','MarkerFaceColor','k'); catch, disp('No stations in the area'), end
+try plotm(latannI, longannI, 'k'); end % plot the annulus as a black line
+try plotm(mapdata.sta_lat, mapdata.sta_lon,'^k','MarkerFaceColor','k'); end
 
 h = scaleruler('Units','km');
 setm(h,'MinorTick',[0])

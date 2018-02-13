@@ -3,6 +3,18 @@ function  ISC_McInfo = getGlobalISC_McInfo(ISC_McFile)
 
 % ISC_McFile = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/ISC_Mc.csv';
 ISC_Mc = readtext(ISC_McFile);
+
+% add points for most recent years:
+nr = length(ISC_Mc);
+ly = cell2mat(ISC_Mc(nr,1));
+lyMc = cell2mat(ISC_Mc(nr,2));
+
+ty = str2num(datestr(now,'yyyy'))-1;
+for i=1:(ty-ly)
+    ISC_Mc(nr+i,1)={ly + i};
+    ISC_Mc(nr+i,2)={lyMc};
+end
+%%
 ISC_Mc = cell2mat(ISC_Mc(2:end,:));
 d1 = datenum(ISC_Mc(:,1),1,1);
 d2 = d1 + 365;

@@ -118,66 +118,36 @@ azimuthalgap = cell2mat(rawNumericColumns(:, 10));
 originerror = cell2mat(rawNumericColumns(:, 11));
 magnitudeuncertainty = cell2mat(rawNumericColumns(:, 12));
 %% JP
-poolobj = gcp('nocreate'); % If no pool, do not create new one.
-if isempty(poolobj)
-    poolsize = 0;
-else
-    poolsize = poolobj.NumWorkers;
-end
-
-if poolsize > 0
+parfor i=1:numel(publicid)
+    catalog(i).EVENTID = publicid(i);
+    catalog(i).eventtype = eventtype(i);
+    %    catalog(i).origintime = origintime(i);
+    catalog(i).DateTime = datestr(datenum(origintime(i),'yyyy-mm-ddTHH:MM:SS.FFFZ'),'yyyy/mm/dd HH:MM:SS.FFF');
+    catalog(i).modificationtime = modificationtime(i);
+    catalog(i).Longitude = longitude(i);
+    catalog(i).Latitude = latitude(i);
     
-    parfor i=1:numel(publicid)
-        catalog(i).EVENTID = publicid(i);
-        catalog(i).eventtype = eventtype(i);
-        %    catalog(i).origintime = origintime(i);
-        catalog(i).DateTime = datestr(datenum(origintime(i),'yyyy-mm-ddTHH:MM:SS.FFFZ'),'yyyy/mm/dd HH:MM:SS.FFF');
-        catalog(i).modificationtime = modificationtime(i);
-        catalog(i).Longitude = longitude(i);
-        catalog(i).Latitude = latitude(i);
-        catalog(i).Magnitude = magnitude(i);
-        catalog(i).Depth = depth(i);
-        catalog(i).magnitudetype = magnitudetype(i);
-        catalog(i).depthtype = depthtype(i);
-        catalog(i).evaluationmethod = evaluationmethod(i);
-        catalog(i).evaluationstatus = evaluationstatus(i);
-        catalog(i).evaluationmode = evaluationmode(i);
-        catalog(i).earthmodel = earthmodel(i);
-        catalog(i).usedphasecount = usedphasecount(i);
-        catalog(i).usedstationcount = usedstationcount(i);
-        catalog(i).magnitudestationcount = magnitudestationcount(i);
-        catalog(i).minimumdistance = minimumdistance(i);
-        catalog(i).azimuthalgap = azimuthalgap(i);
-        catalog(i).originerror = originerror(i);
-        catalog(i).magnitudeuncertainty = magnitudeuncertainty(i);
-        catalog(i).AUTHOR = 'GNS';
+    if magnitude(i) == -9
+        magnitude(i) = nan;
     end
+    catalog(i).Magnitude = magnitude(i);
     
-else % no pool, do not start one
-    
-    for i=1:numel(publicid)
-        catalog(i).EVENTID = publicid(i);
-        catalog(i).eventtype = eventtype(i);
-        %    catalog(i).origintime = origintime(i);
-        catalog(i).DateTime = datestr(datenum(origintime(i),'yyyy-mm-ddTHH:MM:SS.FFFZ'),'yyyy/mm/dd HH:MM:SS.FFF');
-        catalog(i).modificationtime = modificationtime(i);
-        catalog(i).Longitude = longitude(i);
-        catalog(i).Latitude = latitude(i);
-        catalog(i).Magnitude = magnitude(i);
-        catalog(i).Depth = depth(i);
-        catalog(i).magnitudetype = magnitudetype(i);
-        catalog(i).depthtype = depthtype(i);
-        catalog(i).evaluationmethod = evaluationmethod(i);
-        catalog(i).evaluationstatus = evaluationstatus(i);
-        catalog(i).evaluationmode = evaluationmode(i);
-        catalog(i).earthmodel = earthmodel(i);
-        catalog(i).usedphasecount = usedphasecount(i);
-        catalog(i).usedstationcount = usedstationcount(i);
-        catalog(i).magnitudestationcount = magnitudestationcount(i);
-        catalog(i).minimumdistance = minimumdistance(i);
-        catalog(i).azimuthalgap = azimuthalgap(i);
-        catalog(i).originerror = originerror(i);
-        catalog(i).magnitudeuncertainty = magnitudeuncertainty(i);
-        catalog(i).AUTHOR = 'GNS';
+    if depth(i) <=-9
+        depth(i) = nan;
     end
+    catalog(i).Depth = depth(i);
+    catalog(i).magnitudetype = magnitudetype(i);
+    catalog(i).depthtype = depthtype(i);
+    catalog(i).evaluationmethod = evaluationmethod(i);
+    catalog(i).evaluationstatus = evaluationstatus(i);
+    catalog(i).evaluationmode = evaluationmode(i);
+    catalog(i).earthmodel = earthmodel(i);
+    catalog(i).usedphasecount = usedphasecount(i);
+    catalog(i).usedstationcount = usedstationcount(i);
+    catalog(i).magnitudestationcount = magnitudestationcount(i);
+    catalog(i).minimumdistance = minimumdistance(i);
+    catalog(i).azimuthalgap = azimuthalgap(i);
+    catalog(i).originerror = originerror(i);
+    catalog(i).magnitudeuncertainty = magnitudeuncertainty(i);
+    catalog(i).AUTHOR = 'GNS';
 end

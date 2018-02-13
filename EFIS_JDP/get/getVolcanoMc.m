@@ -40,7 +40,6 @@ if sum(~ei)==0
 end
 
 evWinOverlap = round(minN/4); % overlap of windows measuring Mc
-[~,~,~] = mkdir(outDir);
 
 dtimes = datenum(extractfield(catalog,'DateTime'));
 if ~issorted(dtimes)
@@ -55,7 +54,7 @@ t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
 if any(~isnan(Mc1))
     set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
     set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
-    print(F,'-dpng',fullfile(outDir,[catStr,'_FMD_',fixStringName(vinfo.name)]))
+    print(F,'-dpng',fullfile(outDir,['FMD_',catStr,'_',fixStringName(vinfo.name)]))
     close(F)
 end
 %%
@@ -66,7 +65,13 @@ mags = extractfield(catalog_i,'Magnitude');
 dtimes = datenum(extractfield(catalog_i,'DateTime'));
 [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,true);
 t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
-Mc{i,1} = datestr(t1,'yyyy/mm/dd HH:MM:SS.FFF');
+% skip window if it is less than X years???
+% if t2-t1 > 10*365
+%     disp('not enough events in 10 yrs, setting Mc=nan')
+%     Mc1 = nan;
+% end
+% Mc{i,1} = datestr(t1,'yyyy/mm/dd HH:MM:SS.FFF');
+Mc{i,1} = datestr(datenum(1964,1,1),'yyyy/mm/dd HH:MM:SS.FFF');
 Mc{i,2} = datestr(t2,'yyyy/mm/dd HH:MM:SS.FFF');
 Mc{i,3} = Mc1;
 Mc{i,4} = i;
@@ -75,7 +80,7 @@ Mc{i,4} = i;
 if any(~isnan(Mc1))
     set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
     set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
-    print(F,'-dpng',fullfile(outDir,[catStr,'_FMD_',datestr(t1,'yyyymmdd')]))
+    print(F,'-dpng',fullfile(outDir,['FMD_',catStr,'_',datestr(t1,'yyyymmdd')]))
     close(F)
 end
 i1=minN+i;
@@ -99,10 +104,16 @@ if numel(catalog)>minN+evWinOverlap
         
         %make b-value plot
         [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,false);
-        Mc{i,3} = Mc1;
         
         dtimes = datenum(extractfield(catalog_i,'DateTime'));
         t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
+        % skip window if it is less than X years???
+%         if t2-t1 > 10*365
+%             disp('not enough events in 10 yrs, setting Mc=nan')
+%             Mc1 = nan;
+%         end
+
+        Mc{i,3} = Mc1;
         Mc{i,1} = datestr(t1,'yyyy/mm/dd HH:MM:SS.FFF');
         Mc{i,2} = datestr(t2,'yyyy/mm/dd HH:MM:SS.FFF');
         Mc{i,4} = (i1);
@@ -112,7 +123,7 @@ if numel(catalog)>minN+evWinOverlap
         if ~isempty(F) %any(~isnan(Mc))
             set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
             set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
-            print(F,'-dpng',fullfile(outDir,[catStr,'_FMD_',datestr(t1,'yyyymmdd')]))
+            print(F,'-dpng',fullfile(outDir,['FMD_',catStr,'_',datestr(t1,'yyyymmdd')]))
             close(F)
         end
         
@@ -127,10 +138,15 @@ mags = extractfield(catalog_i,'Magnitude');
 %make b-value plot
 [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,true);
 % for now just take mean Mc
-Mc{i,3} = Mc1;
 
 dtimes = datenum(extractfield(catalog_i,'DateTime'));
 t1 = min(dtimes); t2 = floor(now); %max(dtimes); % time span network catalog near volcano
+% skip window if it is less than X years???
+% if t2-t1 > 10*365
+%     disp('not enough events in 10 yrs, setting Mc=nan')
+%     Mc1 = nan;
+% end
+Mc{i,3} = Mc1;
 Mc{i,1} = datestr(t1,'yyyy/mm/dd HH:MM:SS.FFF');
 Mc{i,2} = datestr(t2,'yyyy/mm/dd HH:MM:SS.FFF');
 Mc{i,4} = (i1);
@@ -140,7 +156,7 @@ Mc{i,4} = (i1);
 if any(~isnan(cell2mat(Mc(:,3))))
     set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(catalog_i)),' events)'])
     set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
-    print(F,'-dpng',fullfile(outDir,[catStr,'_FMD_',datestr(t1,'yyyymmdd')]))
+    print(F,'-dpng',fullfile(outDir,['FMD_',catStr,'_',datestr(t1,'yyyymmdd')]))
     close(F)
 end
 
@@ -152,23 +168,46 @@ if size(Mc,1)>=2
         McPts = Mc{:,3};
         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
         McPts2 = interp1(tPts,McPts,tPts2);
-    elseif BE == 2
-        tPts =  datenum(Mc(:,2));
-        McPts = cell2mat(Mc(:,3));
-        tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
-        McPts2 = interp1(tPts,McPts,tPts2);
+%     elseif BE == 2
+%         tPts =  datenum(Mc(:,2));
+%         McPts = cell2mat(Mc(:,3));
+%         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
+%         McPts2 = interp1(tPts,McPts,tPts2);
     elseif BE == 3
         tPts = [datenum(Mc(:,1)) + (datenum(Mc(:,2))-datenum(Mc(:,1)))/2];
         McPts =[Mc{:,3}];
         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
         McPts2 = interp1(tPts,McPts,tPts2);
+
     elseif BE == 4
-        %         tPts = [Mc(1,1);Mc(:,1) + (Mc(:,2)-Mc(:,1))/2;Mc(end,2)];
-        %         McPts =[Mc(1,3);Mc(:,3);Mc(end,3)];
-%         tPts = [Mc(:,1) + (Mc(:,2)-Mc(:,1))/2;Mc(end,2)];
-%         McPts =[Mc(:,3);Mc(end,3)];
-%         tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
-%         McPts2 = interp1(tPts,McPts,tPts2);
+        
+        McPts = cell2mat(Mc(:,3));
+        j=1;l=0;
+        while j<=2*length(McPts);
+            l=l+1;
+%             tPts(j+0,1) = datenum(Mc(l,1));
+            tPts(j+0,1) = [datenum(Mc(l,1)) + (datenum(Mc(l,2))-datenum(Mc(l,1)))/2];
+            tPts(j+1,1) = [datenum(Mc(l,1)) + (datenum(Mc(l,2))-datenum(Mc(l,1)))/2];
+%             tPts(j+2,1) = datenum(Mc(l,2));
+            tPts(j+1,1) = datenum(Mc(l,2));
+
+            McPts2(j+0,1)=McPts(l);
+            McPts2(j+1,1)=McPts(l);
+%             McPts2(j+2,1)=McPts(l);
+           
+            j=j+2;
+        end
+        [Y,I] = sort(tPts);
+        McPts = McPts2(I);
+        tPts = Y;
+        tPts2 = min(tPts):max(tPts); tPts2 = tPts2';
+        try
+            McPts2 = interp1(tPts,McPts,tPts2);
+        catch
+            warning('Mc Interp Failed!')
+            McPts2 = McPts;
+        end
+        
     else
         FullMc = [];
         for i=1:size(Mc,1)-1
@@ -191,19 +230,10 @@ if size(Mc,1)>=2
         warning('smoothing failed')
         McDS = [tPts2 McPts2];
     end
-    % fix endpoints
-    % S_smo_full(1) = McPts2(1);
-    % S_smo_full(end) = McPts2(end);
-    %     xi = round((length(tPts2)-length(x_smo))/2);
-    %     S_smo_full(1:xi)=McPts2(1:xi);
-    %     S_smo_full(end-xi:end) = McPts2(end-xi:end);
-    % McDS = [x_smo S_smo];
-    % McDS = [x_smo_full S_smo_full];
+
 else
     tPts2(1) = datenum(Mc(1,1));
     McPts2(1)= (Mc{1,3});
-    %     tPts2(2) = Mc(1,1);
-    %     McPts2(2)= Mc(1,3);
     McDS = [tPts2' McPts2'];
 end
 %%
@@ -224,14 +254,5 @@ catch
         cinfo.MagAuthors = unique(extractfield(catalog,'AUTHOR'));
     end
 end
-
-% %% make time vs Mc plot
-% mags = extractfield(catalog,'Magnitude');
-% dtimes = datenum(extractfield(catalog,'DateTime'));
-% H = mkMcFig(cinfo,mags,dtimes,'off');
-% set(get(H(1).Children(2),'title'),'String',[vinfo.name,', ',vinfo.country,'  (',int2str(length(mags)),' events, window = ',int2str(minN),' events, smoothing = ',num2str(smoothDayFac/365),' yrs)'])
-% 
-% print(H,'-dpng',fullfile(outDir,[catStr,'_Mc_',fixStringName(vinfo.name)]))
-% close(H)
 
 end

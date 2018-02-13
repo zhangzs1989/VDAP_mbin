@@ -147,8 +147,8 @@ catch
     disp('No annulus available')
 end
 
-try plotm(latannI, longannI, 'k'); catch, disp('No inner annulus plotted'), end % plot the annulus as a black line
-try plotm(mapdata.sta_lat, mapdata.sta_lon,'^k','MarkerFaceColor','k'); catch, disp('No stations in the area'), end
+try plotm(latannI, longannI, 'k'); end % plot the annulus as a black line
+try plotm(mapdata.sta_lat, mapdata.sta_lon,'^k','MarkerFaceColor','k'); end
 
 h = scaleruler('Units','km');
 setm(h,'MinorTick',[0])

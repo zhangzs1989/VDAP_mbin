@@ -25,17 +25,17 @@ figTF = validatestring(figTF,{'yes','no','fig'}, mfilename, 'figTF');
 
 if isempty(catalog2) && isempty(catalog1)
     newCatalog = []; H = [];
-    warning('catalogs are empty')
+%     warning('catalogs are empty')
     return
 end
 if isempty(catalog1)
     newCatalog = catalog2;H = [];
-    warning('catalog1 is empty')
+%     warning('catalog1 is empty')
     return
 end
 if isempty(catalog2)
     newCatalog = catalog1;H = [];
-    warning('catalog1 is empty')
+%     warning('catalog2 is empty')
     return
 end
 
@@ -82,7 +82,7 @@ end
 jj = find(iii~=0);
 cat1i = jj; %indices of repeats in cat1
 cat2i = iii(jj); %indices of repeats in cat2
-disp(['Matches: ',int2str(length(jj))])
+% disp(['Matches: ',int2str(length(jj))])
 
 %% QC figure
 if strcmpi(figTF,'yes') || strcmpi(figTF,'fig')

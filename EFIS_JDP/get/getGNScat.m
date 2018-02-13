@@ -31,12 +31,21 @@ if strcmp(vinfo.country,'New Zealand')
     else
         warning('using existing catalog')
     end
+    s = dir(ofile);
     
-    if ~exist(ofile,'file') && s.bytes > 282
-        disp('importing catalog from GNS...')
-        [catalog] = import1GNSfile(ofile);
-        catalog = rmDuplicateEvents(catalog,0);
-        save(outCatName,'catalog');
+    %
+    if exist(ofile,'file') && s.bytes > 282
+        try 
+            catalog = load(outCatName);
+            catalog = catalog.catalog;
+        catch
+            disp('importing catalog from GNS...')
+            [catalog] = import1GNSfile(ofile);
+            if numel(catalog)>1
+                catalog = rmDuplicateEvents(catalog,0);
+            end
+            save(outCatName,'catalog');
+        end
     else
         warning('no events imported')
         catalog = [];
@@ -49,12 +58,12 @@ if strcmp(vinfo.country,'New Zealand')
         end
         
         %% make kml file
-        kmlName=['GNS_',int2str(vinfo.Vnum)];
-        try
-            mkKMLfileFromCatalog(catalog,fullfile(outDirName,kmlName));
-        catch
-            warning('KML file trouble')
-        end
+%         kmlName=['GNS_',int2str(vinfo.Vnum)];
+%         try
+%             mkKMLfileFromCatalog(catalog,fullfile(outDirName,kmlName));
+%         catch
+%             warning('KML file trouble')
+%         end
         
         t1a=datenum(params.YearRange(1),1,1);
         t2a=datenum(params.YearRange(2)+1,1,1);

@@ -11,7 +11,7 @@ dfac = 30;
 if isempty(eruptionCat)
     %     input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
     %     load(input.gvp_eruptions); % spits out volcanoCat
-    warning('No eruption times plotted')
+%     warning('No eruption times plotted')
 end
 
 if isempty(catalog)
@@ -90,7 +90,7 @@ if ~isempty(Mc)
     if size(Mc,2)==3 % could be two times per Mc (window) or just one from interp
         Mc = Mc(:,2:3); % take window end dates as Mc times
     end
-    plot(datetime(datevec(Mc(:,1))),Mc(:,2),'k-','LineWidth',2)
+    a=plot(datetime(datevec(Mc(:,1))),Mc(:,2),'k-','LineWidth',2);
     ua2 = [ua2,'Mc'];
 end
 % plot eruptions
@@ -98,14 +98,15 @@ for i=1:numel(eruptionCat)
     if isempty(eruptionCat(i).EndDate)
         eruptionCat(i).EndDate = datestr(datenum(eruptionCat(i).StartDate) + 1);
     end
-    plot([datetime(eruptionCat(i).StartDate),datetime(eruptionCat(i).StartDate)],[floor(min(mags)),ceil(max(mags))],'r-','LineWidth',1)
-    plot([datetime(eruptionCat(i).EndDate)+1,datetime(eruptionCat(i).EndDate)+1],[floor(min(mags)),ceil(max(mags))],'b-.')
+    plot([datetime(eruptionCat(i).StartDate),datetime(eruptionCat(i).StartDate)],[floor(min(mags)),ceil(max(mags))],'r-','LineWidth',1);
+    plot([datetime(eruptionCat(i).EndDate)+1,datetime(eruptionCat(i).EndDate)+1],[floor(min(mags)),ceil(max(mags))],'b-.');
 
 end
 if ~isempty(eruptionCat)
     ua2 = [ua2,'Eruption start','Eruption End'];
 end
-legend(ua2,'Location','west')
+% legend(ua2,'Location','best')
+legend(a,ua2(length(ua)+1:length(ua2)),'Location','best')
 box on, grid on
 %%
 yyaxis right
@@ -130,6 +131,7 @@ end
 axis ij
 ylabel('Depth');
 xlabel('Date')
+ylim([0 max(deps)])
 box on, grid on
 
 ax3 = subplot(4,4,9:12); hold on, grid on
@@ -139,11 +141,15 @@ for i=1:numel(ua)
 end
 ylabel('Distal Map Distance');
 xlabel('Date')
+ylim([0 max(deg2km(ARCLEN))])
 box on, grid on
 
+% t1min = floor(min(datenum(dts)));
+% t1min = datenum(str2num(datestr(t1min,'yyyy')),1,1);
+t1min = datenum(1964,1,1); % omit GEM events
 %% NEED this twice otherwise axes get screwed up. matlab bug?
 try
-    xmin = min(datetime(datevec(Mc(:,1))));
+    xmin = min([datetime(datevec(Mc(:,1)));datetime(datevec(t1min))]);
     xmax = max(datetime(datevec(Mc(:,1)+7)));
 catch
     try
@@ -172,7 +178,7 @@ linkaxes([ax1 ax2 ax3],'x')
 % end
 zoom('xon')
 try
-    xmin = min(datetime(datevec(Mc(:,1))));
+    xmin = min([datetime(datevec(Mc(:,1)));datetime(datevec(t1min))]);
     xmax = max(datetime(datevec(Mc(:,1)+7)));
 catch
     try

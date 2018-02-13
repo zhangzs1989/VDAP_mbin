@@ -1,6 +1,6 @@
 function mapdata = prep4WingPlot(vinfo,params,input,outer,inner)
 
-disp('WingPlot...')
+disp(mfilename)
 
 if ~isfield(input,'GSHHS')
     input.GSHHS = '/Users/jpesicek/Dropbox/Research/Alaska/AKDVTs/data/gshhs_f.b'; %full res;

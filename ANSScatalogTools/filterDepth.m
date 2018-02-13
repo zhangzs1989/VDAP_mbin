@@ -25,7 +25,10 @@ function [ out_catalog ] = filterDepth( in_catalog, depth_range )
 % DATE: 2015-Sep
 
 %%
-
+if isempty(in_catalog)
+    out_catalog = in_catalog;
+    return
+end
 % Find the index for all depths below threshold from the catalog
     % subselection
 Depth = extractfield(in_catalog, 'Depth');
