@@ -9,7 +9,8 @@ nr = length(ISC_Mc);
 ly = cell2mat(ISC_Mc(nr,1));
 lyMc = cell2mat(ISC_Mc(nr,2));
 
-ty = str2num(datestr(now,'yyyy'))-1;
+% ty = str2num(datestr(now,'yyyy'))-1;
+ty = 2016;
 for i=1:(ty-ly)
     ISC_Mc(nr+i,1)={ly + i};
     ISC_Mc(nr+i,2)={lyMc};

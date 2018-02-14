@@ -3,7 +3,7 @@ function [F, H, Mc] = Gutenberg(magnitudes,MagInc,minNumEqs,figYN)
 warning('on','all')
 
 if length(magnitudes) < minNumEqs
-    warning('not enough events to estimate Mc')
+%     warning('not enough events to estimate Mc')
     Mc = NaN;
     F = [];
     H = [];

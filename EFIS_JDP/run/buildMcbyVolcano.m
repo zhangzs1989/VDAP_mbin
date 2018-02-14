@@ -1,21 +1,30 @@
-function [ Mc, MasterMc ] = buildMcbyVolcano(catalog,vinfo,params,input)
+function [ McG,McL,MasterMc ] = buildMcbyVolcano(catalogMaster,catalogISC,catalogLocal,vinfo,params,vpath)
 
-vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
 [~,~,~] = mkdir(vpath);
 
-%% TODO: worry about when local catalog is included, need to smooth less and not at transition
-Mc = getVolcanoMc(vinfo,catalog,vpath,params.McMinN,'MASTER',4,params.smoothDayFac);
 ISC_McFile = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/ISC_Mc.csv';
-ISC_McInfo = getGlobalISC_McInfo(ISC_McFile);
+McG = getGlobalISC_McInfo(ISC_McFile);
 
-outMcInfoName=fullfile(vpath,['Mc_',int2str(vinfo.Vnum),'.mat']);
-parsave_struct(outMcInfoName,Mc);
+%% step 1: get volcano Mc from Global catalogs
+str='ISC';
+McV = getVolcanoMc2(vinfo,catalogISC,vpath,params.McMinN,str,'year',params.smoothYrs);
 
-%% compute MASTER Mc
-[MasterMc,H] = mkMasterMc(vinfo,ISC_McInfo,Mc,[],catalog,params);
-set(get(H(1).Children(2),'title'),'String',[vinfo.name,', ',vinfo.country,'  (',int2str(numel(catalog)),' events, window = ',int2str(params.McMinN),' events, smoothing = ',num2str(params.smoothDayFac/365),' yrs, radius = ',int2str(params.srad(2)),' km'])
+outMcInfoName=fullfile(vpath,['Mc_',str,'_',int2str(vinfo.Vnum),'.mat']);
+parsave_struct(outMcInfoName,McV);
+
+%% step 2: get regional/local Mc from any other source
+str='LOCAL';
+McL = getVolcanoMc2(vinfo,catalogLocal,vpath,params.McMinN,str,'year',params.smoothYrs);
+
+outMcInfoName=fullfile(vpath,['Mc_',str,'_',int2str(vinfo.Vnum),'.mat']);
+parsave_struct(outMcInfoName,McL);
+
+%% step 3: combine & compute MASTER Mc
+[MasterMc,H] = mkMasterMc2(vinfo,McG,McV,McL,catalogMaster,params);
+
 print(H,'-dpng',fullfile(vpath,['Mc_MASTER_',fixStringName(vinfo.name)]))
 savefig(H,fullfile(vpath,['Mc_MASTER_',fixStringName(vinfo.name)]))
+
 outMcInfoName=fullfile(vpath,['Mc_MASTER_',int2str(vinfo.Vnum),'.mat']);
 parsave_struct(outMcInfoName,MasterMc);
 

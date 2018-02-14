@@ -24,7 +24,7 @@ if ~isfield(params,'visible')
     params.visible= 'off';
 end
 
-maxEvents2plot=10000;
+maxEvents2plot=params.maxEvents2plot;
 if numel(catalog) > maxEvents2plot
     warning(['attempted to plot more than ',int2str(maxEvents2plot),' events, plot may be decimated'])
     catalog = catalog(2:round(numel(catalog)/maxEvents2plot):end);

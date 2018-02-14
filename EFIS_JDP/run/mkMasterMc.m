@@ -36,7 +36,7 @@ end
 
 %% compute master Mc
 mMc = [iscMc',vmc',lmc'];
-mMc = min(mMc,[],2,'omitnan');
+mMc = [mMc, min(mMc,[],2,'omitnan')];
 % mMc = vmc';
 %% extrapolate end value to today
 % isn = find(~isnan(mMc));
@@ -92,7 +92,7 @@ title([vinfo.name,', ',vinfo.country])
 plot(timelineDT,vmc0,'k-','LineWidth',1)
 lh = [lh,'volcano Mc Raw'];
 
-plot(timelineDT,vmc,'c-','LineWidth',4)
+plot(timelineDT,vmc,'k-','LineWidth',4)
 lh = [lh,'volcano Mc Smooth'];
 
 if ~isempty(localMc)

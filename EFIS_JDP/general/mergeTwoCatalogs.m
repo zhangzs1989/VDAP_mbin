@@ -54,7 +54,7 @@ cat2mags = extractfield(catalog2,'Magnitude');
 
 %% loop over events in catalog 1
 iii = zeros(numel(catalog1),1);
-for i=1:numel(catalog1)
+parfor i=1:numel(catalog1)
     %
     %all events w/i time tolerance
     [mi]= abs(cat1times(i) - cat2times) < datenum(0,0,0,0,0,OTdiff);
@@ -154,7 +154,7 @@ c3fns = unique([c1fns;c2fns]);
 cat3len = numel(catalog1)+numel(catalog2)-numel(jj);
 
 % fill in cat1 global values
-for i=1:numel(catalog1) %use parfor if you want
+parfor i=1:numel(catalog1) %use parfor if you want
     
     %here give empty as default for all fields
     for j=1:numel(c3fns)
@@ -207,8 +207,12 @@ dts3 = datenum(extractfield(catalog3,'DateTime'));
 [~,ID] = sort(dts3);
 catalog3 = catalog3(ID);
 
-[ percentDuplicates ] = check4duplicateEvents(catalog3);
-
+% check for dups
+[ percentDuplicates, ~ ] = check4duplicateEvents(catalog3);
+if percentDuplicates > 0
+    error('Duplicates exist')
+end
+    
 newCatalog = catalog3;
 
 end
