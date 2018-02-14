@@ -28,7 +28,7 @@ params.smoothYrs = 3;
 params.maxEvents2plot = 10000;
 
 params.vname = 'all'; % options are 'vname' or 'all'
-params.country = 'New Zealand';
+params.country = 'Mexico';
 
 % for filnal cat and plot
 paramsF = params;
@@ -95,9 +95,9 @@ if ~strcmpi(params.country,'all')
 end
 tic
 %% NOW get and save volcano catalogs
-parfor i=14:size(volcanoCat,1)  %% PARFOR APPROVED
+parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
-    catalog_local = []; catMaster = [];
+    catalog_local = [];
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     disp([int2str(i),'/',int2str(size(volcanoCat,1)),', ',vinfo.name,', ',vinfo.country])

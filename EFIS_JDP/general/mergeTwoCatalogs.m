@@ -1,6 +1,6 @@
 function [newCatalog,H] = mergeTwoCatalogs(catalog1,catalog2,varargin)
 
-% this script assumes that catalog 2 is the preferred catalog, 
+% this script assumes that catalog 2 is the preferred catalog,
 % and keeps params from cat2 for matches, except where info is missing,
 % which is filled in to cat2 solution from cat1 when possible
 %%
@@ -25,17 +25,17 @@ figTF = validatestring(figTF,{'yes','no','fig'}, mfilename, 'figTF');
 
 if isempty(catalog2) && isempty(catalog1)
     newCatalog = []; H = [];
-%     warning('catalogs are empty')
+    %     warning('catalogs are empty')
     return
 end
 if isempty(catalog1)
     newCatalog = catalog2;H = [];
-%     warning('catalog1 is empty')
+    %     warning('catalog1 is empty')
     return
 end
 if isempty(catalog2)
     newCatalog = catalog1;H = [];
-%     warning('catalog2 is empty')
+    %     warning('catalog2 is empty')
     return
 end
 
@@ -72,10 +72,10 @@ parfor i=1:numel(catalog1)
         iii(i) = ii(mii);
     end
     
-%     if iii(i) %match
-%         disp(['1: ',datestr(catalog1(i).DateTime)])
-%         disp(['2: ',datestr(catalog2(iii(i)).DateTime)])
-%     end
+    %     if iii(i) %match
+    %         disp(['1: ',datestr(catalog1(i).DateTime)])
+    %         disp(['2: ',datestr(catalog2(iii(i)).DateTime)])
+    %     end
 end
 
 %% indices for repeats:
@@ -88,31 +88,31 @@ cat2i = iii(jj); %indices of repeats in cat2
 if strcmpi(figTF,'yes') || strcmpi(figTF,'fig')
     H = figure('visible','off');
     subplot(2,1,1);
-
+    
     imn1 = isnan(cat1mags);
     imn2 = isnan(cat2mags);
     cat1mags(imn1) = floor(min(cat1mags,[],'omitnan'));
     cat2mags(imn2) = floor(min(cat2mags,[],'omitnan'));
     
-%     plot(datetime(datevec(cat1times)),cat1mags,'b.',datetime(datevec(cat2times)),cat2mags,'g.', ... 
-%         datetime(datevec(cat1times(cat1i))),cat1mags(cat1i),'ro',datetime(datevec(cat2times(cat2i))),cat2mags(cat2i),'ro'), grid on
+    %     plot(datetime(datevec(cat1times)),cat1mags,'b.',datetime(datevec(cat2times)),cat2mags,'g.', ...
+    %         datetime(datevec(cat1times(cat1i))),cat1mags(cat1i),'ro',datetime(datevec(cat2times(cat2i))),cat2mags(cat2i),'ro'), grid on
     plot(datetime(datevec(cat1times)),cat1mags,'b.',datetime(datevec(cat2times)),cat2mags,'g.')
     hold on, grid on
     for i=1:length(cat1i)  %super slow, why??
-       plot([datetime(datevec(cat1times(cat1i(i)))) datetime(datevec(cat2times(cat2i(i))))],[cat1mags(cat1i(i)) cat2mags(cat2i(i))],'r-') 
+        plot([datetime(datevec(cat1times(cat1i(i)))) datetime(datevec(cat2times(cat2i(i))))],[cat1mags(cat1i(i)) cat2mags(cat2i(i))],'r-')
     end
-        
+    
     legend('catalog1','catalog2','Duplicates','Location','Best')
     xlabel('Date')
     ylabel('Magnitude')
     title(['Cat1: ',int2str(length(cat1times)),', Cat2: ',int2str(length(cat2times)),', Matches: ',int2str(length(jj))])
     % datetick
     zoom('xon')
-%     ax2 =subplot(3,1,2);
-%     plot(datetime(datevec(cat1times)),ones(length(cat1times),1),'b.',datetime(datevec(cat2times)),ones(length(cat2times),1),'k.',datetime(datevec(cat1times(cat1i))),ones(length(cat1times(cat1i)),1),'bo',datetime(datevec(cat2times(cat2i))),ones(length(cat2times(cat2i)),1),'ko'), grid on
-%     ylim(ax2,[0 2])
-%     linkaxes([ax1 ax2],'x')
-%     xlim([min(cat2times) max(cat2times)])
+    %     ax2 =subplot(3,1,2);
+    %     plot(datetime(datevec(cat1times)),ones(length(cat1times),1),'b.',datetime(datevec(cat2times)),ones(length(cat2times),1),'k.',datetime(datevec(cat1times(cat1i))),ones(length(cat1times(cat1i)),1),'bo',datetime(datevec(cat2times(cat2i))),ones(length(cat2times(cat2i)),1),'ko'), grid on
+    %     ylim(ax2,[0 2])
+    %     linkaxes([ax1 ax2],'x')
+    %     xlim([min(cat2times) max(cat2times)])
     
     subplot(2,1,2)
     worldmap([min([cat2lat cat1lat]),max([cat2lat cat1lat])],[min([cat2lon cat1lon]),max([cat2lon cat1lon])])
@@ -125,8 +125,8 @@ if strcmpi(figTF,'yes') || strcmpi(figTF,'fig')
         for i=1:length(cat1i)
             plotm([cat1lat(cat1i(i)) cat2lat(cat2i(i))],[cat1lon(cat1i(i)) cat2lon(cat2i(i))],'r-')
         end
-%         plotm(cat1lat(cat1i),cat1lon(cat1i),'ro')
-%         plotm(cat2lat(cat2i),cat2lon(cat2i),'ro');
+        %         plotm(cat1lat(cat1i),cat1lon(cat1i),'ro')
+        %         plotm(cat2lat(cat2i),cat2lon(cat2i),'ro');
     end
     
     zoom('on')
@@ -208,11 +208,13 @@ dts3 = datenum(extractfield(catalog3,'DateTime'));
 catalog3 = catalog3(ID);
 
 % check for dups
-[ percentDuplicates, ~ ] = check4duplicateEvents(catalog3);
-if percentDuplicates > 0
-    error('Duplicates exist')
+% [ percentDuplicates, ~ ] = check4duplicateEvents(catalog3);
+% if percentDuplicates > 0
+%     error('Duplicates exist')
+% end
+if numel(catalog3)>1
+    catalog3 = rmDuplicateEvents(catalog3,0);
 end
-    
 newCatalog = catalog3;
 
 end
