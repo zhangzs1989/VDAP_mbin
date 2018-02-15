@@ -14,7 +14,7 @@ parsave_struct(outMcInfoName,McV);
 
 %% step 2: get regional/local Mc from any other source
 str='LOCAL';
-McL = getVolcanoMc2(vinfo,catalogLocal,vpath,params.McMinN,str,'year',params.smoothYrs);
+McL = getVolcanoMc2(vinfo,catalogLocal,vpath,params.McMinN,str,'year',1);
 
 outMcInfoName=fullfile(vpath,['Mc_',str,'_',int2str(vinfo.Vnum),'.mat']);
 parsave_struct(outMcInfoName,McL);

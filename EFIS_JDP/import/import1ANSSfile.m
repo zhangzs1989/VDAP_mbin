@@ -19,7 +19,7 @@ catalog = [];
 %% Initialize variables.
 delimiter = ',';
 if nargin<=2
-    startRow = 19;
+    startRow = 21;
     endRow = inf;
 end
 

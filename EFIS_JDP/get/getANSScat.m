@@ -17,9 +17,13 @@ if strcmp(vinfo.country,'United States')
     if ~exist(ofile,'file') || s.bytes == 0
         disp(['getting catalog from ANSS...'])
         
-        cmd = sprintf('%s %f %f %d %d > %s',shscript,vinfo.lat,vinfo.lon,params.srad(2),params.DepthRange(2),ofile);
+        cmd = sprintf('%s %f %f %d %d %d %f %f > %s',shscript,vinfo.lat,vinfo.lon, ...
+            params.srad(2),params.DepthRange(1),params.DepthRange(2),params.MagRange(1),params.MagRange(2),ofile);
         [status,result] = system(cmd);
         disp(result)
+        if status ~= 0 
+            error('wget issue')
+        end
         
         cmd2 = sprintf('echo "%s" > %s/ANSS_Request.sh',cmd,odir);
         [status,result] = system(cmd2);
@@ -33,11 +37,25 @@ if strcmp(vinfo.country,'United States')
     else
         warning('using existing catalog')
     end
-    
-    [catalog] = import1ANSSfile(ofile);
-    catalog = rmDuplicateEvents(catalog,0);
-    save(outCatName,'catalog');
-    
+%     s = dir(ofile);
+
+    if exist(ofile,'file') %&& s.bytes > 282
+        try 
+            catalog = load(outCatName);
+            catalog = catalog.catalog;
+        catch
+            disp('importing ANSS formatted catalog...')
+            [catalog] = import1ANSSfile(ofile);
+            if numel(catalog)>1
+                catalog = rmDuplicateEvents(catalog,0);
+            end
+            save(outCatName,'catalog');
+        end
+    else
+        warning('no events imported')
+        catalog = [];
+    end    
+    %%
     if params.wingPlot
         if numel(catalog) > params.maxEvents2plot
             warning('wingplot: too many events to plot all')
@@ -45,16 +63,16 @@ if strcmp(vinfo.country,'United States')
         end
         
         %% make kml file
-        kmlName=['ANSS_',int2str(vinfo.Vnum)];
-        try
-            mkKMLfileFromCatalog(catalog,fullfile(outDirName,kmlName));
-        catch
-            %             tmpName=regexprep(volcanoCat(i).Volcano,'\W','');
-            %             mkKMLfileFromCatalog(catalog_a,kmlName);
-            %             cmd=sprintf('mv %s.kml %s',kmlName,fullfile(outDirName,kmlName));
-            %             [status,result] = system(cmd);
-            warning('KML file trouble')
-        end
+%         kmlName=['ANSS_',int2str(vinfo.Vnum)];
+%         try
+%             mkKMLfileFromCatalog(catalog,fullfile(outDirName,kmlName));
+%         catch
+%             %             tmpName=regexprep(volcanoCat(i).Volcano,'\W','');
+%             %             mkKMLfileFromCatalog(catalog_a,kmlName);
+%             %             cmd=sprintf('mv %s.kml %s',kmlName,fullfile(outDirName,kmlName));
+%             %             [status,result] = system(cmd);
+%             warning('KML file trouble')
+%         end
         
         t1a=datenum(params.YearRange(1),1,1);
         t2a=datenum(params.YearRange(2)+1,1,1);

@@ -18,6 +18,9 @@ if strcmp(vinfo.country,'New Zealand')
         cmd = sprintf('%s %s %f %f %d %d %s',shscript,volcOutName,vinfo.lat,vinfo.lon,params.srad(2),params.DepthRange(2),odir);
         [status,result] = system(cmd);
         disp(result)
+        if status ~= 0 
+            error('wget issue')
+        end
         
         cmd2 = sprintf('echo "%s" > %s/GNS_Request.sh',cmd,odir);
         [status,result] = system(cmd2);
@@ -39,7 +42,7 @@ if strcmp(vinfo.country,'New Zealand')
             catalog = load(outCatName);
             catalog = catalog.catalog;
         catch
-            disp('importing catalog from GNS...')
+            disp('importing GNS formatted catalog...')
             [catalog] = import1GNSfile(ofile);
             if numel(catalog)>1
                 catalog = rmDuplicateEvents(catalog,0);

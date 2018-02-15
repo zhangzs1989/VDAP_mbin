@@ -54,7 +54,7 @@ cat2mags = extractfield(catalog2,'Magnitude');
 
 %% loop over events in catalog 1
 iii = zeros(numel(catalog1),1);
-parfor i=1:numel(catalog1)
+for i=1:numel(catalog1) %PARFOR approved
     %
     %all events w/i time tolerance
     [mi]= abs(cat1times(i) - cat2times) < datenum(0,0,0,0,0,OTdiff);
@@ -154,7 +154,7 @@ c3fns = unique([c1fns;c2fns]);
 cat3len = numel(catalog1)+numel(catalog2)-numel(jj);
 
 % fill in cat1 global values
-parfor i=1:numel(catalog1) %use parfor if you want
+for i=1:numel(catalog1) %use parfor if you want
     
     %here give empty as default for all fields
     for j=1:numel(c3fns)
