@@ -109,7 +109,7 @@ if params.topo
     %% export topo
     if isfield(params,'mkGMToutput') && params.mkGMToutput
         topoOut = mkGMTtopoFile(RA, ZA);
-        save([outDirName,'/',vinfo.name,'_topo.xyz'],'topoOut','-ascii')
+        save([params.outDir,'/',vinfo.name,'/topo.xyz'],'topoOut','-ascii')
     end
 end
 
@@ -119,6 +119,9 @@ end
 if isfield(input,'stas') && ~isempty(input.stas)
     try
         [~,lon,lat,elev] = importSwarmStationConfig(input.stas);
+        if sum(~isnan(lon))==0
+            [~,lat,lon,elev] = importStationFile(input.stas);
+        end
     catch
         [~,lat,lon,elev] = importStationFile(input.stas);
     end

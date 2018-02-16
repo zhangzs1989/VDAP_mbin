@@ -23,6 +23,9 @@ end
 if ~isfield(params,'visible')
     params.visible= 'off';
 end
+if ~isfield(params,'maxEvents2plot')
+    params.maxEvents2plot = 1e7;
+end
 
 maxEvents2plot=params.maxEvents2plot;
 if numel(catalog) > maxEvents2plot
