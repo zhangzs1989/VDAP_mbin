@@ -74,42 +74,42 @@ else
     w=' ';
 end
 %%
-lh ={};
+lh ={}; aa = [];
 if ~isempty(dtimes)
-    plot(dtimes,mags,'.','Color',[.5 .5 .5])
-    lh = [lh,'Events'];
+    a = plot(dtimes,mags,'.','Color',[.5 .5 .5]);
+    lh = [lh,'Events']; aa = [aa,a(1)];
 end
 
-plot(timelineDT,mMc,'r-','LineWidth',5)
-lh = [lh,'MASTER Mc'];
+for i=1:numel(McV.McChangePts)
+    a =plot([McV.McChangePts(i),McV.McChangePts(i)],[0,6],'Color',[.5 .5 .5]);
+end
+lh = [lh,'V ChangePt']; aa = [aa,a(1)];
 
-% ISC_Mc = McG.Mc;
-% make stairs for plotting
-% j=1;
-% for i=1:length(ISC_Mc)
-%     iscmc(j,1)=ISC_Mc(i,1);
-%     iscmc(j+1,1)=ISC_Mc(i,2);
-%     iscmc(j,2) = ISC_Mc(i,3);
-%     iscmc(j+1,2)= ISC_Mc(i,3);
-%     j=j+2;
-% end
+for i=1:numel(McL.McChangePts)
+    a =plot([McL.McChangePts(i),McL.McChangePts(i)],[0,6],'Color','b');
+end
+lh = [lh,'L ChangePt']; aa = [aa,a(1)];
+
+a = plot(timelineDT,mMc,'r-','LineWidth',5);
+lh = [lh,'MASTER Mc']; aa = [aa,a(1)];
+
 % plot(datetime(datevec(iscmc(:,1))),iscmc(:,2),'Color','r','LineWidth',3)
-plot(datetime(datevec(McG.McDaily(:,1))),McG.McDaily(:,2),'Color',[.5 .5 .5],'LineWidth',3)
-lh = [lh,'ISC Mean Mc'];
+a =plot(datetime(datevec(McG.McDaily(:,1))),McG.McDaily(:,2),'Color',[.5 .5 .5],'LineWidth',3);
+lh = [lh,'ISC Mean Mc'];aa = [aa,a(1)];
 % title([vinfo.name,', ',vinfo.country])
 
-plot(timelineDT,vmc,'k-','LineWidth',3)
-lh = [lh,'ISC Volcano Mc'];
+a =plot(timelineDT,vmc,'k-','LineWidth',3);
+lh = [lh,'ISC Volcano Mc'];aa = [aa,a(1)];
 
 % plot(timelineDT,vmc,'c-','LineWidth',4)
 % lh = [lh,'volcano Mc Smooth'];
 
 if ~isempty(McL)
-    plot(timelineDT,lmc,'b-','LineWidth',3)
-    lh = [lh,'Local Mc'];
+    a =plot(timelineDT,lmc,'b-','LineWidth',3);
+    lh = [lh,'Local Mc'];aa = [aa,a(1)];
 end
 
-legend(lh)
+legend(aa,lh)
 grid on, box on
 
 ylim([0 6])
@@ -120,12 +120,6 @@ zoom xon
 
 title([vinfo.name,', ',vinfo.country, ...
     '  (',int2str(numel(dtimes)),w,' events, window = ',int2str(params.McMinN), ...
-    ' events, smoothing = ',num2str(params.smoothYrs),' yrs, radius = ',int2str(params.srad(2)),' km'])
+    ' events, smoothing = ',num2str(params.smoothDays/365),' yrs, radius = ',int2str(params.srad(2)),' km'])
 
-% set(get(H(1).Children(2),'title'),'String',[vinfo.name,', ',vinfo.country, ...
-%     '  (',int2str(numel(catalogMaster)),' events, window = ',int2str(params.McMinN), ...
-%     ' events, smoothing = ',num2str(params.smoothYrs),' yrs, radius = ',int2str(params.srad(2)),' km'])
-
-% print(gcf,'-dpng',fullfile(outDir,['Mc/MASTER_Mc_',fixStringName(vinfo.name)]))
-% close(gcf)
 end

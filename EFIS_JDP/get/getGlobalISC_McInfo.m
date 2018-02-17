@@ -20,22 +20,26 @@ ISC_Mc = cell2mat(ISC_Mc(2:end,:));
 d1 = datenum(ISC_Mc(:,1),1,1);
 d2 = d1 + 365;
 ISC_Mc = [d1, d2, ISC_Mc(:,2)];
-% make stairs for plotting
-% j=1;
-% for i=1:length(ISC_Mc)
-%     iscmc(j,1)=ISC_Mc(i,1);
-%     iscmc(j+1,1)=ISC_Mc(i,2);
-%     iscmc(j,2) = ISC_Mc(i,3);
-%     iscmc(j+1,2)= ISC_Mc(i,3);
-%     j=j+2;
-% end
-Mc = ISC_Mc;
-tPts = [Mc(1,1);Mc(:,1) + (Mc(:,2)-Mc(:,1))/2;Mc(end,2)];
-McPts =[Mc(1,3);Mc(:,3);Mc(end,3)];
-tPts2 = min(tPts):max(tPts);
-McPts2 = interp1(tPts,McPts,tPts2);
 
-ISC_McInfo.McDaily = [tPts2',McPts2'];
+tPts = []; McPts = [];
+for i=1:numel(ISC_Mc(:,1))
+    nt = datenum(ISC_Mc(i,2)) - datenum(ISC_Mc(i,1));
+    tpts = datenum(ISC_Mc(i,1)):datenum(ISC_Mc(i,2))-1;
+    mpts = ones(nt,1)*ISC_Mc(i,3);
+    tPts = [tPts; tpts'];
+    McPts = [McPts; mpts];
+end
+
+McPts2 = McPts;
+tPts2 = tPts;
+
+Mc = ISC_Mc;
+% tPts = [Mc(1,1);Mc(:,1) + (Mc(:,2)-Mc(:,1))/2;Mc(end,2)];
+% McPts =[Mc(1,3);Mc(:,3);Mc(end,3)];
+% tPts2 = min(tPts):max(tPts);
+% McPts2 = interp1(tPts,McPts,tPts2);
+
+ISC_McInfo.McDaily = [tPts2,McPts2];
 
 % timeIntDays = 1;
 % timeline=d1(1):timeIntDays:datenum(date);
