@@ -1,4 +1,4 @@
-function [cobj,sta,lta,sta_to_lta] = sta_lta(wave,varargin)
+function [cobj,sta,lta,sta_to_lta] = sta_lta_JP(wave,varargin)
 
 %STA_LTA: Short-Time-Average/Long-Time-Average event detector.
 %

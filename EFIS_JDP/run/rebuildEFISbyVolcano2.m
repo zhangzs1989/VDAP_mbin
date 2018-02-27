@@ -19,7 +19,7 @@ input.SSNcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/SSN/catalogSSN.mat';
 params.coasts = true;
 params.wingPlot = false;
 params.topo = false;
-params.visible = 'on';
+params.visible = 'off';
 params.srad = [0 100];
 params.DepthRange = [-3 70]; % km
 params.MagRange = [0 10];
@@ -30,9 +30,9 @@ params.maxEvents2plot = 10000;
 params.McType = 'constantTimeWindow'; % 'constantTimeWindow' or 'constantEventNumber'
 params.McTimeWindow = 'year'; %
 params.vname = 'all'; % options are 'vname' or 'all'
-params.vname = 'St. Helens';
+% params.vname = 'St. Helens';
 params.country = 'United States';
-params.getCats = false;
+params.getCats = true;
 
 % for filnal cat and plot
 paramsF = params;
@@ -95,7 +95,7 @@ if ~strcmpi(params.country,'all')
 end
 tic
 %% NOW get and save volcano catalogs
-for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
+parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     disp([int2str(i),'/',int2str(size(volcanoCat,1)),', ',vinfo.name,', ',vinfo.country])

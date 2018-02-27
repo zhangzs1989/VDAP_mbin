@@ -80,15 +80,19 @@ if ~isempty(dtimes)
     lh = [lh,'Events']; aa = [aa,a(1)];
 end
 
-for i=1:numel(McV.McChangePts)
-    a =plot([McV.McChangePts(i),McV.McChangePts(i)],[0,6],'Color',[.5 .5 .5]);
+try
+    for i=1:numel(McV.McChangePts)
+        a =plot([McV.McChangePts(i),McV.McChangePts(i)],[0,6],'Color',[.5 .5 .5]);
+    end
+    lh = [lh,'V ChangePt']; aa = [aa,a(1)];
 end
-lh = [lh,'V ChangePt']; aa = [aa,a(1)];
 
-for i=1:numel(McL.McChangePts)
-    a =plot([McL.McChangePts(i),McL.McChangePts(i)],[0,6],'Color','b');
+try
+    for i=1:numel(McL.McChangePts)
+        a =plot([McL.McChangePts(i),McL.McChangePts(i)],[0,6],'Color','b');
+    end
+    lh = [lh,'L ChangePt']; aa = [aa,a(1)];
 end
-lh = [lh,'L ChangePt']; aa = [aa,a(1)];
 
 a = plot(timelineDT,mMc,'r-','LineWidth',5);
 lh = [lh,'MASTER Mc']; aa = [aa,a(1)];
