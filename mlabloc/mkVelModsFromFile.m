@@ -44,7 +44,7 @@ I = isnan(vpx2);
 lastvel = find(~isnan(vpx2));
 vpx2(I) = vpx2(lastvel(end));
 
-vpvs=1.73;
+vpvs=1.78;
 data = data./vpvs;
 
 Vs = givemeasepstruct(o,d,data);
