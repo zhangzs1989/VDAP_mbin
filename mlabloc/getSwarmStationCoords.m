@@ -1,12 +1,21 @@
 function [lonlatdep,sname] = getSwarmStationCoords(FileName)
  
-% read config file from swarm 
-
-[channelTag,Longitude,Latitude,Elevation] = importSwarmStationConfig(FileName);
+% read config file from swarm or other ad hoc format
+try
+    [channelTag,Longitude,Latitude,Elevation] = importSwarmStationConfig(FileName);
+    if sum(~isnan(Longitude))==0
+        [channelTag,Latitude,Longitude,Elevation] = importStationFile(FileName);
+    end
+catch
+    [channelTag,Latitude,Longitude,Elevation] = importStationFile(FileName);
+end
 
 for i=1:length(channelTag)
-    stat = char(channelTag(i).station);
-%     stat = stat(1:4);
+    try
+        stat = char(channelTag(i).station);
+    catch
+        stat = char(channelTag(i));
+    end
     sname{i} = deblank(stat);
 
 end
