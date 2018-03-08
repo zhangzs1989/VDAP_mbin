@@ -1,10 +1,13 @@
-function [EventPicks, OT] = getEventPicksFromPhaseFile(ID,phaseFile,stations)
+function [EventPicks, OT, coords] = getEventPicksFromPhaseFile(ID,phaseFile,stations)
 
 %{ 
 this function takes in an event ID and a phase file and returns only those
 picks for the event
 %}
 
+if ischar(ID)
+    ID = str2double(ID);
+end
 
 % nsta = numel(stations);
 %load in travel times
@@ -29,17 +32,18 @@ if fid1 ~= -1
             hr = str2num(line(14:15));
             mn = str2num(line(17:18));
             sc = str2num(line(20:24));
-%             lat = str2num(line(26:33));
-%             lon = str2num(line(35:43));
-%             dep = str2num(line(45:51));
+            lat = str2num(line(26:33));
+            lon = str2num(line(35:43));
+            dep = str2num(line(45:51));
 %             mag = str2num(line(53:57));
 %             eh = str2num(line(59:64));
 %             ez = str2num(line(66:70));
 %             rms = str2num(line(72:76));
             id = strtrim(line(78:87));
             %             tts(e,1) = str2double(id);
+            coords = [lon,lat,dep];
             
-            if str2num(id) ~= ID
+            if str2double(id) ~= ID
                 %                 disp(id)
                 line = fgetl(fid1);
                 while line(1) ~= '#' & line ~= -1
@@ -82,5 +86,7 @@ if fid1 ~= -1
         end
     end
 end
+
+fclose(fid1);
 
 end
