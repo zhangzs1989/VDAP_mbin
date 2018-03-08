@@ -12,6 +12,10 @@ zgrid=params.sint*1000;
 tOff = 500;
 
 [lonlatdep, sname]= getSwarmStationCoords(inputs.stations);
+sta_catalog = coords2cat(lonlatdep, sname);
+[ sta_catalog, ~, ~ ] = filterAnnulusm( sta_catalog, inputs.summit(2), inputs.summit(1), params.maxRadius);
+lonlatdep = [extractfield(sta_catalog,'Longitude')',extractfield(sta_catalog,'Latitude')',extractfield(sta_catalog,'Depth')'];
+sname = extractfield(sta_catalog,'ID')';
 
 centerLon = mean([lonlatdep(:,1);inputs.summit(1)]);
 centerLat = mean([lonlatdep(:,2);inputs.summit(2)]);
