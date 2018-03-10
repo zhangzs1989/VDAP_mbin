@@ -7,6 +7,7 @@ if params.getCats
     
     catalog = filterAnnulusm( catalog, vinfo.lat,vinfo.lon, params.srad); % (e)
     catalog = filterDepth(catalog,params.DepthRange);
+    catalog = filterMag(catalog,params.MagRange);
     parsave_catalog(catName,catalog); %%DO we still need parsave if in subroutine??
     
     if params.wingPlot && ~isempty(catalog)
@@ -23,7 +24,7 @@ else
         warning('loading pre-existing catalog')
         catalog = load(catName); catalog = catalog.catalog;
     else
-        error('catalog DNE')
+        error('catalog file Does Not Exist')
     end
     
 end

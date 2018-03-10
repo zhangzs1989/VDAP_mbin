@@ -29,9 +29,15 @@ else
 end
 
 %% compute master Mc
-mMc = [iscMc',vmc',lmc'];
-mMc = min(mMc,[],2,'omitnan');
-% mMc = vmc';
+% take the min of the Mcs
+% mMc = [iscMc',vmc',lmc'];
+% mMc = min(mMc,[],2,'omitnan');
+% use all local eqs
+vn = ~isnan(vmc);
+ln = ~isnan(lmc);
+mMc = iscMc';
+mMc(vn) = vmc(vn);
+mMc(ln) = lmc(ln);
 
 %% extrapolate end value to today
 % isn = find(~isnan(mMc));
@@ -82,7 +88,7 @@ end
 
 try
     for i=1:numel(McV.McChangePts)
-        a =plot([McV.McChangePts(i),McV.McChangePts(i)],[0,6],'Color',[.5 .5 .5]);
+        a =plot([McV.McChangePts(i),McV.McChangePts(i)],[0,6],'Color',[0 .5 0]);
     end
     lh = [lh,'V ChangePt']; aa = [aa,a(1)];
 end
@@ -98,11 +104,11 @@ a = plot(timelineDT,mMc,'r-','LineWidth',5);
 lh = [lh,'MASTER Mc']; aa = [aa,a(1)];
 
 % plot(datetime(datevec(iscmc(:,1))),iscmc(:,2),'Color','r','LineWidth',3)
-a =plot(datetime(datevec(McG.McDaily(:,1))),McG.McDaily(:,2),'Color',[.5 .5 .5],'LineWidth',3);
+a =plot(datetime(datevec(McG.McDaily(:,1))),McG.McDaily(:,2),'Color','k','LineWidth',3);
 lh = [lh,'ISC Mean Mc'];aa = [aa,a(1)];
 % title([vinfo.name,', ',vinfo.country])
 
-a =plot(timelineDT,vmc,'k-','LineWidth',3);
+a =plot(timelineDT,vmc,'k-','LineWidth',3,'color',[0 .5 0]);
 lh = [lh,'ISC Volcano Mc'];aa = [aa,a(1)];
 
 % plot(timelineDT,vmc,'c-','LineWidth',4)

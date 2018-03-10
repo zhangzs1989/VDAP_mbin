@@ -116,7 +116,7 @@ magSource = dataArray{:, 22};
 for i=1:size(time,1)
 
     catalog(i).EVENTID = char(id(i));
-    catalog(i).DateTime = datestr(datenum(time(i),'yyyy/mm/dd HH:MM:SS.FFF'));
+    catalog(i).DateTime = datestr(datenum(time(i),'yyyy-mm-ddTHH:MM:SS.FFFZ'),'yyyy/mm/dd HH:MM:SS.FFF');
     catalog(i).Latitude = latitude(i);
     catalog(i).Longitude = longitude(i);
     catalog(i).Depth = depth(i);

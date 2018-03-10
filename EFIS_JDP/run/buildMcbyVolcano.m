@@ -1,4 +1,4 @@
-function [ McG,McL,MasterMc ] = buildMcbyVolcano(catalogMaster,catalogISC,catalogLocal,vinfo,params,vpath)
+function [ McG,McL,MasterMc ] = buildMcbyVolcano(catalogMaster,catalogISC,catalogLocal,vinfo,einfo,params,vpath)
 
 [~,~,~] = mkdir(vpath);
 
@@ -7,14 +7,14 @@ McG = getGlobalISC_McInfo(ISC_McFile);
 
 %% step 1: get volcano Mc from Global catalogs
 str='ISC';
-McV = getVolcanoMc2(vinfo,catalogISC,vpath,params,str);
+McV = getVolcanoMc2(vinfo,[],catalogISC,vpath,params,str);
 
 outMcInfoName=fullfile(vpath,['Mc_',str,'_',int2str(vinfo.Vnum),'.mat']);
 parsave_struct(outMcInfoName,McV);
 
 %% step 2: get regional/local Mc from any other source
 str='LOCAL';
-McL = getVolcanoMc2(vinfo,catalogLocal,vpath,params,str);
+McL = getVolcanoMc2(vinfo,einfo,catalogLocal,vpath,params,str);
 
 outMcInfoName=fullfile(vpath,['Mc_',str,'_',int2str(vinfo.Vnum),'.mat']);
 parsave_struct(outMcInfoName,McL);

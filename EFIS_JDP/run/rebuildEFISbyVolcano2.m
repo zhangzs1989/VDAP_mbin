@@ -1,6 +1,6 @@
 %% rebuild EFIS per volcano instead of piece-wise
 
-clearvars -except catalogISC catalogJMA catalogGEM catalogBMKG catalogSSN
+clearvars -except catalogISC catalogJMA catalogGEM catalogBMKG catalogSSN catalogSIL
 catalogJMA = []; % do this to save memory if not doing Japan
 %%
 input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.mat'; % imported via importEruptionCatalog, originally from S. Ogburn
@@ -14,24 +14,25 @@ input.JMAcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/JMA/JMAcatalog.mat';
 input.GEMcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/ISC/GEM/catalogGEM.mat';
 input.BMKGcatalog ='/Users/jpesicek/Dropbox/Research/EFIS/BMKG/catalogBMKG.mat';
 input.SSNcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/SSN/catalogSSN.mat';
+input.SILcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/SSN/catalogSIL.mat';
 
 %% wingPlot params
 params.coasts = true;
 params.wingPlot = false;
 params.topo = false;
-params.visible = 'off';
+params.visible = 'on';
 params.srad = [0 100];
 params.DepthRange = [-3 70]; % km
 params.MagRange = [0 10];
-params.YearRange = [1964 2016];
-params.McMinN = 100; 
-params.smoothDays = 30;
+params.YearRange = [1964 2017];
+params.McMinN = 75; 
+params.smoothDays = 90;
 params.maxEvents2plot = 10000;
 params.McType = 'constantTimeWindow'; % 'constantTimeWindow' or 'constantEventNumber'
 params.McTimeWindow = 'year'; %
 params.vname = 'all'; % options are 'vname' or 'all'
-% params.vname = 'St. Helens';
-params.country = 'United States';
+params.vname = 'Rabaul';
+params.country = 'all';
 params.getCats = true;
 
 % for filnal cat and plot
@@ -71,6 +72,11 @@ if ~exist('catalogSSN','var') %&& isstruct(catalog)
     load(input.SSNcatalog); %created using importISCcatalog.m
     disp('...catalog loaded')
 end
+if ~exist('catalogSIL','var') %&& isstruct(catalog)
+    disp('loading catalogSIL...')
+    load(input.SILcatalog); %created using importISCcatalog.m
+    disp('...catalog loaded')
+end
 
 load(input.gvp_volcanoes); % volcanoCat struct imported via importEruptionCatalog.m from OGBURN FILE
 load(input.gvp_eruptions); % spits out eruptionCat
@@ -95,7 +101,7 @@ if ~strcmpi(params.country,'all')
 end
 tic
 %% NOW get and save volcano catalogs
-parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
+for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     disp([int2str(i),'/',int2str(size(volcanoCat,1)),', ',vinfo.name,', ',vinfo.country])
@@ -116,38 +122,10 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogGEM,'GEM');
     
     [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
-    catalog_local = [];
-    %% ANSS
-    if strcmpi(vinfo.country,'United States')
-        catalog_local = getANSScat(input,params,vinfo,mapdata); %wget
-    end
-    %% GNS
-    if strcmpi(vinfo.country,'New Zealand')
-        catalog_local = getGNScat(input,params,vinfo,mapdata); %wget
-    end
-    %% JMA
-    if strcmpi(vinfo.country,'Japan') || strcmp(vinfo.country,'Japan - administered by Russia')
-        catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogJMA,'JMA');
-    end
-    %% BMKG
-    if strcmpi(vinfo.country,'Indonesia')
-        catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogBMKG,'BMKG');
-    end
-    %% SSN
-    if strcmpi(vinfo.country,'Mexico') || strcmp(vinfo.country,'Mexico-Guatemala')
-        catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogSSN,'SSN');
-    end
-    %% local catalog
-    LocalCatalogFile = fullfile(input.localCatDir,['local_',int2str(vinfo.Vnum),'.mat']);
-    if exist(LocalCatalogFile,'file')
-        if ~isempty(catalog_local)
-            error('You may be overwriting regional catalog here') % merge later
-        end
-        catalog_local = load(LocalCatalogFile); catalog_local = catalog_local.catalog;
-        catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalog_local,'LOCAL');
-    end
+    %%
+    getLocalCatalog % returns catalog_local
+    %%
     %     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
-    
     %% compute MASTER catalog
     catName=fullfile(vpath,['cat_MASTER_',int2str(vinfo.Vnum)]);
     if params.getCats
@@ -167,7 +145,7 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     if ~isempty(catMaster)
         %% GET Mc
         disp('Compute Mc...')
-        [McG,McL,MasterMc] = buildMcbyVolcano(catMaster,catalog_ISC,catalog_local,vinfo,params,vpath);
+        [McG,McL,MasterMc] = buildMcbyVolcano(catMaster,catalog_ISC,catalog_local,vinfo,einfo,params,vpath);
         %%
         F1 = catalogQCfig(catMaster,vinfo,einfo,MasterMc.McDaily,params.visible);
         fname=fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'']);
