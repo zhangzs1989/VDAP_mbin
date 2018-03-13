@@ -25,15 +25,15 @@ params.srad = [0 100];
 params.DepthRange = [-3 70]; % km
 params.MagRange = [0 10];
 params.YearRange = [1964 2017];
-params.McMinN = 75; 
-params.smoothDays = 90;
+params.McMinN = 50; 
+params.smoothDays = 90;% in (years,months,days) 
 params.maxEvents2plot = 10000;
 params.McType = 'constantTimeWindow'; % 'constantTimeWindow' or 'constantEventNumber'
-params.McTimeWindow = 'year'; %
+params.McTimeWindow = 'year'; %calendarDuration(1,0,0); % in (years,months,days) %
 params.vname = 'all'; % options are 'vname' or 'all'
-params.vname = 'Rabaul';
+params.vname = 'St. Helens';
 params.country = 'all';
-params.getCats = true;
+params.getCats = false;
 
 % for filnal cat and plot
 paramsF = params;
@@ -81,18 +81,18 @@ end
 load(input.gvp_volcanoes); % volcanoCat struct imported via importEruptionCatalog.m from OGBURN FILE
 load(input.gvp_eruptions); % spits out eruptionCat
 %%
-if isempty(gcp('nocreate'))
-    disp('making parpool...')
-    try
-        parpool(6); %each thread needs about 5GB memory,could prob do 8, but use 6 to be safe
-    catch
-        parpool(4);
-    end
-end
+% if isempty(gcp('nocreate'))
+%     disp('making parpool...')
+%     try
+%         parpool(6); %each thread needs about 5GB memory,could prob do 8, but use 6 to be safe
+%     catch
+%         parpool(4);
+%     end
+% end
 %% FIND specific volcano or set of volcanoes, if desired
 if ~strcmpi(params.vname,'all')
     vnames = extractfield(volcanoCat,'Volcano');
-    vi = find(strcmp(params.vname,vnames));
+    vi = find(strcmpi(params.vname,vnames));
     volcanoCat = volcanoCat(vi);
     if isempty(volcanoCat);error('bad vname');end
 end
@@ -166,7 +166,9 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
         mapdata = prep4WingPlot(vinfo,paramsF,input,outer_ann,inner_ann);
         catFinal = getVolcCatFromLargerCat(input,paramsF,vinfo,mapdata,catMaster,'FINAL');
     end
-    close all
+    if strcmpi(params.vname,'all')
+        close all
+    end
     % check DB integrity
     %     [McStatus,catNames2]= check4catalogMcs(vpath,vinfo.Vnum);
 end

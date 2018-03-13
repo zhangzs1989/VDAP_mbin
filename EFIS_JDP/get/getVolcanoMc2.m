@@ -12,9 +12,6 @@ cinfo.McMinEv = NaN;
 cinfo.McMin = NaN;
 
 minN = params.McMinN;
-evWin = params.McTimeWindow;
-evWinOverlap = params.smoothDays;
-winOpt = params.McType;
 
 if isempty(catalog) || numel(catalog) < minN
     % assign default ISC Mc series
@@ -69,47 +66,47 @@ dtimes = dtimes(I);
 
 dayInc=7; %days
 nMaxChPts=5;
-[allunits,chPts] = getMcWindows(t1,t2,mags,einfo,dayInc,nMaxChPts,dtimes,winOpt,evWin,evWinOverlap);
+[allunits,chPts] = getMcWindows(t1,t2,mags,einfo,dayInc,nMaxChPts,dtimes,params);
 cinfo.McChangePts = chPts;
 %%
 for i=1:length(allunits)-1
     
-%     minNflag = false;
     % t1 and t2 of year of interes
     iunit1 = allunits(i);
     iunit2 = allunits(i+1);
-%     disp([iunit1 iunit2])
-%     mpt = datetime(datevec(datenum(iunit1)+(datenum(iunit2)-datenum(iunit1))/2));
-
+%         disp([iunit1 iunit2])
+    %     mpt = datetime(datevec(datenum(iunit1)+(datenum(iunit2)-datenum(iunit1))/2));
+    
     %     % find neighboring closets nearYrs on either side
     %     dts = split(between(allunits,mpt),'year');
     
-    t1a = datenum(iunit1) - evWinOverlap;
-    t2a = datenum(iunit2) + evWinOverlap;
+    t1a = datenum(iunit1) - (params.smoothDays);
+    t2a = datenum(iunit2) + (params.smoothDays);
     
-    if any(iunit2==chPts) 
-        t2a = datenum(iunit2) ;
+    try
+        if any(iunit2==chPts)
+            t2a = datenum(iunit2) ;
+        end
+        
+        if any(iunit1==chPts)
+            t1a = datenum(iunit1) ;
+        end
+        %     disp([datestr(t1a) datestr(t2a)])
     end
-
-    if any(iunit1==chPts)
-        t1a = datenum(iunit1) ;
-    end
-    %     disp([datestr(t1a) datestr(t2a)])
-    
     % now get Mc for t1-t2
     I = dtimes >= t1a & dtimes < t2a;
     
-%     %Not enough events in year, find nearest N events and use them, but
-%     if length(I) < minN && strcmpi(catStr,'LOCAL')
-%         % find closest N events
-%         [Y,ei] = sort(abs(dtimes-datenum(mpt)));
-%         dtimesI = dtimes(ei(1:minN));
-%         [C,I,DI] = intersect(dtimes,dtimesI);
-%         minNflag=true;
-%     end    
-    
+    %     %Not enough events in year, find nearest N events and use them, but
+    %     if length(I) < minN && strcmpi(catStr,'LOCAL')
+    %         % find closest N events
+    %         [Y,ei] = sort(abs(dtimes-datenum(mpt)));
+    %         dtimesI = dtimes(ei(1:minN));
+    %         [C,I,DI] = intersect(dtimes,dtimesI);
+    %         minNflag=true;
+    %     end
+    %
     catalog_i = catalog(I);
-        
+    
     if numel(catalog_i)>0
         mags = extractfield(catalog_i,'Magnitude');
     else
@@ -129,11 +126,11 @@ for i=1:length(allunits)-1
     Mc{i,4} = (length(mags));
     
     if ~isempty(F) %any(~isnan(Mc))
-%         if minNflag
-%             set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' closest events)'])
-%         else
-            set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
-%         end
+        %         if minNflag
+        %             set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' closest events)'])
+        %         else
+        set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
+        %         end
         set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1a,23),' to ',datestr(t2a,23)])
         print(F,'-dpng',fullfile(outDir,['FMD_',catStr,'_',datestr(t1a,'yyyymmdd')]))
         close(F)
@@ -148,8 +145,21 @@ if size(Mc,1)>=2
     tPts = []; McPts = [];
     for i=1:numel(Mc(:,1))
         nt = floor(datenum(Mc{i,2}) - datenum(Mc{i,1}));
-        tpts = datenum(Mc{i,1}):datenum(Mc{i,2})-1;
+        tpts = datenum(Mc{i,1})+1:datenum(Mc{i,2});
         mpts = ones(nt,1)*Mc{i,3};
+        
+%         %% NOTE: interpolate gaps less than 1 year in length!
+%         if isnan(Mc{i,3}) && nt <= (366+2*params.smoothDays) && i>1 && i< numel(Mc(:,1))
+%             % the Mc window is a year or less and in the middle
+%             if ~isnan(Mc{i-1,3}) && ~isnan(Mc{i+1,3})
+%                 % you have bounding Mcs, interp
+%                 y1 = Mc{i-1,3}; y2 = Mc{i+1,3};
+%                 x1 = datenum(Mc{i-1,2}); x2 = datenum(Mc{i+1,1});
+%                 m = (y2-y1)/(x2-x1); b = y1 - m*x1;
+%                 for j=1:nt; mpts(j) = m*tpts(j) + b; end
+%             end
+%         end
+        
         tPts = [tPts; tpts'];
         McPts = [McPts; mpts];
     end
@@ -162,12 +172,15 @@ else
     McPts2(1)= (Mc{1,3});
 end
 
-% fill gaps, but only b/t middle pieces, not start and end
+%% fill gaps, but only b/t middle pieces, not start and end
+% are the gaps due to lack of reporting or lack of event occurrence?
+% that is the question!
 I=find(~isnan(McPts2));
 if ~isempty(I)
     i1 = I(1); i2 = I(end);
-    McPts2(i1:i2) = fillgaps(McPts2(i1:i2));
+    McPts2(i1:i2) = fillgaps(McPts2(i1:i2),365);
 end
+
 McDaily = [datenum(tPts2) McPts2];
 %%
 cinfo.Mc = Mc(:,1:4);

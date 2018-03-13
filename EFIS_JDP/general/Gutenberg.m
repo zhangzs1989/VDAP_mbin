@@ -22,7 +22,7 @@ logN = log10(N);
 fdiff = log10(diff(cumsum(N))/MagInc);
 iMc = (fdiff==max(fdiff));
 Mc = X(iMc);
-Mc = max(Mc);
+Mc = mean(Mc); % max, min, mean here if there is no clear peak?
 
 if figYN
     ymax=max(logNcum)+1;
