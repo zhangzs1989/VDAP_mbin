@@ -73,6 +73,8 @@ for block=2:length(startRow)
 end
 else
     warning('No events in comcat File')
+    catalog = [];
+    return
 end
 
 %% Close the text file.

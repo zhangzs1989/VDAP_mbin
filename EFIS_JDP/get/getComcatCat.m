@@ -22,10 +22,9 @@ if ~exist(ofile,'file') || s.bytes == 0
     cmd = sprintf('%s %s %f %f %d %d %s',shscript,volcOutName,vinfo.lat,vinfo.lon,params.srad(2),params.DepthRange(2),odir);
     [status,result] = system(cmd);
     disp(result)
-%     if status ~= 0  %% gives status one even though it seems to have
-%     worked??
-%         error('wget issue')
-%     end
+    if status > 1  %% gives status one even though it seems to have
+        error('wget issue')
+    end
     
     
     cmd2 = sprintf('echo "%s" > %s/Comcat_Request.sh',cmd,odir);
@@ -55,23 +54,23 @@ if exist(ofile,'file')
         save(outCatName,'catalog');
     end
     
-    if params.wingPlot
-        
-%         t1a=datenum(params.YearRange(1),1,1);
-%         t2a=datenum(params.YearRange(2)+1,1,1);
-        dts = datenum(datevec(extractfield(catalog,'DateTime')));
-        t1a = floor(min(dts)); t2a = ceil(max(dts));
-        catalog = filterTime( catalog, t1a, t2a);% wingplot ISC
-        figname=fullfile(outDirName,['Comcat_',volcOutName]);
-        fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
-        print(fh_wingplot,'-dpng',[figname,'.png'])
-        close(fh_wingplot)
-    end
+%     if params.wingPlot && ~isempty(catalog)
+%         
+% %         t1a=datenum(params.YearRange(1),1,1);
+% %         t2a=datenum(params.YearRange(2)+1,1,1);
+%         dts = datenum(datevec(extractfield(catalog,'DateTime')));
+%         t1a = floor(min(dts)); t2a = ceil(max(dts));
+%         catalog = filterTime( catalog, t1a, t2a);% wingplot ISC
+%         figname=fullfile(outDirName,['Comcat_',volcOutName]);
+%         fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
+%         print(fh_wingplot,'-dpng',[figname,'.png'])
+%         close(fh_wingplot)
+%     end
 else
     warning('no events imported')
     catalog = [];
 end
-if params.wingPlot
+if params.wingPlot && ~isempty(catalog)
     if numel(catalog) > params.maxEvents2plot
         warning('wingplot: too many events to plot all')
         catalog = catalog(2:round(numel(catalog)/params.maxEvents2plot):end);

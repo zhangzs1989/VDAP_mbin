@@ -18,7 +18,7 @@ if strcmp(vinfo.country,'New Zealand')
         cmd = sprintf('%s %s %f %f %d %d %s',shscript,volcOutName,vinfo.lat,vinfo.lon,params.srad(2),params.DepthRange(2),odir);
         [status,result] = system(cmd);
         disp(result)
-        if status ~= 0 
+        if status > 1  %what does 1 mean? seems ok
             error('wget issue')
         end
         

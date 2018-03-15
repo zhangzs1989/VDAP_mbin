@@ -18,12 +18,14 @@ end
     
 cname = extractfield(catalog,'country');
 
-I = strcmp(countryName,cname);
+I = strcmpi(countryName,cname) | strcmpi(fixStringName(cname),countryName);
 if strcmp(inOut,'in')
     catalog = catalog(I);
 else
     catalog = catalog(~I);
 end    
 
+[~,I] = sort(extractfield(catalog,'Volcano'));
+catalog = catalog(I);
 
 end

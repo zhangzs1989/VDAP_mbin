@@ -1,49 +1,104 @@
-function [status,catNames]= check4catalogs(vpath,Vnum,localCatPath)
+function [status,catNames,varargout]= check4catalogs(vpath,Vnum,localCatPath)
 
+cats = {...
+    'local',...
+    'MASTER',...
+    'FINAL',...
+    'ISC',...
+    'GEM',...
+    'JMA',...
+    'BMKG',...
+    'SSN',...
+    'SIL',...
+    'IGN',...
+    'INGV',...
+    };
+%%
+ncats = length(cats);
 
-% all appropriately named files:
-D = dir2(vpath,['*_',int2str(Vnum),'.mat']);
-
-% expected files
-iscname = ['ISC_',int2str(Vnum),'.mat'];
-ansname = ['ANSS_',int2str(Vnum),'.mat'];
-locname = ['local_',int2str(Vnum),'.mat'];
-masname = ['MASTER_',int2str(Vnum),'.mat'];
-jmaname = ['JMA_',int2str(Vnum),'.mat'];
-bmkgname = ['BMKG_',int2str(Vnum),'.mat'];
-
-catNames{1,:} = iscname;
-catNames{2,:} = ansname;
-catNames{3,:} = locname;
-catNames{4,:} = masname;
-catNames{5,:} = jmaname;
-catNames{6,:} = bmkgname;
-
-if isempty(D)
-    status(1) = 0;
-    status(2) = 0;
-    status(3) = 0;
-    status(4) = 0;
-    status(5) = 0;
-    status(6) = 0;
-    return
-else
-    % remove vinfo file
-    [C,IA] = setdiff(extractfield(D,'name'),['vinfo_',int2str(Vnum),'.mat']);
+if isnumeric(Vnum)
     
-    status(1) = exist(fullfile(vpath,catNames{1}),'file');
-    status(2) = exist(fullfile(vpath,catNames{2}),'file');
-    status(3) = exist(fullfile(localCatPath,catNames{3}),'file');
-    status(4) = exist(fullfile(vpath,catNames{4}),'file');
-    status(5) = exist(fullfile(vpath,catNames{5}),'file');
-    status(6) = exist(fullfile(vpath,catNames{6}),'file');
-end
-if length(C) > length(status)
-    C2 = setdiff(catNames,C);
-    warning('unexpected catalog: ')
-    disp(C2)
+    % all appropriately named files:
+    D = dir2(vpath,['*_',int2str(Vnum),'.mat']);
+    
+    for i=1:ncats
+        catNames{i,:} = ['cat_',cats{i},'_',int2str(Vnum),'.mat'];
+        %     catNames(i,:) = catName(i);
+    end
+    
+    if isempty(D)
+        for i=1:ncats
+            status(i) = false;
+        end
+        return
+    else
+        [C,IA] = setdiff(extractfield(D,'name'),['vinfo_',int2str(Vnum),'.mat']);
+        status(1) = exist(fullfile(localCatPath,catNames{i}),'file');
+        for i=2:ncats
+            status(i) = exist(fullfile(vpath,catNames{i}),'file');
+        end
+    end
+    
+    if length(C) > length(status)
+        C2 = setdiff(catNames,C);
+        warning('unexpected catalog: ')
+        disp(C2)
+    end
+    
+elseif isstruct(Vnum) %volcanoCat
+    
+    volcanoCat = Vnum;
+    checks = zeros(ncats+1,numel(volcanoCat));
+    dbPath = vpath;
+    
+    for i=1:numel(volcanoCat)
+        
+        vpath = fullfile(dbPath,fixStringName(volcanoCat(i).country),fixStringName(volcanoCat(i).Volcano));
+        checks(1,i) = exist(vpath,'dir');
+        Vnum = volcanoCat(i).Vnum;
+
+        for ii=1:ncats
+            catNames{ii,:} = ['cat_',cats{ii},'_',int2str(Vnum),'.mat'];
+            %     catNames(i,:) = catName(i);
+        end
+        
+        for j=2:numel(catNames)
+            checks(j,i) = exist(fullfile(vpath,catNames{j}),'file');
+        end
+        
+    end
+    
+    tmp=[ extractfield(volcanoCat,'Volcano'); num2cell(checks)];
+    cheader = ['volcano','dir',cats];
+    result = [cheader',tmp];
+    %%
+    status = zeros(numel(catNames),2);
+    I = zeros(size(checks,2),length(status));
+    for i=1:length(status)
+        I(:,i) = checks(i,:)==0;
+        if sum(I(:,i)) == 0
+            status(i,1) = 1;
+        else
+            
+        end
+        status(i,2) = sum(~I(:,i))/length(I(:,i));
+        disp([num2str(sum(~I(:,i)),'%04d'),'/',num2str(length(I(:,i)),'%04d'),' (',num2str(sum(~I(:,i))/length(I(:,i))*100,'%05.1f'),'%) ',cheader{i+1}])
+    end
+    %%
+    cs = [];   vs = [];
+    for i=[1:5] % check only cheader columns that all volcanoes should have (excluding ANSS, JMA, local)
+        Ii = checks(i,:)==0;
+        if status(i,1)==0
+            cs=[cs; extractfield(volcanoCat(Ii),'country')'];
+            vs=[vs; extractfield(volcanoCat(Ii),'Volcano')'];
+        end
+    end
+    offenderCountries=unique(cs);
+    offenderVolcanoes=unique(vs);
+    varargout{1} = result;
+    varargout{2} = offenderCountries;
+    varargout{3} = offenderVolcanoes;
+    varargout{4} = I;
 end
 
-
 end
-

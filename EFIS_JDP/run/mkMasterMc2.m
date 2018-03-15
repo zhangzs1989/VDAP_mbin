@@ -86,18 +86,34 @@ if ~isempty(dtimes)
     lh = [lh,'Events']; aa = [aa,a(1)];
 end
 
+if isempty(McV.Mc) && isempty(McV.Mc)
+        dtws = [];
+elseif isempty(McL.Mc)
+        dtws = datetime(datevec(McV.Mc(:,1)));
+elseif isempty(McV.Mc) 
+    dtws = datetime(datevec(McL.Mc(:,1)));
+else
+    dtws = sort(unique([datetime(datevec(McV.Mc(:,1)));datetime(datevec(McL.Mc(:,1)))]));
+end
+
 try
-    for i=1:numel(McV.McChangePts)
-        a =plot([McV.McChangePts(i),McV.McChangePts(i)],[0,6],'Color',[0 .5 0]);
-    end
+%     for i=1:numel(McV.McChangePts)
+%         a =plot([McV.McChangePts(i),McV.McChangePts(i)],[0,6],'Color',[0 .5 0]);
+%     end
+    a =plot(McV.McChangePts,ones(numel(McV.McChangePts),1)*5,'MarkerEdgeColor',[0 .5 0],'Marker','p','MarkerSize',15,'LineStyle','none');
     lh = [lh,'V ChangePt']; aa = [aa,a(1)];
 end
 
 try
-    for i=1:numel(McL.McChangePts)
-        a =plot([McL.McChangePts(i),McL.McChangePts(i)],[0,6],'Color','b');
-    end
+%     for i=1:numel(McL.McChangePts)
+%         a =plot([McL.McChangePts(i),McL.McChangePts(i)],[0,6],'Color','b');
+%     end
+    a =plot(McL.McChangePts,ones(numel(McL.McChangePts),1)*5.5,'MarkerEdgeColor','b','Marker','p','MarkerSize',15,'LineStyle','none');
     lh = [lh,'L ChangePt']; aa = [aa,a(1)];
+end
+
+for i=1:size(dtws,1)
+    plot([dtws(i,1),dtws(i,1)],[0,6],'Color',[.5 .5 .5],'LineStyle',':');
 end
 
 a = plot(timelineDT,mMc,'r-','LineWidth',5);
@@ -120,7 +136,7 @@ if ~isempty(McL)
 end
 
 legend(aa,lh)
-grid on, box on
+box on
 
 ylim([0 6])
 xlim([timeline(1) MasterMc.McDaily(end,1)])
