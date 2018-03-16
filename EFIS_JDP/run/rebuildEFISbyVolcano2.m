@@ -27,16 +27,17 @@ params.srad = [0 75];
 params.DepthRange = [-3 75]; % km
 params.MagRange = [0 10];
 params.YearRange = [1964 2017];
-params.McMinN = 75; 
-params.smoothDays = 90;% in (years,months,days) 
+params.McMinN = 75;
+params.smoothDays = 90;% in (years,months,days)
 params.maxEvents2plot = 7500;
 params.McType = 'constantTimeWindow'; % 'constantTimeWindow' or 'constantEventNumber'
 params.McTimeWindow = 'year'; %calendarDuration(1,0,0); % in (years,months,days) %
 params.vname = 'all'; % options are 'vname' or 'all'
-% params.vname = 'Yufu-Tsurumi';
+% params.vname = 'Yufu-Tsurumi'; 
 % params.vname = {'St. Helens','Agung','Crater Lake','Augustine','Bogoslof','Rabaul'};
-params.country = 'Japan';
+params.country = 'all';
 params.getCats = true;
+params.getMc = false;
 
 % for filnal cat and plot
 paramsF = params;
@@ -68,7 +69,7 @@ diary(diaryFileName);
 disp(mfilename('fullpath'));disp(' ');disp(input);disp(' ');disp(params)
 tic
 %% NOW get and save volcano catalogs
-for i=1:size(volcanoCat,1)  %% PARFOR APPROVED, BUT: ISC wget calls don't like parfor, use only for getCats = no
+for i=823:size(volcanoCat,1)  %% PARFOR APPROVED, BUT: ISC wget calls don't like parfor, use only for getCats = no
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     disp([int2str(i),'/',int2str(size(volcanoCat,1)),', ',vinfo.name,', ',vinfo.country])
@@ -82,66 +83,50 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED, BUT: ISC wget calls don't like p
     [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, params.srad);
     mapdata = prep4WingPlot(vinfo,params,input,outer_ann,inner_ann);
     
-    %% get ISC catalog
-%     catalog_ISC = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.ISC,'ISC');
-    catalog_ISC = getISCcat(input,params,vinfo,mapdata);
-    
-    %% look for and plot GEM events < 1964
-    catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
-    [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
-    %%
-    catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
-       
-    %% compute MASTER catalog
-%     catName=fullfile(vpath,['cat_MASTER_',int2str(vinfo.Vnum)]);
-%     if params.getCats
-%         disp('merge catalogs...')
-%         [catMaster,H] = mergeTwoCatalogs(catalog_ISC,catalog_local,'yes');
-%         if ~isempty(H); print(H,fullfile(vpath,'QC_MASTER_Merge_map'),'-dpng'); end;
-%         catMaster = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catMaster,'MASTER');
-%     else
-%         if exist([catName,'.mat'],'file')
-%             warning('loading pre-existing catalog')
-%             catMaster = load(catName); catMaster = catMaster.catalog;
-%         else
-%             error('catalog DNE')
-%         end
-%     end
-
-%     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
-
-    %%  NOW DONE MAKING CATALOG, now Mc
-%     if ~isempty(catMaster)
-%         %% GET Mc
-%         disp('Compute Mc...')
-%         % NOTE: or just do this on demand when answering a question ???!!!
-%         % or both!!
-%         [McG,McL,MasterMc] = buildMcbyVolcano(catMaster,catalog_ISC,catalog_local,vinfo,einfo,params,vpath);
-%         %%
-%         F1 = catalogQCfig(catMaster,vinfo,einfo,MasterMc.McDaily,params.visible);
-%         fname=fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'']);
-%         print(F1,fname,'-dpng')
-%         try savefig(F1,fname); catch; warning('savefig error'); end
-% 
-%         %% make QC plots
-%         if params.wingPlot
-%             disp('Map figs...')
-%             F2 = catalogQCmap(catMaster,vinfo,params,mapdata);
-%             print(F2,fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'_map']),'-dpng')
-%             mkEruptionMapQCfigs(catMaster,einfo,vinfo,mapdata,params,vpath)
-%         end
-%         %% FINAL CATALOG if different from Mc catalog
-%         disp('Finalize...')
-%         [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, paramsF.srad);
-%         mapdata = prep4WingPlot(vinfo,paramsF,input,outer_ann,inner_ann);
-%         catFinal = getVolcCatFromLargerCat(input,paramsF,vinfo,mapdata,catMaster,'FINAL');
-%     end
-    if strcmpi(params.vname,'all')
-        close all
+    if params.getCats
+        %% get ISC catalog
+        %     catalog_ISC = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.ISC,'ISC');
+        catalog_ISC = getISCcat(input,params,vinfo,mapdata);
+        
+        %% look for and plot GEM events < 1964
+        catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
+        [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
+        %%
+        catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
+        
+        %% compute MASTER catalog
+        catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,true);
+        %% FINAL CATALOG if different from Mc catalog
+        [ outer_annF, inner_annF ] = getAnnulusm( vinfo.lat, vinfo.lon, paramsF.srad);
+        mapdataF = prep4WingPlot(vinfo,paramsF,input,outer_annF,inner_annF);
+        catFinal = getVolcCatFromLargerCat(input,paramsF,vinfo,mapdataF,catMaster,'FINAL');
     end
-    % check DB integrity
-    %     [McStatus,catNames2]= check4catalogMcs(vpath,vinfo.Vnum);
+    [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
+    %%
+    if params.getMc %  NOW DONE MAKING CATALOG, now Mc
+        %% GET Mc
+        disp('Compute Mc...')
+        % NOTE: or just do this on demand when answering a question ???!!! or both!!
+        [McG,McL,MasterMc] = buildMcbyVolcano(catMaster,catalog_ISC,catalog_local,vinfo,einfo,params,vpath);
+        %%
+        F1 = catalogQCfig(catMaster,vinfo,einfo,MasterMc.McDaily,params.visible);
+        fname=fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'']);
+        print(F1,fname,'-dpng')
+        try savefig(F1,fname); catch; warning('savefig error'); end
+    end
+    %% make QC plots
+    if params.wingPlot
+        disp('Map figs...')
+        F2 = catalogQCmap(catMaster,vinfo,params,mapdata);
+        print(F2,fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'_map']),'-dpng')
+        mkEruptionMapQCfigs(catMaster,einfo,vinfo,mapdata,params,vpath)
+    end
 end
+if strcmpi(params.vname,'all')
+    close all
+end
+% check DB integrity
+%     [McStatus,catNames2]= check4catalogMcs(vpath,vinfo.Vnum);
 toc
 if strcmpi(params.vname,'all')
     [CatalogStatus,catNames,result,offenderCountries,offenderVolcanoes,I] = check4catalogs(input.catalogsDir,volcanoCat,input.localCatDir);
