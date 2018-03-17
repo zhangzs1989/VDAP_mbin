@@ -3,13 +3,25 @@ function catalog_local = getLocalCatalog(catalogs,input,params,vinfo,mapdata,cou
 catalog_local = [];
 %% ANSS
 if strcmpi(country,'United States')
+    % ANSS
     catalog_local1 = getANSScat(input,params,vinfo,mapdata); %wget
+    catalog_local1 = filterAnnulusm( catalog_local1, vinfo.lat,vinfo.lon, params.srad); % (e)
+    catalog_local1 = filterDepth(catalog_local1,params.DepthRange);
+    catalog_local1 = filterMag(catalog_local1,params.MagRange);
+    % COMCAT
     catalog_local2 = getComcatCat(input,params,vinfo,mapdata); %wget
+    catalog_local2 = filterAnnulusm( catalog_local2, vinfo.lat,vinfo.lon, params.srad); % (e)
+    catalog_local2 = filterDepth(catalog_local2,params.DepthRange);
+    catalog_local2 = filterMag(catalog_local2,params.MagRange);    
+    
     [catalog_local,~] = mergeTwoCatalogs(catalog_local2,catalog_local1);
 end
 %% GNS
 if strcmpi(country,'New Zealand')
     catalog_local = getGNScat(input,params,vinfo,mapdata); %wget
+    catalog_local = filterAnnulusm( catalog_local, vinfo.lat,vinfo.lon, params.srad); % (e)
+    catalog_local = filterDepth(catalog_local,params.DepthRange);
+    catalog_local = filterMag(catalog_local,params.MagRange);    
 end
 %% JMA
 if strcmpi(country,'Japan') || strcmp(country,'Japan - administered by Russia')

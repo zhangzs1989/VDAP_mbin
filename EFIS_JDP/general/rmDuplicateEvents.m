@@ -1,5 +1,9 @@
 function catalog = rmDuplicateEvents(catalog,OTtol)
 
+if isempty(catalog)
+    return
+end
+
 catalogO = catalog;
 I = ones(numel(catalog),1);
 

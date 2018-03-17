@@ -9,6 +9,11 @@ J. PESICEK
 validateattributes(OTtol, {'numeric'}, ...
     {'nonnegative','finite','vector'}, mfilename, 'OTtol')
 
+if isempty(catalog)
+    ID = [];
+    return
+end
+%%
 dts = datenum(extractfield(catalog,'DateTime'));
 
 minOTdiff = nan(length(dts),1);

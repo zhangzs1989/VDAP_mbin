@@ -1,17 +1,17 @@
 function [status,catNames,varargout]= check4catalogs(vpath,Vnum,localCatPath)
 
 cats = {...
-    'local',...
-    'MASTER',...
-    'FINAL',...
     'ISC',...
     'GEM',...
+    'MASTER',...
+    'FINAL',...
     'JMA',...
     'BMKG',...
     'SSN',...
     'SIL',...
     'IGN',...
     'INGV',...
+    'local',...
     };
 %%
 ncats = length(cats);
@@ -62,8 +62,8 @@ elseif isstruct(Vnum) %volcanoCat
             %     catNames(i,:) = catName(i);
         end
         
-        for j=2:numel(catNames)
-            checks(j,i) = exist(fullfile(vpath,catNames{j}),'file');
+        for j=1:numel(catNames)
+            checks(j+1,i) = exist(fullfile(vpath,catNames{j}),'file');
         end
         
     end
@@ -72,7 +72,7 @@ elseif isstruct(Vnum) %volcanoCat
     cheader = ['volcano','dir',cats];
     result = [cheader',tmp];
     %%
-    status = zeros(numel(catNames),2);
+    status = zeros(numel(catNames)+1,2);
     I = zeros(size(checks,2),length(status));
     for i=1:length(status)
         I(:,i) = checks(i,:)==0;
@@ -82,11 +82,12 @@ elseif isstruct(Vnum) %volcanoCat
             
         end
         status(i,2) = sum(~I(:,i))/length(I(:,i));
-        disp([num2str(sum(~I(:,i)),'%04d'),'/',num2str(length(I(:,i)),'%04d'),' (',num2str(sum(~I(:,i))/length(I(:,i))*100,'%05.1f'),'%) ',cheader{i+1}])
+        disp([num2str(sum(~I(:,i)),'%04d'),'/',num2str(length(I(:,i)),'%04d'),...
+            ' (',num2str(sum(~I(:,i))/length(I(:,i))*100,'%05.1f'),'%) ',cheader{i+1}])
     end
     %%
     cs = [];   vs = [];
-    for i=[1:5] % check only cheader columns that all volcanoes should have (excluding ANSS, JMA, local)
+    for i=[1:2] % check only cheader columns that all volcanoes should have (excluding ANSS, JMA, local)
         Ii = checks(i,:)==0;
         if status(i,1)==0
             cs=[cs; extractfield(volcanoCat(Ii),'country')'];
