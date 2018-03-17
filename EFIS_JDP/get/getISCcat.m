@@ -1,5 +1,7 @@
 function catalog = getISCcat(input,params,vinfo,mapdata)
 
+% files pulled from ISC can be empty and still succesfull pull
+
 %% this function pulls an ISC catalog for a radius around a point
 volcOutName = fixStringName(vinfo.name);
 outDirName=fullfile(input.catalogsDir,fixStringName(vinfo.country),volcOutName);
@@ -29,25 +31,40 @@ yr1=params.YearRange(1);
 yr2=params.YearRange(2)+1;
 
 ofile = fullfile(odir,['ISC_',volcOutName,'.csv']);
+ofileL = fullfile(odir,['ISC_',volcOutName,'.log']);
+
 ofileMT = fullfile(odir,['iscMT_',volcOutName,'.csv']);
-s = dir(ofile);
-s2 = dir(ofileMT);
+ofileMTl = fullfile(odir,['iscMT_',volcOutName,'.log']);
+
+% s = dir(ofile);
+% s2 = dir(ofileMT);
 maxEvFlag = false;
 erStr = 'Sorry';
 
 %% MT catalog
-if ~exist(ofileMT,'file') || s2.bytes == 0
+if ~exist(ofileMT,'file') || ~exist(ofileMTl,'file')
     disp(['getting MT catalog from ISC...'])
-    [status,result] = wgetGrabISCfile(shscript2,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofile,'MT');
+    [status,result] = wgetGrabISCfile(shscript2,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofileMT,ofileMTl,'MT');
+
+    if status > 0
+        pause(5) % pause and try again
+        [status,result] = wgetGrabISCfile(shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofileMT,ofileMTl,'MT');
+    end
+    
 else
     disp('using existing ISC MT catalog')
 end
 FMcatalog = import1ISC_MTfile(ofileMT);
 %% EQ catalog
-if ~exist(ofile,'file') || s.bytes == 0
+if ~exist(ofile,'file') || ~exist(ofileL,'file')
     
     disp(['getting catalog from ISC...'])
-    [status,result] = wgetGrabISCfile(shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofile,'EQ');
+    [status,result] = wgetGrabISCfile(shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofile,ofileL,'EQ');
+    
+    if status > 0
+        pause(5) % pause and try again
+        [status,result] = wgetGrabISCfile(shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofile,ofileL,'EQ');
+    end
     
     if any(strfind(result,'exceeds'))
         warning('TOO MANY EVENTS!') % TODO: this needs a loop and a sub function
@@ -65,9 +82,9 @@ if ~exist(ofile,'file') || s.bytes == 0
     
 end
 %%
-s = dir(ofile);
-if ~exist(ofile,'file') || s.bytes == 0
+if ~exist(ofile,'file') 
     catalog = [];
+    warning('NO ISC FILE EXISTS AFTER TWO ATTEMPTS!')
     return
 end
 %%
@@ -102,7 +119,7 @@ end
 
 end
 %%
-function [status,result] = wgetGrabISCfile(shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofile,str)
+function [status,result] = wgetGrabISCfile(shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofile,ofileL,str)
 
 erStr = 'Sorry';
 
@@ -118,8 +135,9 @@ if any(strfind(result,erStr)) % try again b/c sometimes wget errors at ISC are a
     warning('wget pull failed')
     cmd = sprintf('rm -f %s',ofile);
     [~,~] = system(cmd);
-    pause(5) % pause and try again
-    [status,result] = wgetGrabISCfile(shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,yr2,odir,ofile,str);
+    cmd = sprintf('rm -f %s',ofileL);
+    [~,~] = system(cmd);
+    status = status + 1;
 end
 
 if status > 0  %what does 1 mean? seems ok sometimes but 0 bad sometimes??

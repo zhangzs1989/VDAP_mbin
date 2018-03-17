@@ -5,14 +5,8 @@ catalog_local = [];
 if strcmpi(country,'United States')
     % ANSS
     catalog_local1 = getANSScat(input,params,vinfo,mapdata); %wget
-    catalog_local1 = filterAnnulusm( catalog_local1, vinfo.lat,vinfo.lon, params.srad); % (e)
-    catalog_local1 = filterDepth(catalog_local1,params.DepthRange);
-    catalog_local1 = filterMag(catalog_local1,params.MagRange);
     % COMCAT
     catalog_local2 = getComcatCat(input,params,vinfo,mapdata); %wget
-    catalog_local2 = filterAnnulusm( catalog_local2, vinfo.lat,vinfo.lon, params.srad); % (e)
-    catalog_local2 = filterDepth(catalog_local2,params.DepthRange);
-    catalog_local2 = filterMag(catalog_local2,params.MagRange);    
     
     [catalog_local,~] = mergeTwoCatalogs(catalog_local2,catalog_local1);
 end

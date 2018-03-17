@@ -10,17 +10,19 @@ if exist([outCatName,'.mat'],'file')
     catalog = catalog.catalog;
     return
 end
+%%
 warning('on','all')
 catalog = [];
 
 if ~strcmp(vinfo.country,'United States')
     warning('only for US')
-   return
+    return
 end
 %%
 shscript='~/bin/catalog-search2.pl';
 odir = outDirName;
 ofile = fullfile(odir,['ANSS_',volcOutName,'.csv']);
+% ofileL = fullfile(odir,['ANSS_',volcOutName,'.log']);
 s = dir(ofile);
 %%
 if ~exist(ofile,'file') || s.bytes == 0
@@ -53,6 +55,7 @@ end
 
 disp('importing ANSS formatted catalog...')
 [catalog] = import1ANSSfile(ofile);
+catalog = filterMag(catalog,params.MagRange);
 if numel(catalog)>1
     catalog = rmDuplicateEvents(catalog,0);
 end
@@ -63,17 +66,6 @@ if params.wingPlot
         warning('wingplot: too many events to plot all')
         catalog = catalog(2:round(numel(catalog)/params.maxEvents2plot):end);
     end
-    %% make kml file
-    %         kmlName=['ANSS_',int2str(vinfo.Vnum)];
-    %         try
-    %             mkKMLfileFromCatalog(catalog,fullfile(outDirName,kmlName));
-    %         catch
-    %             %             tmpName=regexprep(volcanoCat(i).Volcano,'\W','');
-    %             %             mkKMLfileFromCatalog(catalog_a,kmlName);
-    %             %             cmd=sprintf('mv %s.kml %s',kmlName,fullfile(outDirName,kmlName));
-    %             %             [status,result] = system(cmd);
-    %             warning('KML file trouble')
-    %         end
     
     t1a=datenum(params.YearRange(1),1,1);
     t2a=datenum(params.YearRange(2)+1,1,1);
@@ -85,3 +77,16 @@ if params.wingPlot
 end
 
 end
+%% make kml file
+%         kmlName=['ANSS_',int2str(vinfo.Vnum)];
+%         try
+%             mkKMLfileFromCatalog(catalog,fullfile(outDirName,kmlName));
+%         catch
+%             %             tmpName=regexprep(volcanoCat(i).Volcano,'\W','');
+%             %             mkKMLfileFromCatalog(catalog_a,kmlName);
+%             %             cmd=sprintf('mv %s.kml %s',kmlName,fullfile(outDirName,kmlName));
+%             %             [status,result] = system(cmd);
+%             warning('KML file trouble')
+%         end
+
+

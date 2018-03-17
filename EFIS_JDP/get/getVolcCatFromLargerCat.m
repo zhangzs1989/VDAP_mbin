@@ -3,7 +3,7 @@ function catalog = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalog,st
 vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
 catName=fullfile(vpath,['cat_',str,'_',int2str(vinfo.Vnum)]);
 
-if params.getCats
+if params.getCats && ~exist([catName,'.mat'],'file')
     
     catalog = filterAnnulusm( catalog, vinfo.lat,vinfo.lon, params.srad); % (e)
     catalog = filterDepth(catalog,params.DepthRange);

@@ -29,7 +29,7 @@ end
 
 maxEvents2plot=params.maxEvents2plot;
 if numel(catalog) > maxEvents2plot
-    warning(['attempted to plot more than ',int2str(maxEvents2plot),' events, plot may be decimated'])
+    disp([‘attempted to plot more than ',int2str(maxEvents2plot),' events, plot may be decimated'])
     catalog = catalog(2:round(numel(catalog)/maxEvents2plot):end);
     w='*';
 else

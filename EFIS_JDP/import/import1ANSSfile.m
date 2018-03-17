@@ -80,7 +80,7 @@ RMS = dataArray{:, 10};
 Source = dataArray{:, 11};
 EventID = dataArray{:, 12};
 
-for i=1:size(DateTime,1)-2
+parfor i=1:size(DateTime,1)-2
 
     catalog(i).EVENTID = char(EventID(i));
     catalog(i).DateTime = datestr(datenum(DateTime(i)),'yyyy/mm/dd HH:MM:SS.FFF');

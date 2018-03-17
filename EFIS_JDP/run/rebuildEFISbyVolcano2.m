@@ -26,16 +26,16 @@ params.visible = 'off';
 params.srad = [0 75];
 params.DepthRange = [-3 75]; % km
 params.MagRange = [0 10];
-params.YearRange = [1964 2017];
+params.YearRange = [1964 2018];
 params.McMinN = 75;
 params.smoothDays = 90;% in (years,months,days)
 params.maxEvents2plot = 7500;
 params.McType = 'constantTimeWindow'; % 'constantTimeWindow' or 'constantEventNumber'
 params.McTimeWindow = 'year'; %calendarDuration(1,0,0); % in (years,months,days) %
 params.vname = 'all'; % options are 'vname' or 'all'
-% params.vname = 'Yufu-Tsurumi';
+% params.vname = 'Lautaro';
 % params.vname = {'St. Helens','Agung','Crater Lake','Augustine','Bogoslof','Rabaul'};
-params.country = 'all';
+params.country = 'United States';
 params.getCats = true;
 params.getMc = false;
 
@@ -85,14 +85,14 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     if params.getCats
         %% get ISC catalog
         %     catalog_ISC = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.ISC,'ISC');
-        catalog_ISC = getISCcat(input,params,vinfo,mapdata);
+%         catalog_ISC = getISCcat(input,params,vinfo,mapdata);
         
         % look for and plot GEM events < 1964
-        catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
-        [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
+%         catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
+%         [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
         
         % LOCAL
-%         catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
+        catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
         
     end
     % compute MASTER catalog or load

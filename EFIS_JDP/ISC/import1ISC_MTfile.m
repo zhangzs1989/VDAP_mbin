@@ -3,7 +3,7 @@ function  FMcatalog = import1ISC_MTfile(ofile)
 FMcatalog = [];
 s=dir(ofile);
 if s.bytes == 0 
-    warning('MT catalog empty')
+%     warning('MT catalog empty')
     return
 end
 

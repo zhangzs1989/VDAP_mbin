@@ -2,7 +2,7 @@ function catalog = getComcatCat(input,params,vinfo,mapdata)
 
 volcOutName = fixStringName(vinfo.name);
 outDirName=fullfile(input.catalogsDir,fixStringName(vinfo.country),volcOutName);
-outCatName=fullfile(outDirName,['Comcat_',int2str(vinfo.Vnum)]);
+outCatName=fullfile(outDirName,['cat_Comcat_',int2str(vinfo.Vnum)]);
 
 if exist([outCatName,'.mat'],'file')
     disp('loading old m-catalog...')
@@ -52,16 +52,27 @@ end
 
 disp('importing comcat formatted catalog...')
 catalog = import1comcatFile(ofile);
+catalog = filterMag(catalog,params.MagRange);
 if numel(catalog)>1
     catalog = rmDuplicateEvents(catalog,0);
 end
 save(outCatName,'catalog');
 %%
-if params.wingPlot && ~isempty(catalog)
+if params.wingPlot %&& ~isempty(catalog)
     if numel(catalog) > params.maxEvents2plot
         warning('wingplot: too many events to plot all')
         catalog = catalog(2:round(numel(catalog)/params.maxEvents2plot):end);
     end
+
+    t1a=datenum(params.YearRange(1),1,1);
+    t2a=datenum(params.YearRange(2)+1,1,1);
+    catalog = filterTime( catalog, t1a, t2a);% wingplot ISC
+    figname=fullfile(outDirName,['map_Comcat_',volcOutName]);
+    fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
+    print(fh_wingplot,'-dpng',[figname,'.png'])
+    close(fh_wingplot)
+end
+end
     %% make kml file
     %         kmlName=['ANSS_',int2str(vinfo.Vnum)];
     %         try
@@ -74,11 +85,3 @@ if params.wingPlot && ~isempty(catalog)
     %             warning('KML file trouble')
     %         end
     
-    t1a=datenum(params.YearRange(1),1,1);
-    t2a=datenum(params.YearRange(2)+1,1,1);
-    catalog = filterTime( catalog, t1a, t2a);% wingplot ISC
-    figname=fullfile(outDirName,['map_comcat_',volcOutName]);
-    fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
-    print(fh_wingplot,'-dpng',[figname,'.png'])
-    close(fh_wingplot)
-end

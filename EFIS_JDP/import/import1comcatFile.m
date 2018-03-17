@@ -115,7 +115,7 @@ magSource = dataArray{:, 22};
 %     'nst',nst,'gap',gap,'dmin',dmin,'rms',rms1,'updated',updated,'place',place,'type',type1,...
 %     'horizontalError',horizontalError,'depthError',depthError,'magError',magError,'magNst',magNst,'status',status1);
 
-for i=1:size(time,1)
+parfor i=1:size(time,1)
 
     catalog(i).EVENTID = char(id(i));
     catalog(i).DateTime = datestr(datenum(time(i),'yyyy-mm-ddTHH:MM:SS.FFFZ'),'yyyy/mm/dd HH:MM:SS.FFF');
