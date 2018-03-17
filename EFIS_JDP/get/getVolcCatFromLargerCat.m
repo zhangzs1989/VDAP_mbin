@@ -10,9 +10,11 @@ if params.getCats && ~exist([catName,'.mat'],'file')
     catalog = filterMag(catalog,params.MagRange);
     parsave_catalog(catName,catalog); %%DO we still need parsave if in subroutine??
     
-    if params.wingPlot && ~isempty(catalog)
-        dts = datenum(extractfield(catalog,'DateTime'));
-        t1=floor(datenum(min(dts))); t2=ceil(datenum(max(dts)));
+    if params.wingPlot %&& ~isempty(catalog)
+%         dts = datenum(extractfield(catalog,'DateTime'));
+%         t1=floor(datenum(min(dts))); t2=ceil(datenum(max(dts)));
+        t1=datenum(params.YearRange(1),1,1);
+        t2=datenum(params.YearRange(2)+1,1,1);
         figname=fullfile(vpath,['map_',str,'_',fixStringName(vinfo.name)]);
         fh_wingplot = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,1);
         print(fh_wingplot,'-dpng',[figname,'.png'])
@@ -21,7 +23,7 @@ if params.getCats && ~exist([catName,'.mat'],'file')
 else
     
     if exist([catName,'.mat'],'file')
-        warning('loading pre-existing catalog')
+        disp('loading pre-existing catalog')
         catalog = load(catName); catalog = catalog.catalog;
     else
         error('catalog file Does Not Exist')

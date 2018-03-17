@@ -35,7 +35,7 @@ params.McTimeWindow = 'year'; %calendarDuration(1,0,0); % in (years,months,days)
 params.vname = 'all'; % options are 'vname' or 'all'
 % params.vname = 'Lautaro';
 % params.vname = {'St. Helens','Agung','Crater Lake','Augustine','Bogoslof','Rabaul'};
-params.country = 'United States';
+params.country = 'all';
 params.getCats = true;
 params.getMc = false;
 
@@ -85,18 +85,18 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     if params.getCats
         %% get ISC catalog
         %     catalog_ISC = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.ISC,'ISC');
-%         catalog_ISC = getISCcat(input,params,vinfo,mapdata);
+        catalog_ISC = getISCcat(input,params,vinfo,mapdata);
         
         % look for and plot GEM events < 1964
-%         catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
-%         [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
+        catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
+        [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
         
         % LOCAL
         catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
         
     end
     % compute MASTER catalog or load
-%     catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,params.getCats,paramsF);
+    catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,params.getCats,paramsF);
         
 %     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
 %     if params.wingPlot
