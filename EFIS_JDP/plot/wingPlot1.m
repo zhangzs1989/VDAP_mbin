@@ -27,8 +27,10 @@ if ~isfield(params,'maxEvents2plot')
     params.maxEvents2plot = 1e7;
 end
 
+catalog = filterTime( catalog, t1, t2);% wingplot ISC
+ntot =  numel(catalog);
 maxEvents2plot=params.maxEvents2plot;
-if numel(catalog) > maxEvents2plot
+if ntot > maxEvents2plot
     disp(['attempted to plot more than ',int2str(maxEvents2plot),' events, plot may be decimated'])
     catalog = catalog(2:round(numel(catalog)/maxEvents2plot):end);
     w='*';
@@ -44,7 +46,6 @@ elseif t1>t2
     return
 end
 % Extract all necessary data from the catalog
-catalog = filterTime( catalog, t1, t2);% wingplot ISC
 if size(catalog,2) > 0 && ~isempty(catalog)
     Lat = extractfield(catalog, 'Latitude');
     Lon = extractfield(catalog, 'Longitude');
@@ -94,6 +95,7 @@ scrsz = get(groot,'ScreenSize');
 H = figure('Position',[scrsz(3)/2 scrsz(4)/2 scrsz(3)/2 scrsz(3)/2],'visible',params.visible);
 H.Color = [1 1 1]; % sets the background of the figure panel to white
 H.InvertHardcopy = 'off'; % should make the printed figure look more like what is on the screen
+set(H,'Renderer','OpenGL'); %supposed to be faster
 
 %% Subplots
 
@@ -104,7 +106,7 @@ if isfield(params,'coasts') && params.coasts
 end
 setm(ax, 'MlabelParallel', 'south');
 
-title({vinfo.name,[datestr(t1,'mm/dd/yyyy') ' to ' datestr(t2,'mm/dd/yyyy')],[int2str(numel(Lat)),w,' events, Mmax = ',...
+title({vinfo.name,[datestr(t1,'mm/dd/yyyy') ' to ' datestr(t2,'mm/dd/yyyy')],[int2str(ntot),w,' events, Mmax = ',...
     num2str(Mmax,'%2.1f')]})
 if params.topo
     try

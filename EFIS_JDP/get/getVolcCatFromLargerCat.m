@@ -18,6 +18,7 @@ if params.getCats && ~exist([catName,'.mat'],'file')
         figname=fullfile(vpath,['map_',str,'_',fixStringName(vinfo.name)]);
         fh_wingplot = wingPlot1(vinfo, t1, t2, catalog, mapdata, params,1);
         print(fh_wingplot,'-dpng',[figname,'.png'])
+        if strcmpi(params.visible,'off'); close(fh_wingplot); end
     end
     
 else

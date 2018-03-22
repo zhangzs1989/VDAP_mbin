@@ -24,6 +24,7 @@ end
 %%
 if ~strcmpi(country,'all')
     catalog = filterCatalogByCountry(catalog,country,inOut);
+    return
 end
 vnames = extractfield(catalog,'Volcano');
 

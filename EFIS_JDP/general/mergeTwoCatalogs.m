@@ -4,11 +4,12 @@ function [newCatalog,H] = mergeTwoCatalogs(catalog1,catalog2,varargin)
 % and keeps params from cat2 for matches, except where info is missing,
 % which is filled in to cat2 solution from cat1 when possible
 %%
+%%NOTE: this is very slow on large catalogs, need to parallelize TODO
 
 if nargin == 2
     figTF = 'no';
-    OTdiff = 16;
-    DistDiff = 100;
+    OTdiff = 16; % these are params that ANSS uses
+    DistDiff = 100; % these are params that ANSS uses
 elseif nargin ==3
     figTF = varargin{1};
     OTdiff = 16;
@@ -84,9 +85,11 @@ cat1i = jj; %indices of repeats in cat1
 cat2i = iii(jj); %indices of repeats in cat2
 % disp(['Matches: ',int2str(length(jj))])
 
-%% QC figure
+%% QC figure  %%SKIP SOME IF TOO MANY??? TODO
 if strcmpi(figTF,'yes') || strcmpi(figTF,'fig')
+    disp('merge fig...')
     H = figure('visible','off');
+    set(H,'Renderer','OpenGL'); %supposed to be faster
     subplot(2,1,1);
     
     imn1 = isnan(cat1mags);
@@ -98,10 +101,28 @@ if strcmpi(figTF,'yes') || strcmpi(figTF,'fig')
     %         datetime(datevec(cat1times(cat1i))),cat1mags(cat1i),'ro',datetime(datevec(cat2times(cat2i))),cat2mags(cat2i),'ro'), grid on
     plot(datetime(datevec(cat1times)),cat1mags,'b.',datetime(datevec(cat2times)),cat2mags,'g.')
     hold on, grid on
-    for i=1:length(cat1i)  %super slow, why??
-        plot([datetime(datevec(cat1times(cat1i(i)))) datetime(datevec(cat2times(cat2i(i))))],[cat1mags(cat1i(i)) cat2mags(cat2i(i))],'r-')
-    end
+    X1 = datetime(datevec(cat1times(cat1i(:))))';
+    X2 = datetime(datevec(cat2times(cat2i(:))))';
+    Y1 = cat1mags(cat1i(:));
+    Y2 = cat2mags(cat2i(:));
+    plot([X1;X2],[Y1;Y2],'r-') % SUPER SLOW!!
     
+    %% TODO: use nans w/i one line instead of segments
+%     lx = []; ly = [];
+%     ii=0;
+%     for i=1:length(X1)
+%         
+%         lx(i) = X1(i);
+%         ly(i) = Y1(i);
+%         
+%         lx(i+1) = X2(i);
+%         ly(i+1) = Y2(i);
+%         
+%         lx(i+2) = nan;
+%         ly(i+2) = nan;
+%         
+%     end
+    %%
     legend('catalog1','catalog2','Duplicates','Location','Best')
     xlabel('Date')
     ylabel('Magnitude')
@@ -116,20 +137,25 @@ if strcmpi(figTF,'yes') || strcmpi(figTF,'fig')
     
     subplot(2,1,2)
     worldmap([min([cat2lat cat1lat]),max([cat2lat cat1lat])],[min([cat2lon cat1lon]),max([cat2lon cat1lon])])
-    % worldmap('Philippines')
     load coast
     plotm(lat,long)%, hold on
     plotm(cat2lat,cat2lon,'g.')
     plotm(cat1lat,cat1lon,'b.')
     if ~isempty(cat1i)
-        for i=1:length(cat1i)
-            plotm([cat1lat(cat1i(i)) cat2lat(cat2i(i))],[cat1lon(cat1i(i)) cat2lon(cat2i(i))],'r-')
-        end
+        X1 = cat1lat(cat1i(:));
+        X2 = cat2lat(cat2i(:));
+        Y1 = cat1lon(cat1i(:));
+        Y2 = cat2lon(cat2i(:));
+        plot([X1;X2],[Y1;Y2],'r-') % SUPER SLOW!!
+        %         for i=1:length(cat1i)
+        %             plotm([cat1lat(cat1i(i)) cat2lat(cat2i(i))],[cat1lon(cat1i(i)) cat2lon(cat2i(i))],'r-')
+        %         end
         %         plotm(cat1lat(cat1i),cat1lon(cat1i),'ro')
         %         plotm(cat2lat(cat2i),cat2lon(cat2i),'ro');
     end
     
     zoom('on')
+    disp('...done')
 else
     H = [];
 end

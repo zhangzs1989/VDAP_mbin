@@ -83,6 +83,7 @@ scrsz = [ 1 1 1080 1920];
 H = figure('Position',[scrsz(3)/2 scrsz(4)/2 scrsz(3)/2 scrsz(3)/2],'visible',params.visible);
 H.Color = [1 1 1]; % sets the background of the figure panel to white
 H.InvertHardcopy = 'off'; % should make the printed figure look more like what is on the screen
+set(H,'Renderer','OpenGL'); %supposed to be faster
 
 ax = worldmap(mapdata.latlim, mapdata.lonlim);
 if isfield(params,'coasts') && params.coasts

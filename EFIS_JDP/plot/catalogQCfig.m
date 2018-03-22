@@ -64,6 +64,7 @@ end
 % scrsz = get(groot,'ScreenSize');
 scrsz = [ 1 1 1080 2560];
 F = figure('Position',[scrsz(3)/1 scrsz(4)/1 scrsz(3)/1 scrsz(4)/3],'visible',visibility);
+set(F,'Renderer','OpenGL'); %supposed to be faster
 % create color palette
 c = get(gca,'colororder');
 ax1 = subplot(4,4,1:4); hold on

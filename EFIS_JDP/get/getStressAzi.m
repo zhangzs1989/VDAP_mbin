@@ -1,6 +1,6 @@
 function [projAzi] = getStressAzi(projLat,projLon)
 
-load('/Users/jpesicek/Dropbox/Research/s6/wsm2008_smoothed.mat')
+load('/Users/jpesicek/Dropbox/s6/wsm2008_smoothed.mat')
 
 wlat = extractfield(wsm,'Latitude');
 wlon = extractfield(wsm,'Longitude');

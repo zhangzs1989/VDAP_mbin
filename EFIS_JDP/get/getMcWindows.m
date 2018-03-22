@@ -45,7 +45,7 @@ if strcmpi('constantTimeWindow',winOpt)
     if ~isempty(einfo)
         eChPts = datetime(extractfield(einfo,'StartDate'));
         vei = extractfield(einfo,'VEI');
-        eChPts = eChPts(vei >= VEImin);
+        eChPts = eChPts(vei >= VEImin & eChPts > t1 );
         eChPts = eChPts + 1; %NOTE: to make the Mc change happen the day after the eruption to preserve Mc on eruption day
         chPts = combine2setsOfChPts(eChPts',chPts,evWinOverlap);
     end

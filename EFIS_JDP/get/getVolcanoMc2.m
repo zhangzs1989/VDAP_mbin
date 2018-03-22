@@ -15,7 +15,7 @@ minN = params.McMinN;
 
 if isempty(catalog) || numel(catalog) < minN
     % assign default ISC Mc series
-    warning('Not enough events to estimate Mc');
+    disp('Not enough events to estimate Mc');
     return
 end
 

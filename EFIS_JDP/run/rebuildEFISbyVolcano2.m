@@ -33,11 +33,11 @@ params.maxEvents2plot = 7500;
 params.McType = 'constantTimeWindow'; % 'constantTimeWindow' or 'constantEventNumber'
 params.McTimeWindow = 'year'; %calendarDuration(1,0,0); % in (years,months,days) %
 params.vname = 'all'; % options are 'vname' or 'all'
-% params.vname = 'Lautaro';
+params.vname = 'all';
 % params.vname = {'St. Helens','Agung','Crater Lake','Augustine','Bogoslof','Rabaul'};
-params.country = 'all';
-params.getCats = true;
-params.getMc = false;
+params.country = 'Italy';
+params.getCats = false;
+params.getMc = true;
 
 % for filnal cat and plot
 paramsF = params;
@@ -56,12 +56,12 @@ paramsF.DepthRange = [-3 35];
 if ~exist('catalogStruct','var') %&& isstruct(catalog)
     catalogStruct = [];
 end
-catalogStruct = loadCatalogs(input,catalogStruct);
+catalogStruct = loadCatalogs(input,params,catalogStruct);
 %%
 load(input.gvp_volcanoes); % volcanoCat struct imported via importEruptionCatalog.m from OGBURN FILE
 load(input.gvp_eruptions); % spits out eruptionCat
 %% FIND specific volcano or set of volcanoes, if desired
-volcanoCat = filterCatalogByVnameList(volcanoCat,params.vname,'in',params.country);
+volcanoCat = filterCatalogByVnameList(volcanoCat,params.vname,'out',params.country);
 %% set up diary
 [~,~,~] = mkdir(input.catalogsDir);
 diaryFileName = [input.catalogsDir,filesep,datestr(now,30),'_diary.txt'];
@@ -72,6 +72,7 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     disp([int2str(i),'/',int2str(size(volcanoCat,1)),', ',vinfo.name,', ',vinfo.country])
+    disp(datetime)
     einfo = getEruptionInfoFromNameOrNum(vinfo.Vnum,eruptionCat);
     
     vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
@@ -93,22 +94,29 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
         
         % LOCAL
         catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
-        
+    
+        % compute MASTER catalog or load
+        catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,params.getCats,paramsF);
     end
-    % compute MASTER catalog or load
-    catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,params.getCats,paramsF);
         
 %     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
-%     if params.wingPlot
-%         disp('Map figs...')
-%         F2 = catalogQCmap(catMaster,vinfo,params,mapdata);
-%         print(F2,fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'_map']),'-dpng')
+    if params.wingPlot && params.getCats
+        disp('Map figs...')
+        F2 = catalogQCmap(catMaster,vinfo,params,mapdata);
+        print(F2,fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'_map']),'-dpng')
 %         mkEruptionMapQCfigs(catMaster,einfo,vinfo,mapdata,params,vpath)
-%     end
+    end
     %%
     if params.getMc %  NOW DONE MAKING CATALOG, now Mc
         %% GET Mc
         disp('Compute Mc...')
+        if ~params.getCats
+            outCatName=fullfile(vpath,['cat_ISC_',int2str(vinfo.Vnum),'.mat']);
+            catalog = load(outCatName); catalog_ISC = catalog.catalog;
+            catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
+            catName=fullfile(vpath,['cat_MASTER_',int2str(vinfo.Vnum),'.mat']);
+            catMaster = load(catName); catMaster = catMaster.catalog;
+        end
         % NOTE: or just do this on demand when answering a question ???!!! or both!!
         [McG,McL,MasterMc] = buildMcbyVolcano(catMaster,catalog_ISC,catalog_local,vinfo,einfo,params,vpath);
         %%
