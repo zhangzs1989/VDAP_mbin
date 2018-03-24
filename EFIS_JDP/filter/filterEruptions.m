@@ -86,5 +86,12 @@ end
 %% narrow eruption catalog by VEI
 eruptionCat = VEIcatalogFilter(eruptionCat,params);
 % volcs=unique(extractfield(eruptionCat,'Volcano'))'
-
+%% sort by time?
+% sd = extractfield(eruptionCat,'StartDate');
+% [~,I] = sort(datenum(sd));
+% eruptionCat = eruptionCat(I);
+%% sort by volcano
+v = extractfield(eruptionCat,'volcano');
+[~,I] = sort((v));
+eruptionCat = eruptionCat(I);
 end

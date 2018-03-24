@@ -33,9 +33,9 @@ params.maxEvents2plot = 7500;
 params.McType = 'constantTimeWindow'; % 'constantTimeWindow' or 'constantEventNumber'
 params.McTimeWindow = 'year'; %calendarDuration(1,0,0); % in (years,months,days) %
 params.vname = 'all'; % options are 'vname' or 'all'
-params.vname = 'all';
+% params.vname = 'Asuncion';
 % params.vname = {'St. Helens','Agung','Crater Lake','Augustine','Bogoslof','Rabaul'};
-params.country = 'Italy';
+params.country = 'all';
 params.getCats = false;
 params.getMc = true;
 
@@ -61,7 +61,7 @@ catalogStruct = loadCatalogs(input,params,catalogStruct);
 load(input.gvp_volcanoes); % volcanoCat struct imported via importEruptionCatalog.m from OGBURN FILE
 load(input.gvp_eruptions); % spits out eruptionCat
 %% FIND specific volcano or set of volcanoes, if desired
-volcanoCat = filterCatalogByVnameList(volcanoCat,params.vname,'out',params.country);
+volcanoCat = filterCatalogByVnameList(volcanoCat,params.vname,'in',params.country);
 %% set up diary
 [~,~,~] = mkdir(input.catalogsDir);
 diaryFileName = [input.catalogsDir,filesep,datestr(now,30),'_diary.txt'];
@@ -71,11 +71,16 @@ tic
 parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
+    vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
     disp([int2str(i),'/',int2str(size(volcanoCat,1)),', ',vinfo.name,', ',vinfo.country])
     disp(datetime)
     einfo = getEruptionInfoFromNameOrNum(vinfo.Vnum,eruptionCat);
     
-    vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
+%     fname=fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'.fig']);
+%     if exist(fname,'file')
+%         continue
+%     end
+    
     volcOutName = fixStringName(vinfo.name);
     outVinfoName=fullfile(vpath,['vinfo_',int2str(volcanoCat(i).Vnum),'.mat']);
     [~,~,~] = mkdir(vpath);

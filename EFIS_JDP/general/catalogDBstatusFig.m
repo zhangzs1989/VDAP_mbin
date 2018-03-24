@@ -1,8 +1,8 @@
 clear
 
-input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2.mat'; % imported via importEruptionCatalog, originally from S. Ogburn
+input.gvp_volcanoes='/Users/jpesicek/Dropbox/Research/EFIS/GVP/GVP_volcanoes_v2b.mat'; % imported via importEruptionCatalog, originally from S. Ogburn
 input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
-input.catalogsDir = '/Users/jpesicek/Dropbox/Research/EFIS/global8'; % importISCcatalog.m
+input.catalogsDir = '/Users/jpesicek/Dropbox/Research/EFIS/globalV4'; % importISCcatalog.m
 %%
 LocalMcDef = 2;
 McRange = 0:6;
@@ -17,7 +17,7 @@ Mc2 = zeros(numel(volcanoCat),length(trange));
 for i=1:numel(volcanoCat)
     
     vpath = fullfile(input.catalogsDir,fixStringName(volcanoCat(i).country),fixStringName(volcanoCat(i).Volcano));
-    McFile = fullfile(vpath,['Mc/MASTER_McInfo_',int2str(volcanoCat(i).Vnum),'.mat']);
+    McFile = fullfile(vpath,['Mc_MASTER_',int2str(volcanoCat(i).Vnum),'.mat']);
     
     Mc = load(McFile);
     McMin(i) = Mc.McMin;
@@ -89,7 +89,7 @@ for i=1:numel(eruptionCat)
     ii = find(extractfield(volcanoCat,'Vnum')==eruptionCat(i).Vnum);
     vinfo = getVolcanoInfo(volcanoCat,[],ii);
     vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
-    McFile = fullfile(vpath,['Mc/MASTER_McInfo_',int2str(vinfo.Vnum),'.mat']);
+    McFile = fullfile(vpath,['Mc_MASTER_',int2str(vinfo.Vnum),'.mat']);
     
     t1 = datenum(eruptionCat(i).StartDate) - preEruptionDays;
     t2 = datenum(eruptionCat(i).StartDate);
@@ -135,8 +135,8 @@ l(2)=plotm(lat(k),lon(k),'r^','MarkerFaceColor','r');
 title('Holocene Volcanoes')
 lh=legend(l,'Active Volcano','Some local data in EFIS');
 
-print([input.catalogsDir,filesep,'3_Map1_'],'-dpng')
-savefig([input.catalogsDir,filesep,'3_Map1_'])
+print([input.catalogsDir,filesep,'3_Map1'],'-dpng')
+savefig([input.catalogsDir,filesep,'3_Map1'])
 
 figure,ax = worldmap('World');
 setm(ax, 'Origin', [0 180 0])
@@ -148,8 +148,8 @@ l(2)=plotm(lat2(k),lon2(k),'b^','MarkerFaceColor','b');
 title('Eruptions since 1965')
 lh=legend(l,'Eruption','Pre-eruptive local data in EFIS');
 
-print([input.catalogsDir,filesep,'3_Map2_'],'-dpng')
-savefig([input.catalogsDir,filesep,'3_Map2_'])
+print([input.catalogsDir,filesep,'3_Map2'],'-dpng')
+savefig([input.catalogsDir,filesep,'3_Map2'])
 
 %% % time history of Median Mc
 x=((trange));
@@ -194,7 +194,7 @@ for c = 1:numel(D2)
     
     disp(int2str(c))
     dc=fullfile(input.catalogsDir,D2(c).name);
-    DC=dir2(dc,'Master_McInfo_*.mat','-r');
+    DC=dir2(dc,'Mc_Master_*.mat','-r');
     
     figure('visible','off'), hold on, grid on, box on
     h2=plot(ISC_McInfo.McDaily(:,1),ISC_McInfo.McDaily(:,2),'r-','LineWidth',6);
@@ -231,7 +231,7 @@ h2=plot(ISC_McInfo.McDaily(:,1),ISC_McInfo.McDaily(:,2),'k-','LineWidth',8);
 for c = 1:numel(D2)
     
     dc=fullfile(input.catalogsDir,D2(c).name);
-    DC=dir2(dc,'Master_McInfo_*.mat','-r');
+    DC=dir2(dc,'Mc_Master_*.mat','-r');
     
     yq=nan(numel(DC),length(trange));
     if numel(DC) > 20

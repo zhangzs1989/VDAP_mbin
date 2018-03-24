@@ -107,7 +107,7 @@ end
 setm(ax, 'MlabelParallel', 'south');
 
 title({vinfo.name,[datestr(t1,'mm/dd/yyyy') ' to ' datestr(t2,'mm/dd/yyyy')],[int2str(ntot),w,' events, Mmax = ',...
-    num2str(Mmax,'%2.1f')]})
+    num2str(Mmax,'%2.1f')]},'interpreter','none')
 if params.topo
     try
         contourm(double(ZA),RA,double(crange),'LineColor',[0.5  0.5  0.5]);
@@ -159,7 +159,7 @@ setm(h,'MinorTick',[0])
 try
     setm(h,'MajorTick',[0,round(params.srad(2)/4,-1)])
 catch
-    params.srad = [0 params.maxRadius];
+    params.srad = [0 params.srad(1)];
     setm(h,'MajorTick',[0,round(params.srad(2)/4,-1)])
 end
 %% Project Data to Projected (xy) Coordinates

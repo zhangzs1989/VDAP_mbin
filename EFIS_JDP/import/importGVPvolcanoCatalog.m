@@ -9,6 +9,7 @@ clear
 
 ddir = '/Users/jpesicek/Dropbox/Research/EFIS/GVP/';
 filename='GVP_volcanoes_v2';
+fnameOutName='GVP_volcanoes_v2b';
 
 [table, result]= readtext(fullfile(ddir,[filename,'.csv']),',','','"',''); % OGBURN FILE
 
@@ -45,16 +46,22 @@ for l=1:length(II)
 end
 
 % QC it:
-lat = extractfield(volcanoCat, 'Latitude');
-long = extractfield(volcanoCat, 'Longitude');
+% lat = extractfield(volcanoCat, 'Latitude');
+% long = extractfield(volcanoCat, 'Longitude');
 
-long(long<0)=long(long<0)+360;
-figure, plot(long,lat,'.') % should look like an arc
+elat = extractfield(volcanoCat, 'Latitude');
+elon = extractfield(volcanoCat, 'Longitude');
 
-azis = getStressAzi(lat,long); % get regional stress directions
+figure, worldmap('world')
+load coast
+plotm(lat,long,'k')
+plotm(elat,elon,'b.')
+
+[azis,regimes] = getStressAzi(elat,elon,50); % get regional stress directions
 % eruptionCat = setfield(eruptionCat,'SHmax',azis);
-for i=1:length(lat)
+for i=1:length(elat)
     volcanoCat(i).SHmax = azis(i);
+    volcanoCat(i).Regime = regimes(i);
     if strcmp(volcanoCat(i).Elevation,'NAN')
         volcanoCat(i).Elevation = nan;
     end
@@ -80,4 +87,4 @@ for i=1:length(lat)
     
 end
 
-save(fullfile(ddir,[filename,'.mat']),'volcanoCat');
+save(fullfile(ddir,[fnameOutName,'.mat']),'volcanoCat');

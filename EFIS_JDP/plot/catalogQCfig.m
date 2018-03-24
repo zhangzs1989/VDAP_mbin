@@ -11,7 +11,7 @@ dfac = 30;
 if isempty(eruptionCat)
     %     input.gvp_eruptions='/Users/jpesicek/Dropbox/Research/EFIS/GVP/gvp_eruptions_with_ids_v2.mat';
     %     load(input.gvp_eruptions); % spits out volcanoCat
-%     warning('No eruption times plotted')
+    %     warning('No eruption times plotted')
 end
 
 if isempty(catalog)
@@ -101,13 +101,15 @@ for i=1:numel(eruptionCat)
     end
     plot([datetime(eruptionCat(i).StartDate),datetime(eruptionCat(i).StartDate)],[floor(min(mags)),ceil(max(mags))],'r-','LineWidth',1);
     plot([datetime(eruptionCat(i).EndDate)+1,datetime(eruptionCat(i).EndDate)+1],[floor(min(mags)),ceil(max(mags))],'b-.');
-
+    
 end
 if ~isempty(eruptionCat)
     ua2 = [ua2,'Eruption start','Eruption End'];
 end
 % legend(ua2,'Location','best')
-legend(a,ua2(length(ua)+1:length(ua2)),'Location','best')
+try
+    legend(a,ua2(length(ua)+1:length(ua2)),'Location','best')
+end
 box on, grid on
 %%
 yyaxis right
@@ -132,7 +134,9 @@ end
 axis ij
 ylabel('Depth');
 xlabel('Date')
-ylim([0 max(deps)])
+try
+    ylim([0 max(deps)])
+end
 box on, grid on
 
 ax3 = subplot(4,4,9:12); hold on, grid on
@@ -147,21 +151,25 @@ box on, grid on
 
 % t1min = floor(min(datenum(dts)));
 % t1min = datenum(str2num(datestr(t1min,'yyyy')),1,1);
-t1min = datenum(1964,1,1); % omit GEM events
-%% NEED this twice otherwise axes get screwed up. matlab bug?
-try
-    xmin = min([datetime(datevec(Mc(:,1)));datetime(datevec(t1min))]);
-    xmax = max(datetime(datevec(Mc(:,1)+7)));
-catch
+if nargin > 5
+    xmin = varargin{2};
+    xmax = varargin{3};
+else
+    %% NEED this twice otherwise axes get screwed up. matlab bug?
     try
-        xmin = min([datenum(extractfield(eruptionCat,'StartDate')); datenum(dts)]);
-        xmax = max([datenum(extractfield(eruptionCat,'EndDate')); datenum(dts)])   ;
+        xmin = min([datetime(datevec(Mc(:,1)));datetime(datevec(t1min))]);
+        xmax = max(datetime(datevec(Mc(:,1)+7)));
     catch
-        xmin = min([datenum(dts)]);
-        xmax = max([datenum(dts)]);
-        if xmin==xmax
-            xmin =xmin -1;
-            xmax = xmax + 1;
+        try
+            xmin = min([datenum(extractfield(eruptionCat,'StartDate')); datenum(dts)]);
+            xmax = max([datenum(extractfield(eruptionCat,'EndDate')); datenum(dts)])   ;
+        catch
+            xmin = min([datenum(dts)]);
+            xmax = max([datenum(dts)]);
+            if xmin==xmax
+                xmin =xmin -1;
+                xmax = xmax + 1;
+            end
         end
     end
 end
@@ -178,20 +186,25 @@ linkaxes([ax1 ax2 ax3],'x')
 %     xlim(ax2,[floor(min(datenum(dts))) ceil(max(datenum(dts)))])
 % end
 zoom('xon')
-try
-    xmin = min([datetime(datevec(Mc(:,1)));datetime(datevec(t1min))]);
-    xmax = max(datetime(datevec(Mc(:,1)+7)));
-catch
+if nargin > 5
+    xmin = varargin{2};
+    xmax = varargin{3};
+else
     try
-        xmin = min([datenum(extractfield(eruptionCat,'StartDate')); datenum(dts)]);
-        xmax = max([datenum(extractfield(eruptionCat,'EndDate')); datenum(dts)])   ;
+        xmin = min([datetime(datevec(Mc(:,1)));datetime(datevec(t1min))]);
+        xmax = max(datetime(datevec(Mc(:,1)+7)));
     catch
-        xmin = min([datenum(dts)]);
-        xmax = max([datenum(dts)]);
-        if xmin==xmax
-            xmin =xmin -1;
-            xmax = xmax + 1;
-        end        
+        try
+            xmin = min([datenum(extractfield(eruptionCat,'StartDate')); datenum(dts)]);
+            xmax = max([datenum(extractfield(eruptionCat,'EndDate')); datenum(dts)])   ;
+        catch
+            xmin = min([datenum(dts)]);
+            xmax = max([datenum(dts)]);
+            if xmin==xmax
+                xmin =xmin -1;
+                xmax = xmax + 1;
+            end
+        end
     end
 end
 try

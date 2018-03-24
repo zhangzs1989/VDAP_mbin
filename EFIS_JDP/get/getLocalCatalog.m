@@ -1,48 +1,54 @@
-function catalog_local = getLocalCatalog(input,params,vinfo,mapdata)
+function catalog_local = getLocalCatalog(catalogs,input,params,vinfo,mapdata,country)
 
-vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
-
-%% get ANSS
-if strcmp(vinfo.country,'United States')
-    catalog_local = getANSScat(input,params,vinfo,mapdata);
+catalog_local = [];
+%% ANSS
+if strcmpi(country,'United States')
+    % ANSS
+    catalog_local1 = getANSScat(input,params,vinfo,mapdata); %wget
+    % COMCAT
+    catalog_local2 = getComcatCat(input,params,vinfo,mapdata); %wget
+    
+    [catalog_local,~] = mergeTwoCatalogs(catalog_local2,catalog_local1);
 end
 %% GNS
-if strcmp(vinfo.country,'New Zealand')
-    catalog_local = getGNScat(input,params,vinfo,mapdata);
-end
-%% get JMA
-if strcmp(vinfo.country,'Japan')
-    
-    catalog_local = filterAnnulusm(catalogJMA,vinfo.lat,vinfo.lon,params.srad); %
+if strcmpi(country,'New Zealand')
+    catalog_local = getGNScat(input,params,vinfo,mapdata); %wget
+    catalog_local = filterAnnulusm( catalog_local, vinfo.lat,vinfo.lon, params.srad); % (e)
     catalog_local = filterDepth(catalog_local,params.DepthRange);
-    outCatName=fullfile(vpath,['cat_JMA_',int2str(vinfo.Vnum)]);
-    catalog = catalog_local;
-    %         save(outCatName,'catalog');
-    parsave_catalog(outCatName,catalog);
-    
-    if params.wingPlot
-        dts = datenum(extractfield(catalog_local,'DateTime'));
-        t1=floor(datenum(min(dts))); t2=ceil(datenum(max(dts)));
-        figname=fullfile(vpath,['map_JMA_',fixStringName(vinfo.name)]);
-        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog_local, mapdata, params,1);
-        print(fh_wingplot,'-dpng',[figname,'.png'])
+    catalog_local = filterMag(catalog_local,params.MagRange);    
+end
+%% JMA
+if strcmpi(country,'Japan') || strcmp(country,'Japan - administered by Russia')
+    catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.JMA,'JMA');
+end
+%% BMKG
+if strcmpi(country,'Indonesia')
+    catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.BMKG,'BMKG');
+end
+%% SSN
+if strcmpi(country,'Mexico') || strcmp(country,'Mexico-Guatemala')
+    catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.SSN,'SSN');
+end
+%% SIL
+if strcmpi(country,'Iceland')
+    catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.SIL,'SIL');
+end
+%% IGN
+if strcmpi(country,'Spain')
+    catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.IGN,'IGN');
+end
+%% INGV
+if strcmpi(country,'Italy')
+    catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.INGV,'INGV');
+end
+%% local catalog
+LocalCatalogFile = fullfile(input.localCatDir,['local_',int2str(vinfo.Vnum),'.mat']);
+if exist(LocalCatalogFile,'file')
+    if ~isempty(catalog_local)
+        error('You may be overwriting regional catalog here') % merge later
     end
+    catalog_local = load(LocalCatalogFile); catalog_local = catalog_local.catalog;
+    catalog_local = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalog_local,'LOCAL');
 end
 
-%% BMKG
-if strcmp(vinfo.country,'Indonesia')
-    
-    catalog_local = filterAnnulusm(catalogBMKG,vinfo.lat,vinfo.lon,params.srad); %
-    catalog_local = filterDepth(catalog_local,params.DepthRange);
-    outCatName=fullfile(vpath,['cat_BMKG_',int2str(vinfo.Vnum)]);
-    catalog = catalog_local;
-    parsave_catalog(outCatName,catalog);
-    
-    if params.wingPlot
-        dts = datenum(extractfield(catalog_local,'DateTime'));
-        t1=floor(datenum(min(dts))); t2=ceil(datenum(max(dts)));
-        figname=fullfile(vpath,['map_BMKG_',fixStringName(vinfo.name)]);
-        fh_wingplot = wingPlot1(vinfo, t1, t2, catalog_local, mapdata, params,1);
-        print(fh_wingplot,'-dpng',[figname,'.png'])
-    end
 end

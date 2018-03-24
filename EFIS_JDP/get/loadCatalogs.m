@@ -27,13 +27,6 @@ if ~isfield(catalogs,'GEM')
     catalogs.GEM = catalogGEM;
     clear catalogGEM;
 end
-if ~isfield(catalogs,'JMA') %&& (strcmpi(params.country,'all') || strcmpi(params.country,'Japan'))
-    disp('loading catalogJMA...')
-    load(input.JMAcatalog); %created using importISCcatalog.m
-    disp('...catalog loaded')
-    catalogs.JMA = catalogJMA;
-    clear catalogJMA;
-end
 if ~isfield(catalogs,'BMKG') && (strcmpi(params.country,'all') || strcmpi(params.country,'Indonesia'))
     disp('loading catalogBMKG...')
     load(input.BMKGcatalog); %created using importISCcatalog.m
@@ -68,5 +61,12 @@ if ~isfield(catalogs,'INGV') && (strcmpi(params.country,'all') || strcmpi(params
     disp('...catalog loaded')
     catalogs.INGV = catalogINGV;
     clear catalogINGV;
+end
+if ~isfield(catalogs,'JMA') %&& (strcmpi(params.country,'all') || strcmpi(params.country,'Japan'))
+    disp('loading catalogJMA...')
+    load(input.JMAcatalog); %created using importISCcatalog.m
+    disp('...catalog loaded')
+    catalogs.JMA = catalogJMA;
+    clear catalogJMA;
 end
 end

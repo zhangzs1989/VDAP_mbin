@@ -34,7 +34,7 @@ if strcmpi('constantTimeWindow',winOpt)
     try
         [ipt,~] = findchangepts(magsPerWinMin,'MaxNumChanges',nMaxChPts,'Statistic','linear');
         chPts = tl2(ipt)';
-        chPts = combine2setsOfChPts(chPts,[],evWinOverlap);
+        chPts = combineChPts(chPts,[],evWinOverlap);
     catch
         warning('problem finding change points')
         j = []; ipt = []; chPts = [];
@@ -47,7 +47,7 @@ if strcmpi('constantTimeWindow',winOpt)
         vei = extractfield(einfo,'VEI');
         eChPts = eChPts(vei >= VEImin & eChPts > t1 );
         eChPts = eChPts + 1; %NOTE: to make the Mc change happen the day after the eruption to preserve Mc on eruption day
-        chPts = combine2setsOfChPts(eChPts',chPts,evWinOverlap);
+        chPts = combineChPts(eChPts',chPts,evWinOverlap);
     end
     
 elseif strcmpi('constantEventNumber',winOpt)
@@ -71,11 +71,15 @@ windows = addInChPts2windows(windows,chPts,evWinOverlap,evWin);
 
 end
 %%
-function chPts = combine2setsOfChPts(chPts1,chPts2,evWinOverlap)
+function chPts = combineChPts(chPts1,chPts2,evWinOverlap)
 
 % combines to sets of points removing ones from the second set that are too
 % close to any in the first set.
 % assumes chPts1 is the preferred one
+if isempty(chPts1)
+    chPts = chPts1;
+    return
+end
 
 if ~isempty(chPts2)
     chPts = chPts1;
@@ -89,7 +93,7 @@ if ~isempty(chPts2)
         end
         
     end
-else
+else % search w/i one set to remove them
     chPts = [chPts1(1)];
     for i=2:numel(chPts1)
         

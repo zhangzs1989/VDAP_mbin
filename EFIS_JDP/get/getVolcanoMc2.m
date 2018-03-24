@@ -47,6 +47,7 @@ end
 [F, H, Mc1 ] = Gutenberg(mags,0.1,minN,true);
 t1 = min(dtimes); t2 = max(dtimes); % time span network catalog near volcano
 if any(~isnan(Mc1))
+    set(get(H(1),'title'),'Interpreter','none')
     set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
     set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
     print(F,'-dpng',fullfile(outDir,['FMD_',catStr,'_',fixStringName(vinfo.name)]))
@@ -129,6 +130,7 @@ for i=1:length(allunits)-1
         %         if minNflag
         %             set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' closest events)'])
         %         else
+        set(get(H(1),'title'),'Interpreter','none')
         set(get(H(1),'title'),'String',[vinfo.name,' Magnitudes (',int2str(length(mags)),' events)'])
         %         end
         set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1a,23),' to ',datestr(t2a,23)])

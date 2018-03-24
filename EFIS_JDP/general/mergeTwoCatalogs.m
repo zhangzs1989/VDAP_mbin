@@ -173,7 +173,8 @@ for i=1:length(im2)
     catalog2(cat2i(im2(i))).Magnitude = catalog1(cat1i(i)).Magnitude;
 end
 %%
-%give merged resulting catalog all fields from both, right?
+%give merged resulting catalog all fields from both, RIGHT? NOT SURE, maybe
+%not
 c1fns = fieldnames(catalog1);
 c2fns = fieldnames(catalog2);
 c3fns = unique([c1fns;c2fns]);
