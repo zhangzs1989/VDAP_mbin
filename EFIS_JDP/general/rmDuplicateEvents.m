@@ -8,7 +8,7 @@ catalogO = catalog;
 I = ones(numel(catalog),1);
 
 k=0;
-while sum(I)~=0
+while sum(I)~=0 && numel(catalogO)>1
     k = k + 1;
     disp(['Pass #: ',int2str(k),'...']);
     I = findDuplicateEvents(catalogO,OTtol);
