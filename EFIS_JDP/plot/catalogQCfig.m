@@ -85,7 +85,7 @@ ax1.YColor = 'k';
 ylabel('Mag')
 xlabel('Date')
 ua2 = ua;
-title([vinfo.name,', ',vinfo.country,' (',int2str(numel(dts)),' events)'])
+title([vinfo.name,', ',vinfo.country,' (',int2str(numel(dts)),' events)'],'interpreter','none')
 % plot Mc
 if ~isempty(Mc)
     if size(Mc,2)==3 % could be two times per Mc (window) or just one from interp

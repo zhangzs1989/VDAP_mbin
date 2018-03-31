@@ -10,6 +10,12 @@ if nargin >= 5 %new eruption usages
     if ~ischar(varargin{2}); error('bad input'); end;
     outDirName = fullfile(varargin{2});
     
+    if nargin == 7
+        cstr = varargin{3};
+    else
+        cstr = 'ISC';
+    end
+    
     t1 = params.YearRange(1); t2 = params.YearRange(2);
     yr1 = str2int(datestr(t1,'yyyy')); mo1 = str2int(datestr(t1,'mm')); dy1 = str2int(datestr(t1,'dd'));
     yr2 = str2int(datestr(t2,'yyyy')); mo2 = str2int(datestr(t2,'mm')); dy2 = str2int(datestr(t2,'dd'));
@@ -24,7 +30,7 @@ else % original use
 end
 %% this function pulls an ISC catalog for a radius around a point
 % outDirName=fullfile(input.catalogsDir,fixStringName(vinfo.country),volcOutName);
-outCatName=fullfile(outDirName,['cat_ISC_',int2str(vinfo.Vnum)]);
+outCatName=fullfile(outDirName,['cat_',cstr,'_',int2str(vinfo.Vnum)]);
 odir = outDirName;
 [~,~,~] = mkdir(odir);
 
@@ -53,11 +59,11 @@ end
 depMax=params.DepthRange(2);
 minMag=params.MagRange(1);
 
-ofile = fullfile(odir,['ISC_CAT_',volcOutName,'.csv']);
-ofileL = fullfile(odir,['ISC_CAT_',volcOutName,'.log']);
+ofile = fullfile(odir,[cstr,'_CAT_',volcOutName,'.csv']);
+ofileL = fullfile(odir,[cstr,'_CAT_',volcOutName,'.log']);
 
-ofileMT = fullfile(odir,['ISC_FM_',volcOutName,'.csv']);
-ofileMTl = fullfile(odir,['ISC_FM_',volcOutName,'.log']);
+ofileMT = fullfile(odir,[cstr,'_FM_',volcOutName,'.csv']);
+ofileMTl = fullfile(odir,[cstr,'_FM_',volcOutName,'.log']);
 
 % s = dir(ofile);
 % s2 = dir(ofileMT);
@@ -69,12 +75,12 @@ if ~exist(ofileMT,'file') || ~exist(ofileMTl,'file')
     disp(['getting MT catalog from ISC...'])
     tag = 'FM';
     [status,result] = wgetGrabISCfile(shscript,volcOutName,...
-        lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofileMT,ofileMTl,tag);
+        lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofileMT,ofileMTl,tag,cstr);
     
     if status > 0
         pause(5) % pause and try again
         [status,result] = wgetGrabISCfile(shscript,volcOutName,...
-            lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofileMT,ofileMTl,tag);
+            lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofileMT,ofileMTl,tag,cstr);
     end
     
 else
@@ -87,12 +93,13 @@ if ~exist(ofile,'file') || ~exist(ofileL,'file')
     disp(['getting catalog from ISC...'])
     tag='CAT';
     [status,result] = wgetGrabISCfile(shscript,volcOutName,...
-        lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofile,ofileL,tag);
+        lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofile,ofileL,tag,cstr);
     
     if status > 0
+        disp('pause and try again...')
         pause(5) % pause and try again
         [status,result] = wgetGrabISCfile(shscript,volcOutName,...
-            lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofile,ofileL,tag);
+            lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofile,ofileL,tag,cstr);
     end
     
     if any(strfind(result,'exceeds'))
@@ -103,8 +110,8 @@ if ~exist(ofile,'file') || ~exist(ofileL,'file')
         for yr = yr1:yrInc:yr2
             disp(['Year ',int2str(yr),' to ',int2str(yr+yrInc)])
             [status,result] = wgetGrabISCfile(shscript,volcOutName,...
-                lat,lon,rad*reducFac,depMax*reducFac,minMag,yr,1,1,yr+yrInc,1,1,qual,tag,odir,ofile,tag);
-            ofile1 = fullfile(odir,['ISC_',volcOutName,'_',int2str(yr),'.csv']);
+                lat,lon,rad*reducFac,depMax*reducFac,minMag,yr,1,1,yr+yrInc,1,1,qual,tag,odir,ofile,tag,cstr);
+            ofile1 = fullfile(odir,[cstr,'_',volcOutName,'_',int2str(yr),'.csv']);
             cmd = sprintf('cp %s %s',ofile,ofile1);
             [~,~] = system(cmd);
         end
@@ -127,11 +134,14 @@ else
     catalog = [];
     for yr = yr1:yrInc:yr2
         disp(['Year ',int2str(yr),' to ',int2str(yr+yrInc)])
-        ofile1 = fullfile(odir,['ISC_',volcOutName,'_',int2str(yr),'.csv']);
+        ofile1 = fullfile(odir,[cstr,'_',volcOutName,'_',int2str(yr),'.csv']);
         catalog1 = import1ISCfile(ofile1);
         catalog1 = rmDuplicateEvents(catalog1,0);
         catalog = [catalog;catalog1];
     end
+end
+if isempty(catalog) && ~isempty(FMcatalog)
+    error('FATAL') % this happened once, why?? Rabaul
 end
 catalog = addFMs2catalog(catalog,FMcatalog);
 
@@ -141,7 +151,7 @@ if params.wingPlot
     t1a=datenum(yr1,mo1,dy1);
     t2a=datenum(yr2,mo2,dy2);
     catalog = filterTime( catalog, t1a, t2a);% wingplot ISC
-    figname=fullfile(outDirName,['map_ISC_',volcOutName]);
+    figname=fullfile(outDirName,['map_',cstr,'_',volcOutName]);
     fh_wingplot = wingPlot1(vinfo, t1a, t2a, catalog, mapdata, params,1);
     print(fh_wingplot,'-dpng',[figname,'.png'])
     close(fh_wingplot)
@@ -150,15 +160,15 @@ end
 end
 %%
 function [status,result] = wgetGrabISCfile(shscript,volcOutName,...
-    lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofile,ofileL,str)
+    lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,ofile,ofileL,str,cstr)
 
 erStr = 'Sorry';
 
-cmd = sprintf('%s %s %f %f %d %d %f %d %d %d %d %d %d %s %s %s',...
-    shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir);
+cmd = sprintf('%s %s %f %f %d %d %f %d %d %d %d %d %d %s %s %s %s',...
+    shscript,volcOutName,lat,lon,rad,depMax,minMag,yr1,mo1,dy1,yr2,mo2,dy2,qual,tag,odir,cstr);
 [status,result] = system(cmd);
 
-cmd2 = sprintf('echo "%s" > %s/ISC_%s_Request.sh',cmd,odir,str);
+cmd2 = sprintf('echo "%s" > %s/%s_%s_Request.sh',cmd,odir,cstr,str);
 [~,~] = system(cmd2);
 % disp(result)
 

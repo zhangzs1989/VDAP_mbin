@@ -2,6 +2,7 @@ function cinfo = getMcInWindow(t1,t2,catalog,minN,outDir,str)
 
 cinfo.Mc = [];
 cinfo.McDaily = [];
+[~,~,~] = mkdir(outDir);
 
 if isempty(catalog) || numel(catalog) < minN
     % assign default ISC Mc series
@@ -36,7 +37,7 @@ if any(~isnan(Mc1))
     set(get(H(1),'title'),'Interpreter','none')
     set(get(H(1),'title'),'String',[str,' Magnitudes (',int2str(length(mags)),' events)'])
     set(get(H(2),'title'),'String',['Gutenberg-Richter from ',datestr(t1,23),' to ',datestr(t2,23)])
-    print(F,'-dpng',fullfile(outDir,['FMD_',str]))
+    print(F,'-dpng',fullfile(outDir,str,'FMD'))
     close(F)
 end
 nt = floor(t2 - t1);
@@ -47,3 +48,4 @@ cinfo.McDaily = McDaily;
 cinfo.Mc = Mc1;
 
 
+end

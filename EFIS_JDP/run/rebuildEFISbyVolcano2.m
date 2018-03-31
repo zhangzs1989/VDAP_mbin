@@ -21,7 +21,7 @@ input.INGVcatalog = '/Users/jpesicek/Dropbox/Research/EFIS/INGV/catalogINGV.mat'
 %% wingPlot params
 params.coasts = true;
 params.wingPlot = true;
-params.topo = true;
+params.topo = false;
 params.visible = 'off';
 params.srad = [0 75];
 params.DepthRange = [-3 75]; % km
@@ -37,12 +37,17 @@ params.vname = 'all'; % options are 'vname' or 'all'
 % params.vname = {'St. Helens','Agung','Crater Lake','Augustine','Bogoslof','Rabaul'};
 params.country = 'all';
 params.getCats = false;
-params.getMc = true;
+params.getMc = false;
 
 % for filnal cat and plot
 paramsF = params;
 paramsF.srad = [0 35];
 paramsF.DepthRange = [-3 35];
+
+paramsISCr = params;
+paramsISCr.srad = [0 200];
+paramsISCr.DepthRange = [params.DepthRange(1) params.DepthRange(2)*2];
+
 %%
 % if isempty(gcp('nocreate'))
 %     disp('making parpool...')
@@ -68,7 +73,7 @@ diaryFileName = [input.catalogsDir,filesep,datestr(now,30),'_diary.txt'];
 diary(diaryFileName); disp(mfilename('fullpath'));disp(' ');disp(input);disp(' ');disp(params)
 tic
 %% NOW get and save volcano catalogs
-parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
+for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));
@@ -76,10 +81,10 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     disp(datetime)
     einfo = getEruptionInfoFromNameOrNum(vinfo.Vnum,eruptionCat);
     
-%     fname=fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'.fig']);
-%     if exist(fname,'file')
-%         continue
-%     end
+    %     fname=fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'.fig']);
+    %     if exist(fname,'file')
+    %         continue
+    %     end
     
     volcOutName = fixStringName(vinfo.name);
     outVinfoName=fullfile(vpath,['vinfo_',int2str(volcanoCat(i).Vnum),'.mat']);
@@ -88,10 +93,17 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, params.srad);
     mapdata = prep4WingPlot(vinfo,params,input,outer_ann,inner_ann);
     
+    %get regional reviewed ISC cat  NOTE FIX year range issue!!!!!!
+    
+%     [ outer_annr, inner_annr ] = getAnnulusm( vinfo.lat, vinfo.lon, paramsISCr.srad);
+%     mapdatar = prep4WingPlot(vinfo,paramsISCr,input,outer_annr,inner_annr);
+%     catalog_ISC = getISCcat(input,paramsISCr,vinfo,mapdatar,'REVIEWED',vpath,'ISCr');
+    
     if params.getCats
         %% get ISC catalog
         %     catalog_ISC = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.ISC,'ISC');
         catalog_ISC = getISCcat(input,params,vinfo,mapdata);
+        
         
         % look for and plot GEM events < 1964
         catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
@@ -99,17 +111,17 @@ parfor i=1:size(volcanoCat,1)  %% PARFOR APPROVED
         
         % LOCAL
         catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
-    
+        
         % compute MASTER catalog or load
         catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,params.getCats,paramsF);
     end
-        
-%     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
+    
+    %     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
     if params.wingPlot && params.getCats
         disp('Map figs...')
         F2 = catalogQCmap(catMaster,vinfo,params,mapdata);
         print(F2,fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'_map']),'-dpng')
-%         mkEruptionMapQCfigs(catMaster,einfo,vinfo,mapdata,params,vpath)
+        %         mkEruptionMapQCfigs(catMaster,einfo,vinfo,mapdata,params,vpath)
     end
     %%
     if params.getMc %  NOW DONE MAKING CATALOG, now Mc
