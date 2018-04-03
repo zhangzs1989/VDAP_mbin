@@ -7,7 +7,7 @@ readtext, RenameField
 
 clear
 
-ddir = '/Users/jpesicek/Dropbox/Research/efis/GVP/';
+ddir = '/Users/jpesicek/Dropbox/Research/EFIS/GVP/';
 filename='GVP_eruptions_with_ids_v2';
     
 [table, result]= readtext(fullfile(ddir,[filename,'.csv']),',','','"',''); % OGBURN FILE

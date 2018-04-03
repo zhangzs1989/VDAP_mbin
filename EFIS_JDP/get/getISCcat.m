@@ -16,9 +16,13 @@ if nargin >= 5 %new eruption usages
         cstr = 'ISC';
     end
     
-    t1 = params.YearRange(1); t2 = params.YearRange(2);
-    yr1 = str2int(datestr(t1,'yyyy')); mo1 = str2int(datestr(t1,'mm')); dy1 = str2int(datestr(t1,'dd'));
-    yr2 = str2int(datestr(t2,'yyyy')); mo2 = str2int(datestr(t2,'mm')); dy2 = str2int(datestr(t2,'dd'));
+    % case where input is datenum
+%     t1 = params.YearRange(1); t2 = params.YearRange(2);
+%     yr1 = str2int(datestr(t1,'yyyy')); mo1 = str2int(datestr(t1,'mm')); dy1 = str2int(datestr(t1,'dd'));
+%     yr2 = str2int(datestr(t2,'yyyy')); mo2 = str2int(datestr(t2,'mm')); dy2 = str2int(datestr(t2,'dd'));
+    % case where input is original integer year
+    yr1 = params.YearRange(1); mo1 = 1; dy1 = 1;
+    yr2 = params.YearRange(2); mo2 = 1; dy2 = 1;
     
 else % original use
     qual = 'COMPREHENSIVE';

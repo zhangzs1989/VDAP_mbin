@@ -99,8 +99,8 @@ for i=1:numel(eruptionCat)
     if isempty(eruptionCat(i).EndDate)
         eruptionCat(i).EndDate = datestr(datenum(eruptionCat(i).StartDate) + 1);
     end
-    plot([datetime(eruptionCat(i).StartDate),datetime(eruptionCat(i).StartDate)],[floor(min(mags)),ceil(max(mags))],'r-','LineWidth',1);
-    plot([datetime(eruptionCat(i).EndDate)+1,datetime(eruptionCat(i).EndDate)+1],[floor(min(mags)),ceil(max(mags))],'b-.');
+    plot([datetime(datevec(eruptionCat(i).StartDate)),datetime(datevec(eruptionCat(i).StartDate))],[floor(min(mags)),ceil(max(mags))],'r-','LineWidth',1);
+    plot([datetime(datevec(eruptionCat(i).EndDate))+1,datetime(datevec(eruptionCat(i).EndDate))+1],[floor(min(mags)),ceil(max(mags))],'b-.');
     
 end
 if ~isempty(eruptionCat)
