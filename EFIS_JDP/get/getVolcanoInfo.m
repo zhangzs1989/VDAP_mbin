@@ -20,6 +20,7 @@ vinfo.lat  = extractfield(volcanoCat(ii),'Latitude');
 vinfo.lon  = extractfield(volcanoCat(ii),'Longitude');
 vinfo.elev = extractfield(volcanoCat(ii),'Elevation');
 vinfo.SHmax= extractfield(volcanoCat(ii),'SHmax');
+vinfo.StressRegime = extractfield(volcanoCat(ii),'Regime');
 vinfo.Vnum = volcanoCat(ii).Vnum;
 vinfo.type = volcanoCat(ii).GVP_morph_type;
 vinfo.tectonic = volcanoCat(ii).tectonic;
