@@ -29,7 +29,7 @@ params.MagRange = [0 10];
 params.YearRange = [1964 2018];
 params.maxEvents2plot = 7500;
 params.vname = 'all'; % options are 'vname' or 'all'
-params.country = 'all';
+params.country = 'Russia';
 params.getCats = false;
 
 paramsISCr = params;
@@ -52,7 +52,7 @@ diaryFileName = [input.catalogsDir,filesep,datestr(now,30),'_diary.txt'];
 diary(diaryFileName); disp(mfilename('fullpath'));disp(' ');disp(input);disp(' ');disp(params)
 tic
 %% NOW get and save volcano catalogs
-for i=114:size(volcanoCat,1)  %% PARFOR APPROVED
+for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     
     [vinfo] = getVolcanoInfo(volcanoCat,[],i);
     vpath = fullfile(input.catalogsDir,fixStringName(vinfo.country),fixStringName(vinfo.name));

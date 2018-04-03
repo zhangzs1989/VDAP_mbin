@@ -90,7 +90,12 @@ if ~exist(ofileMT,'file') || ~exist(ofileMTl,'file')
 else
     disp('using existing ISC MT catalog')
 end
-FMcatalog = import1ISC_MTfile(ofileMT);
+try
+    FMcatalog = import1ISC_MTfile(ofileMT);
+catch
+    warning('FM import ERROR')
+    return
+end
 %% EQ catalog
 if ~exist(ofile,'file') || ~exist(ofileL,'file')
     
