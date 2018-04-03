@@ -26,12 +26,24 @@ for i=1:length(times)
     if isempty(catalog(i).DEPTH)
         catalog(i).DEPTH = NaN;
     end
+    if isempty(catalog(i).MAG)
+        catalog(i).MAG = NaN;
+    end    
 end
 
 %match fields to old EFIS catalog format
 catalog = RenameField(catalog,{'LAT','LON','DEPTH','MAG'},{'Latitude','Longitude','Depth','Magnitude'});
 catalog = rmfield(catalog,{'DATE','TIME'});
 
+% Lat = extractfield(catalog, 'Latitude');
+% Lon = extractfield(catalog, 'Longitude');
+% Depth = extractfield(catalog, 'Depth');
+% DateTime = datenum(extractfield(catalog, 'DateTime'));
+% Magnitude = extractfield(catalog, 'Magnitude');
+% 
+% if numel(Lat) ~= numel(Lon) || numel(Lat) ~= numel(Depth) || numel(Lat) ~= numel(DateTime) || numel(Lat) ~= numel(Magnitude)
+%     warning('BAD event data')    
+% end
 % % QC it:
 % elat = extractfield(catalog, 'Latitude');
 % elong = extractfield(catalog, 'Longitude');
