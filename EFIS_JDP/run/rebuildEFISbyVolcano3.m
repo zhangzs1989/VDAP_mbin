@@ -28,8 +28,8 @@ params.DepthRange = [-3 75]; % km
 params.MagRange = [0 10];
 params.YearRange = [1964 2018];
 params.maxEvents2plot = 7500;
-params.vname = 'all'; % options are 'vname' or 'all'
-params.country = 'Russia';
+params.vname = 'Abu'; % options are 'vname' or 'all'
+params.country = 'all';
 params.getCats = false;
 
 paramsISCr = params;
