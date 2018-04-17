@@ -78,27 +78,55 @@ end
 % add for topo
 if params.topo
     disp('  topo...')
-    %     try
-    %         layers = wmsfind('nasa.network*elev', 'SearchField', 'serverurl');
-    %         layers = wmsupdate(layers);
-    %         srtmplus = layers.refine('srtm30', 'SearchField', 'layername');
-    %         cellSize = dms2degrees([0 0 10]);
-    %         [ZA, RA] = wmsread(srtmplus, 'Latlim', latlim, 'Lonlim', lonlim, ...
-    %             'CellSize', cellSize, 'ImageFormat', 'image/bil','RelTolCellSize',0.01);
-    %
-    %         mapdata.ZA = ZA;
-    %         mapdata.RA = RA;
-    %     catch
+    
     try % temp fix for NASA server move issue being fixed by matlab 1/5/17
-        % NOTE: sometimes wmsinfo hangs on VPN but not always reproducible
-        info =wmsinfo('https://data.worldwind.arc.nasa.gov/elev?');
+                
+        url = 'https://data.worldwind.arc.nasa.gov/elev?REQUEST=GetCapabilities&VERSION=1.3.0&SERVICE=WMS';
+        xmlinfo = webread(url);
+        info = WMSCapabilities(url,xmlinfo);
+        
         layers = info.Layer; % instead of layers = wmsfind('nasa.network*elev', 'SearchField', 'serverurl')
         layers = wmsupdate(layers);
         srtmplus = layers.refine('srtm30', 'SearchField', 'layername');
         cellSize = dms2degrees([0 0 10]);
-        [ZA, RA] = wmsread(srtmplus, 'Latlim', latlim, 'Lonlim', lonlim, ...
-            'CellSize', cellSize, 'ImageFormat', 'image/bil','RelTolCellSize',0.01);
+        cellSize(2) = cellSize(1);
         
+        %% Calculate ImageHeight and ImageWidth based on CellSize.
+        mapRequest = WMSMapRequest(srtmplus);
+        mapRequest.Latlim = latlim;
+        mapRequest.Lonlim = lonlim;
+        rasterExtentInLat = diff(mapRequest.Latlim);
+        rasterExtentInLon = diff(mapRequest.Lonlim);
+        
+        imageHeight = round(rasterExtentInLat/cellSize(1));
+        imageWidth = round(rasterExtentInLon/cellSize(2));
+        mapRequest.ImageHeight = imageHeight;
+        mapRequest.ImageWidth = imageWidth;
+        
+        %% Use websave rather than wmsread.
+        % [Z,R] = wmsread(srtmplus, 'Latlim', latlim, 'Lonlim', lonlim, ...
+        %     'CellSize', cellSize, 'ImageFormat', 'image/bil','RelTolCellSize',0.01);
+        url = mapRequest.RequestURL;
+        filename = fullfile(input.outDir,'wmsimage.dat');
+        websave(filename,url);
+        
+        %% Create rows and cols for image.
+        rows = mapRequest.ImageHeight;
+        cols = mapRequest.ImageWidth;
+        
+        %% This info is known because we know what the server is sending.
+        bands = 1;
+        precision = 'int16';
+        precision = [precision '=>' precision];
+        imageSize = [rows, cols, bands];
+        
+        %% Need to use multbandread since the data is binary (not an image file)
+        ZA = multibandread(filename, imageSize, precision, 0, 'bil', 'ieee-le');
+        RA = mapRequest.RasterReference;
+        
+%         [ZA, RA] = wmsread(srtmplus, 'Latlim', latlim, 'Lonlim', lonlim, ...
+%             'CellSize', cellSize, 'ImageFormat', 'image/bil','RelTolCellSize',0.01);
+%         
         mapdata.ZA = ZA;
         mapdata.RA = RA;
     catch

@@ -1,6 +1,8 @@
 function eruptionCat = temporalCatalogFilter(eruptionCat,t1,t2)
 
-yr = extractfield(eruptionCat,'start_year');
+yr = (extractfield(eruptionCat,'StartDate'));
+yr = str2num(datestr(datenum(yr),'yyyy'));
+
 I = (datenum(yr,1,1) >= t1 & datenum(yr,1,1) < t2);
 
 % I = logical([1;I]);
