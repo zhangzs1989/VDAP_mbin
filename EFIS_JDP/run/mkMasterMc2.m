@@ -35,7 +35,8 @@ end
 % use all local eqs
 vn = ~isnan(vmc);
 ln = ~isnan(lmc);
-mMc = iscMc';
+% mMc = iscMc'; % use ISC average to fill gaps
+mMc = nan(length(iscMc'),1); % do not fill gaps
 mMc(vn) = vmc(vn);
 mMc(ln) = lmc(ln);
 

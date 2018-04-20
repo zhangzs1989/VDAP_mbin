@@ -4,7 +4,7 @@ find duplicate events w/i some tolerance. If duplicates are found,
 the one with the larger mag is taken.
 
 requires a 'DateTime' field and 'Magnitude' fields only
-J. PESICEK 
+J. PESICEK
 %}
 validateattributes(OTtol, {'numeric'}, ...
     {'nonnegative','finite','vector'}, mfilename, 'OTtol')
@@ -66,9 +66,20 @@ for i=1:numel(dts)
         end
         
         % pick one with bigger mag
-        if catalog(e1).Magnitude == catalog(e2).Magnitude 
-            warning('Mags are same, choosing preferred event arbitrarily')
-            catalog(e1).Magnitude = catalog(e1).Magnitude + .01;
+        if catalog(e1).Magnitude == catalog(e2).Magnitude
+            if isfield(catalog,'dist') % added for filtering based on proximity of other feature (i.e. volcano)
+                
+                disp('choosing preferred event based on DIST field')
+                if catalog(e1).dist < catalog(e2).dist
+                    catalog(e1).Magnitude = catalog(e1).Magnitude + .01;
+                else
+                    catalog(e2).Magnitude = catalog(e2).Magnitude + .01;
+                end
+                
+            else
+                warning('Mags are same, choosing preferred event arbitrarily')
+                catalog(e1).Magnitude = catalog(e1).Magnitude + .01;
+            end
         end
         if catalog(e1).Magnitude > catalog(e2).Magnitude || isnan(catalog(e2).Magnitude)
             ID2(i) = true;

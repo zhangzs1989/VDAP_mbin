@@ -13,6 +13,18 @@ vinfo.elevs = vcoords(:,3);
 lon = vinfo.Longitude;
 lon(lon<0)=lon(lon<0)+360;
 % figure, plot(lon,lat,'.') % should look like an arc
+%%
+% remove eruptions at volcanoes not in list
+e = extractfield(eruptionCat,'Vnum'); %volcanoes with eruptions since 1996
+v = extractfield(volcanoCat,'Vnum');
+C = intersect(e,v);
+
+iii = [];
+for i=1:length(C)
+    ii = structfind(eruptionCat,'Vnum',C(i));
+    iii = [iii; ii];
+end
+eruptionCat = eruptionCat(iii); % the set of volcs with no eruptions since 96
 
 %%
 if isfield(input,'polygonFilter')

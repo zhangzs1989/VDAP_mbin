@@ -23,7 +23,7 @@ parsave_struct(outMcInfoName,McL);
 [MasterMc,H] = mkMasterMc2(vinfo,McG,McV,McL,catalogMaster,params);
 
 print(H,'-dpng',fullfile(vpath,['Mc_MASTER_',fixStringName(vinfo.name)]))
-savefig(H,fullfile(vpath,['Mc_MASTER_',fixStringName(vinfo.name)]))
+% savefig(H,fullfile(vpath,['Mc_MASTER_',fixStringName(vinfo.name)]))
 
 outMcInfoName=fullfile(vpath,['Mc_MASTER_',int2str(vinfo.Vnum),'.mat']);
 parsave_struct(outMcInfoName,MasterMc);
