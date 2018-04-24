@@ -28,9 +28,9 @@ params.DepthRange = [-3 75]; % km
 params.MagRange = [0 10];
 params.YearRange = [1964 2018];
 params.maxEvents2plot = 7500;
-params.vname = 'Abu'; % options are 'vname' or 'all'
+params.vname = 'llopongo'; % options are 'vname' or 'all'
 params.country = 'all';
-params.getCats = false;
+params.getCats = true;
 
 paramsISCr = params;
 paramsISCr.srad = [0 200];
@@ -64,39 +64,39 @@ for i=1:size(volcanoCat,1)  %% PARFOR APPROVED
     outVinfoName=fullfile(vpath,['vinfo_',int2str(volcanoCat(i).Vnum),'.mat']);
     [~,~,~] = mkdir(vpath);
     
-%     [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, params.srad);
-%     mapdata = prep4WingPlot(vinfo,params,input,outer_ann,inner_ann);
-%     
+    [ outer_ann, inner_ann ] = getAnnulusm( vinfo.lat, vinfo.lon, params.srad);
+    mapdata = prep4WingPlot(vinfo,params,input,outer_ann,inner_ann);
+    
     %get regional reviewed ISC cat  NOTE FIX year range issue!!!!!!
     
-    [ outer_annr, inner_annr ] = getAnnulusm( vinfo.lat, vinfo.lon, paramsISCr.srad);
-    mapdatar = prep4WingPlot(vinfo,paramsISCr,input,outer_annr,inner_annr);
-    catalog_ISC = getISCcat(input,paramsISCr,vinfo,mapdatar,'REVIEWED',vpath,'ISCr');
+%     [ outer_annr, inner_annr ] = getAnnulusm( vinfo.lat, vinfo.lon, paramsISCr.srad);
+%     mapdatar = prep4WingPlot(vinfo,paramsISCr,input,outer_annr,inner_annr);
+%     catalog_ISC = getISCcat(input,paramsISCr,vinfo,mapdatar,'REVIEWED',vpath,'ISCr');
     
-%     if params.getCats
-%         %% get ISC catalog
-%         %     catalog_ISC = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.ISC,'ISC');
-%         catalog_ISC = getISCcat(input,params,vinfo,mapdata);
-%         
-%         
-%         % look for and plot GEM events < 1964
-%         catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
-%         [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
-%         
-%         % LOCAL
-%         catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
-%         
-%         % compute MASTER catalog or load
-%         catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,params.getCats,paramsF);
-%     end
-%     
-%     %     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
-%     if params.wingPlot && params.getCats
-%         disp('Map figs...')
-%         F2 = catalogQCmap(catMaster,vinfo,params,mapdata);
-%         print(F2,fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'_map']),'-dpng')
-%         %         mkEruptionMapQCfigs(catMaster,einfo,vinfo,mapdata,params,vpath)
-%     end
+    if params.getCats
+        %% get ISC catalog
+        %     catalog_ISC = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogs.ISC,'ISC');
+        catalog_ISC = getISCcat(input,params,vinfo,mapdata);
+        
+        
+        % look for and plot GEM events < 1964
+        catalog_gem = getVolcCatFromLargerCat(input,params,vinfo,mapdata,catalogStruct.GEM,'GEM');
+        [catalog_ISC,~] = mergeTwoCatalogs(catalog_gem,catalog_ISC);
+        
+        % LOCAL
+        catalog_local = getLocalCatalog(catalogStruct,input,params,vinfo,mapdata,vinfo.country);
+        
+        % compute MASTER catalog or load
+        catMaster = mkMasterCatalog(vinfo,vpath,input,params,mapdata,catalog_ISC,catalog_local,params.getCats,paramsF);
+    end
+    
+    %     [CatalogStatus,catNames] = check4catalogs(vpath,vinfo.Vnum,input.localCatDir);
+    if params.wingPlot && params.getCats
+        disp('Map figs...')
+        F2 = catalogQCmap(catMaster,vinfo,params,mapdata);
+        print(F2,fullfile(vpath,['QC_MASTER_',int2str(vinfo.Vnum),'_map']),'-dpng')
+        %         mkEruptionMapQCfigs(catMaster,einfo,vinfo,mapdata,params,vpath)
+    end
     %%
     if strcmpi(params.vname,'all')
         close all
