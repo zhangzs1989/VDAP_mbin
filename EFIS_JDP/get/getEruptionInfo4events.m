@@ -14,10 +14,6 @@ for j=1:numel(catalog)
     %     plotm(extractfield(catalog,'Latitude'),extractfield(catalog,'Longitude'),'b.')
     %     plotm(extractfield(volcanoCat_j,'Latitude'),extractfield(volcanoCat_j,'Longitude'),'r.')
     
-    catalog(j).eruptID = NaN;
-    catalog(j).DayLag = NaN;
-    catalog(j).coEruptive = NaN;
-    
     if isempty(volcanoCat_j)
         continue
     end
@@ -36,50 +32,64 @@ for j=1:numel(catalog)
             else
                 edata(ii).EndDate=(einfo(l).EndDate);
             end
-            edata(ii).VEI = einfo(l).VEI;
-            edata(ii).eruptID = einfo(l).eruptID;
-            edata(ii).repose = einfo(l).repose;
+            %             edata(ii).VEI = einfo(l).VEI;
+            %             edata(ii).repose = einfo(l).repose;
             
-            edata(ii).name = einfo(l).name;
+            %             edata(ii).name = einfo(l).name;
+            edata(ii).eruptID = einfo(l).eruptID;
             edata(ii).Vnum = einfo(l).Vnum;
         end
         
     end
     
     if ~isempty(edata)
+        
         eqtime = datenum(catalog(j).DateTime);
-        estart=datenum(extractfield(edata,'StartDate'));
-        estop= datenum(extractfield(edata,'EndDate'));
-        dayLags = estart-floor(eqtime); % this makes eqs on eruption day to have zero lag.
-        I = (eqtime <= estop & ceil(eqtime) > estart); %those during eruption, but not on eruption day
-        si = sign(dayLags)>-1; % includes those events on eruption day, which I consider Pre-eruptive
-        [Y,~] = min(dayLags(si));
+        estarts=datenum(extractfield(edata,'StartDate'));
+        estops= datenum(extractfield(edata,'EndDate'));
+        eruptIDs= extractfield(edata,'eruptID');
+
+        [E,ie] = addEinfo2event(eqtime,estarts,estops,eruptIDs);
         
-        % NOTE: GVP has no eruption times, only dates!!
-        % Thus, ASSUME that if an event is on the day of the eruption, that it
-        % is a precursor to the eruption. Only count it once as preEruptive,
-        % not also synEruptive
+        %         dayLags = estart-floor(eqtime); % this makes eqs on eruption day to have zero lag.
+        %         I = (ceil(eqtime) <= estop & floor(eqtime) > estart); %those during eruption, but not on eruption day
+        %         si = sign(dayLags) >= 0; % includes those events on eruption day, which I consider Pre-eruptive
+        %         [Y,~] = min(dayLags(si));
+        %
+        %         if ~isempty(Y)
+        %             ie = dayLags==Y; % index of soonest eruption after event
+        %             catalog(j).EruptID = edata(ie).eruptID;
+        %             catalog(j).DayLag = Y; % lag from event to eruption, zero means on same day, but assume before
+        %         else % no eruptions following, all before
+        %             catalog(j).EruptID = NaN;
+        %             catalog(j).DayLag = NaN;
+        % %             catalog(j).coEruptive = NaN;
+        %         end
+        %
+        %         catalog(j).coEruptive = sum(I);%those during eruption, but not on eruption day
         
-        if ~isempty(Y)
-            ie = dayLags==Y; % index of soonest eruption after event
-            catalog(j).eruptID = edata(ie).eruptID;
-            catalog(j).DayLag = Y; % lag from event to eruption, zero means on same day, but assume before
-        else % no eruptions following, all before
+        fn = fieldnames(E);
+        for ii=1:numel(fn)
+            catalog(j).(fn{ii}) = E.(fn{ii});
+        end
+        
+        if isempty(ie)
             continue
         end
-        catalog(j).coEruptive = sum(I);%those during eruption, but not on eruption day
-        catalog(j).name = edata(ie).name;
-        catalog(j).Vnum = edata(ie).Vnum;
-        
-        %         disp(edata(ie))
-        % add volcano fields?
+        %% add all fields to output line
         vinfo = getVolcanoInfoFromNameOrNum(edata(ie).Vnum,volcanoCat_j);
-        
-        catalog(j).composition = vinfo.composition;
-        catalog(j).type = vinfo.type;
-        catalog(j).tectonic = vinfo.tectonic;
-        [ARCLEN, ~] = distance(catalog(j).Latitude,catalog(j).Longitude,vinfo.lat,vinfo.lon);
+        try
+            vinfo = rmfield(vinfo,{'Latitude','Longitude','elevs'});
+        end
+        fn = fieldnames(vinfo);
+        for ii=1:numel(fn)
+            catalog(j).(fn{ii}) = vinfo.(fn{ii});
+        end
+        %%
+        [ARCLEN, AZ] = distance(catalog(j).Latitude,catalog(j).Longitude,vinfo.lat,vinfo.lon);
         catalog(j).dist = deg2km(ARCLEN);
+        catalog(j).azi = AZ;
+        
     end
 end
 
