@@ -114,7 +114,7 @@ Region = rawCellColumns(:, 4);
 %%
 for i=1:length(Date)-1
     
-    dts(i) = datenum([char(Date(i+1)),' ',char(Time(i+1))]);
+    dts(i) = datenum([char(Date(i)),' ',char(Time(i))]);
     
     catalog(i).Latitude = Latitude(i);
     catalog(i).Longitude = Longitude(i);
