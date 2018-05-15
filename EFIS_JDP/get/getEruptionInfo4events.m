@@ -48,7 +48,7 @@ for j=1:numel(catalog)
         estarts=datenum(extractfield(edata,'StartDate'));
         estops= datenum(extractfield(edata,'EndDate'));
         eruptIDs= extractfield(edata,'eruptID');
-
+        
         [E,ie] = addEinfo2event(eqtime,estarts,estops,eruptIDs);
         
         %         dayLags = estart-floor(eqtime); % this makes eqs on eruption day to have zero lag.
@@ -89,8 +89,13 @@ for j=1:numel(catalog)
         [ARCLEN, AZ] = distance(catalog(j).Latitude,catalog(j).Longitude,vinfo.lat,vinfo.lon);
         catalog(j).dist = deg2km(ARCLEN);
         catalog(j).azi = AZ;
-        
+    else
+        catalog(j).coEruptive = 0;
+        catalog(j).DayLag = NaN;
+        catalog(j).EruptID = NaN;
     end
+    
+    
 end
 
 
