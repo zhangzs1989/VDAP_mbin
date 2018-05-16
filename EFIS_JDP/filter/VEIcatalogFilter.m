@@ -4,7 +4,13 @@ function eruptionCat = VEIcatalogFilter(eruptionCat,params)
 
 max_vei=extractfield(eruptionCat,'VEI_max');
 
-I = max_vei >= params.VEI(1) & max_vei <= params.VEI(2);
+if numel(params.VEI) == 2
+    I = max_vei >= params.VEI(1) & max_vei <= params.VEI(2);
+elseif numel(params.VEI) == 1
+    I = max_vei >= params.VEI(1);
+else
+    error('bad VEI param')
+end
 % I = logical([1;I]);
 eruptionCat = eruptionCat(I,:);
 if sum(I)>0
