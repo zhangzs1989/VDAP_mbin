@@ -1,9 +1,0 @@
-%% params for ISC build
-params.srad = [0 500];
-params.DepthRange = [-3 70]; % km
-params.MagRange = [0 10];
-params.YearRange = [1964 2015];
-%params.polygonFilterSwitch = 'in';
-%params.polygonBuffer = 1; % in degrees %NOTE: CAREFUL: helps get volancoes offshore but also in neighboring countries
-params.McMinN = 100;
-params.smoothDayFac = round(365*1);
